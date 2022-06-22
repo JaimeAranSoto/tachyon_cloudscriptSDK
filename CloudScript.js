@@ -61,8 +61,8 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 
     if (weapon == null) {
-        console.log("Weapon is not in player's inventory");
-        return "Weapon is not in player's inventory";
+        log.debug("Weapon is not in player's inventory");
+        return;
     }
 
     var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
