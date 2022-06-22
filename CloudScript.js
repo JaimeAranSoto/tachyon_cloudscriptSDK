@@ -21,3 +21,17 @@ handlers.GainXP = function (args) {
     var result = server.UpdatePlayerStatistics(request);
     return newXP;
 }
+
+getTimeToUpgradeWeapon = function (formula, currentLevel){
+    // switch(formula)
+    // {
+
+    // }
+    return Math.pow(currentLevel+1, 3) - Math.pow(currentLevel, 3);
+}
+
+handlers.UgradeWeapon = function(args){
+
+    var weaponInstanceId = args.weaponInstanceId;
+    // server.GetUserInventory
+}
