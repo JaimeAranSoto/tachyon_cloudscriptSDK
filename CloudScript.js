@@ -34,6 +34,18 @@ handlers.UgradeWeapon = function (args) {
 
     var weaponInstanceId = args.weaponInstanceId;
 
-    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: {UpgradeTime: Date.now()}});
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    var weaponLevel;
 
+    for (var i = 0; i < inventory.length; i++) {
+        if (inventory[i].InstanceId == weaponInstanceId) {
+            weaponLevel = inventory[i].CustomData["Level"];
+        }
+    }
+
+    if (weaponLevel == null) {
+        weaponLevel = 1;
+    }
+    weaponLevel++;
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel } });
 }
