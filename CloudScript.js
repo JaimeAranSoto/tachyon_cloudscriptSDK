@@ -55,6 +55,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     var weapon;
 
     for (var i = 0; i < inventory.length; i++) {
+        log.debug("Weapon found: " + inventory[i].InstanceId);
         if (inventory[i].InstanceId == weaponInstanceId) {
             weapon = inventory[i];
         }
