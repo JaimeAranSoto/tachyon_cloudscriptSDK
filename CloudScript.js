@@ -22,16 +22,22 @@ handlers.GainXP = function (args) {
     return newXP;
 }
 
-getTimeToUpgradeWeapon = function (formula, currentLevel){
+getTimeToUpgradeWeapon = function (formula, currentLevel) {
     // switch(formula)
     // {
 
     // }
-    return Math.pow(currentLevel+1, 3) - Math.pow(currentLevel, 3);
+    return Math.pow(currentLevel + 1, 3) - Math.pow(currentLevel, 3);
 }
 
-handlers.UgradeWeapon = function(args){
+handlers.UgradeWeapon = function (args) {
 
     var weaponInstanceId = args.weaponInstanceId;
-    // server.GetUserInventory
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+
+    for (var i = 0; i < inventory.length; i++) {
+        if (inventory[i].InstanceId == weaponInstanceId) {
+            inventory[i].CustomData["UpgradeTime"] = Date.now();
+        }
+    }
 }
