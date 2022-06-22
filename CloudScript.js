@@ -50,8 +50,8 @@ handlers.UpdateWeaponUpgrade = function (args) {
     //Prevent cheating...
 
     var weaponInstanceId = args.weaponInstanceId;
-
-    var inventory = server.GetUserInventory();
+    log.debug("Player id: " + currentPlayerId);
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
     var weapon;
 
     log.debug("Player's inventory length: " + inventory.length);
