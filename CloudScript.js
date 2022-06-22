@@ -1,3 +1,9 @@
+getPlayerStatisticByName = function (statName) {
+    let result = server.GetPlayerStatistics({ PlayFabId: currentPlayerId, StatisticNames: statName });
+    log.info(result.Statistics);
+    let statistic = result.Statistics[0];
+    return statistic.Value;
+}
 
 handlers.GainXP = function (args) {
 
