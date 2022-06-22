@@ -23,13 +23,10 @@ handlers.GainXP = function (args) {
 }
 
 function GetTimeToUpgradeWeapon(formula, currentLevel) {
-    return Math.pow(currentLevel + 1, 3) - Math.pow(currentLevel, 3); //assuming n^3 formula
-    //should return miliseconds!!!!
+    return (Math.pow(currentLevel + 1, 3) - Math.pow(currentLevel, 3)) * 1000; //assuming (level+1)^3 - level^3 formula
 }
 
-handlers.UgradeWeapon = function (args) {
-
-    var weaponInstanceId = args.weaponInstanceId;
+function UpgradeWeapon(weaponInstanceId, currentPlayerId) {
 
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
     var weaponLevel;
@@ -63,12 +60,17 @@ handlers.UpdateWeaponUpgrade = function (args) {
         }
     }
 
+    if (weapon == null) {
+        console.log("Weapon is not in player's inventory");
+        return;
+    }
+
     var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
 
     if (weaponUpgradeTimestamp != null && weaponUpgradeTimestamp > 0) {
 
         if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
-
+            UpgradeWeapon(weaponInstanceId, currentPlayerId);
         }
         return; //The weapon is already upgrading...
     }
