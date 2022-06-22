@@ -19,5 +19,5 @@ handlers.GainXP = function (args) {
         }]
     };
     var result = server.UpdatePlayerStatistics(request);
-    return result.response;
+    return newXP;
 }
