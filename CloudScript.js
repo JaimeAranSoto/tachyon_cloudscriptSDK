@@ -54,7 +54,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
     var weapon;
 
-    log.debug("Player's inventory length: " + inventory.length);
+    log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
     for (var i = 0; i < inventory.length; i++) {
         log.debug("Weapon found: " + inventory[i].InstanceId);
         if (inventory[i].InstanceId == weaponInstanceId) {
