@@ -33,11 +33,7 @@ getTimeToUpgradeWeapon = function (formula, currentLevel) {
 handlers.UgradeWeapon = function (args) {
 
     var weaponInstanceId = args.weaponInstanceId;
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
 
-    for (var i = 0; i < inventory.length; i++) {
-        if (inventory[i].InstanceId == weaponInstanceId) {
-            inventory[i].CustomData["UpgradeTime"] = Date.now();
-        }
-    }
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: {UpgradeTime: Date.now()}});
+
 }
