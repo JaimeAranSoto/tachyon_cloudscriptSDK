@@ -1,7 +1,0 @@
-{
-    "default": {
-        "buildFlags": "requiresoptionalvaluesupport",
-        "templateFolder": "SdkTestingCloudScript",
-        "versionKey": "sdktestingcloudscript"
-    }
-}
