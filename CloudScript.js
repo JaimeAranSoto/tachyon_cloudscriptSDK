@@ -23,8 +23,13 @@ handlers.GainXP = function (args) {
 }
 
 GetTimeToUpgradeWeapon = function (formula, currentLevel) {
-    var a = (currentLevel + 1) * (currentLevel + 1);
-    var b = currentLevel * currentLevel;
+
+    // var a = (currentLevel + 1) * (currentLevel + 1);
+    // var b = currentLevel * currentLevel;
+    // var result = (a - b) * 1000;
+
+    var a = (1 + 1) * (1 + 1);
+    var b = 1 * 1;
     var result = (a - b) * 1000;
     log.debug("a", a);
     log.debug("b", b);
