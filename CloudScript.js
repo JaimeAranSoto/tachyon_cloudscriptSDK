@@ -79,7 +79,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
-    if (weapon.CustomData.UpgradeTimeStamp === undefined) {
+    if (weapon.CustomData.UpgradeTimeStamp === undefined || weapon.CustomData.UpgradeTimeStamp == -1) {
         var upgradeTimeStamp = Date.now();
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
     } else {
@@ -93,6 +93,8 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: -1 } });
+
     }
 
     var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
