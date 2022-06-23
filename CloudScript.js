@@ -66,7 +66,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     if (weapon === undefined || weapon == null) {
         log.debug("Weapon is not in player's inventory");
-        return;
+        return null;
     }
 
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
@@ -88,5 +88,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
+    var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
+    return timeRemaining;
 }
 
