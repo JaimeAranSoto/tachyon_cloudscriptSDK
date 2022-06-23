@@ -32,7 +32,7 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     var weaponLevel;
 
     for (var i = 0; i < inventory.length; i++) {
-        if (inventory[i].InstanceId == weaponInstanceId) {
+        if (inventory[i].ItemInstanceId == weaponInstanceId) {
             weaponLevel = inventory[i].CustomData["Level"];
         }
     }
@@ -56,8 +56,8 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
     for (var i = 0; i < inventory.length; i++) {
-        log.debug("Weapon found: " + inventory[i].InstanceId);
-        if (inventory[i].InstanceId == weaponInstanceId) {
+        log.debug("Weapon found: " + inventory[i].ItemInstanceId);
+        if (inventory[i].ItemInstanceId == weaponInstanceId) {
             weapon = inventory[i];
         }
     }
