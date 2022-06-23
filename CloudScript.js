@@ -28,8 +28,8 @@ GetTimeToUpgradeWeapon = function (formula, currentLevel) {
     // var b = currentLevel * currentLevel;
     // var result = (a - b) * 1000;
 
-    var a = (1 + 1) * (1 + 1);
-    var b = 1 * 1;
+    var a = Math.pow(1 + 1, 2);
+    var b = Math.pow(1, 2);
     var result = (a - b) * 1000;
     log.debug("a", a);
     log.debug("b", b);
