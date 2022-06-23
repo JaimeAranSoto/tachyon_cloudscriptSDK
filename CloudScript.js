@@ -83,7 +83,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
         var upgradeTimeStamp = Date.now();
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
     } else {
-        var upgradeTimeStamp = weapon.CustomData.UpgradeTimeStamp;
+        var upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
     }
 
     var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
