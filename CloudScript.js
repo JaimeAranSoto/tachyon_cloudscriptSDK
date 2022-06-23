@@ -1,4 +1,4 @@
-function GetPlayerStatisticByName(statName) {
+GetPlayerStatisticByName = function (statName) {
     let result = server.GetPlayerStatistics({ PlayFabId: currentPlayerId, StatisticNames: statName });
     log.info(result.Statistics);
     let statistic = result.Statistics[0];
@@ -22,13 +22,13 @@ handlers.GainXP = function (args) {
     return newXP;
 }
 
-function GetTimeToUpgradeWeapon(formula, currentLevel) {
+GetTimeToUpgradeWeapon = function (formula, currentLevel) {
     return (Math.pow(currentLevel + 1, 3) - Math.pow(currentLevel, 3)) * 1000; //assuming (level+1)^3 - level^3 formula
 }
 
-function UpgradeWeapon(weaponInstanceId, currentPlayerId) {
+UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
 
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var weaponLevel;
 
     for (var i = 0; i < inventory.length; i++) {
@@ -51,7 +51,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     var weaponInstanceId = args.weaponInstanceId;
     log.debug("Player id: " + currentPlayerId);
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var weapon;
 
     log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
