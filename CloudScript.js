@@ -69,7 +69,8 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return;
     }
 
-    log.debug("Custom Data", weapon.CustomData, Date.now());
+    log.debug("Custom Data", weapon.CustomData);
+    log.debug("Current TimeStamps", Date.now());
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
