@@ -62,7 +62,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
         }
     }
 
-    if (weapon == undefined) {
+    if (weapon === undefined) {
         log.debug("Weapon is not in player's inventory");
         return;
     } else {
