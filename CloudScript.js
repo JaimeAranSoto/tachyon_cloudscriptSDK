@@ -23,7 +23,11 @@ handlers.GainXP = function (args) {
 }
 
 GetTimeToUpgradeWeapon = function (formula, currentLevel) {
-    return (Math.pow(currentLevel + 1, 2) - Math.pow(currentLevel, 2)) * 1000; //assuming (level+1)^2 - level^2 formula
+    var a = (currentLevel + 1) * (currentLevel + 1);
+    var b = currentLevel * currentLevel;
+    var result = (a - b) * 1000;
+    log.debug("At level " + currentLevel + " the result is " + result)
+    return result; //assuming (level+1)^2 - level^2 formula
 }
 
 UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
