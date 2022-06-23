@@ -79,9 +79,12 @@ handlers.UpdateWeaponUpgrade = function (args) {
         var weaponUpgradeTimestamp = Date.now();
     }
 
-    log.debug("Time needed to upgrade the weapon", GetTimeToUpgradeWeapon(null, weapon.CustomData.Level));
+    var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
 
-    if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)) {
+    log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
+    log.debug("Time that has passed since upgrade start", Date.now() - weaponUpgradeTimestamp);
+
+    if (Date.now() - weaponUpgradeTimestamp >= timeToUpgradeWeapon) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
