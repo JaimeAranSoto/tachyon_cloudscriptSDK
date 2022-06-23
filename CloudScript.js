@@ -69,16 +69,16 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return;
     }
 
-    if (weapon.CustomData == null) {
+    if (weapon.CustomData === undefined) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
     if (weapon.CustomData.UpgradeTimeStamp != undefined) {
-        var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
+        var weaponUpgradeTimestamp = weapon.CustomData.UpgradeTimeStamp;
     } else {
         var weaponUpgradeTimestamp = Date.now();
     }
 
-    if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
+    if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
