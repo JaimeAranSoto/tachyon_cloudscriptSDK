@@ -98,6 +98,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 
     var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
+    if (timeRemaining < 0) timeRemaining = -1;
     return timeRemaining;
 }
 
