@@ -44,26 +44,34 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel } });
 }
 
+function GetWeapon(ItemInstanceId) {
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
+    var weapon = undefined;
+
+    for (var i = 0; i < inventory.length; i++) {
+        if (inventory[i].ItemInstanceId == ItemInstanceId) {
+            weapon = inventory[i];
+        }
+    }
+    return weapon;
+}
+
 handlers.UpdateWeaponUpgrade = function (args) {
     //Consider that players could pay to directly upgrade the weapons without needing to wait.
 
     //Prevent cheating...
 
     var weaponInstanceId = args.weaponInstanceId;
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
-    var weapon = undefined;
-
-    for (var i = 0; i < inventory.length; i++) {
-        if (inventory[i].ItemInstanceId == weaponInstanceId) {
-            weapon = inventory[i];
-        }
-    }
+    var weapon = GetWeapon(weaponInstanceId);
 
     if (weapon === undefined || weapon == null) {
         log.debug("Weapon is not in player's inventory");
         return;
     } else {
-        if (weapon.CustomData != undefined && weapon.CustomData.UpgradeTimeStamp != undefined) {
+        if (weapon.CustomData == undefined) {
+            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
+        }
+        if (weapon.CustomData.UpgradeTimeStamp != undefined) {
             var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
         } else {
             var weaponUpgradeTimestamp = Date.now();
