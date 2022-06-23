@@ -76,7 +76,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
     if (weapon.CustomData.UpgradeTimeStamp === undefined) {
         var upgradeTimeStamp = Date.now();
-        log.debug("UpgradeTimestamp is undefined");
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
     } else {
         var upgradeTimeStamp = weapon.CustomData.UpgradeTimeStamp;
     }
@@ -91,6 +91,5 @@ handlers.UpdateWeaponUpgrade = function (args) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
-    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 }
 
