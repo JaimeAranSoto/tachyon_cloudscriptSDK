@@ -50,15 +50,12 @@ handlers.UpdateWeaponUpgrade = function (args) {
     //Prevent cheating...
 
     var weaponInstanceId = args.weaponInstanceId;
-    log.debug("Player id: " + currentPlayerId);
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var weapon = undefined;
 
-    log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
     for (var i = 0; i < inventory.length; i++) {
         if (inventory[i].ItemInstanceId == weaponInstanceId) {
             weapon = inventory[i];
-            log.debug("Weapon found: " + inventory[i].ItemInstanceId, weapon.CustomData);
         }
     }
 
@@ -66,7 +63,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
         log.debug("Weapon is not in player's inventory");
         return;
     } else {
-        if (weapon.CustomData.UpgradeTimeStamp != undefined) {
+        if (weapon.CustomData != undefined && weapon.CustomData.UpgradeTimeStamp != undefined) {
             var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
         } else {
             var weaponUpgradeTimestamp = Date.now();
