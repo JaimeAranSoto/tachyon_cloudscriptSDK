@@ -69,8 +69,6 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return;
     }
 
-    log.debug("Custom Data", weapon.CustomData);
-    log.debug("Current TimeStamps", Date.now());
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
@@ -85,7 +83,6 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
     log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
-    log.debug("Level before check", weapon.CustomData.Level);
 
     if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
