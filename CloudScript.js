@@ -69,12 +69,12 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return;
     }
 
-    log.debug("Custom Data", weapon.CustomData);
+    log.debug("Custom Data", weapon.CustomData, Date.UTC.now());
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
     if (weapon.CustomData.UpgradeTimeStamp === undefined) {
-        var upgradeTimeStamp = Date.now();
+        var upgradeTimeStamp = Date.UTC.now();
         log.debug("UpgradeTimestamp is undefined");
     } else {
         var upgradeTimeStamp = weapon.CustomData.UpgradeTimeStamp;
@@ -83,13 +83,13 @@ handlers.UpdateWeaponUpgrade = function (args) {
     var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
 
     log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
-    log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
+    log.debug("Time that has passed since upgrade start", Date.UTC.now() - upgradeTimeStamp);
     log.debug("Level before check", weapon.CustomData.Level);
 
-    if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
+    if (Date.UTC.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
-    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.UTC.now() } });
 }
 
