@@ -66,15 +66,16 @@ handlers.UpdateWeaponUpgrade = function (args) {
         log.debug("Weapon is not in player's inventory");
         return;
     } else {
-        var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
-
-        if (weaponUpgradeTimestamp != null && weaponUpgradeTimestamp > 0) {
-
-            if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
-                UpgradeWeapon(weaponInstanceId, currentPlayerId);
-            }
-            return; //The weapon is already upgrading...
+        if (weapon.CustomData.UpgradeTimeStamp != undefined) {
+            var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
+        } else {
+            var weaponUpgradeTimestamp = Date.now();
         }
+
+        if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
+            UpgradeWeapon(weaponInstanceId, currentPlayerId);
+        }
+
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
     }
 }
