@@ -56,9 +56,9 @@ handlers.UpdateWeaponUpgrade = function (args) {
 
     log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
     for (var i = 0; i < inventory.length; i++) {
-        log.debug("Weapon found: " + inventory[i].ItemInstanceId, weapon.CustomData);
         if (inventory[i].ItemInstanceId == weaponInstanceId) {
             weapon = inventory[i];
+            log.debug("Weapon found: " + inventory[i].ItemInstanceId, weapon.CustomData);
         }
     }
 
