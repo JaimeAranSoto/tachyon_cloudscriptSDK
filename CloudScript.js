@@ -67,21 +67,21 @@ handlers.UpdateWeaponUpgrade = function (args) {
     if (weapon === undefined || weapon == null) {
         log.debug("Weapon is not in player's inventory");
         return;
-    } else {
-        if (weapon.CustomData == undefined) {
-            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
-        }
-        if (weapon.CustomData.UpgradeTimeStamp != undefined) {
-            var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
-        } else {
-            var weaponUpgradeTimestamp = Date.now();
-        }
-
-        if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
-            UpgradeWeapon(weaponInstanceId, currentPlayerId);
-        }
-
-        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
     }
+
+    if (weapon.CustomData == null) {
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
+    }
+    if (weapon.CustomData.UpgradeTimeStamp != undefined) {
+        var weaponUpgradeTimestamp = weapon.CustomData["UpgradeTimeStamp"];
+    } else {
+        var weaponUpgradeTimestamp = Date.now();
+    }
+
+    if (Date.now() - weaponUpgradeTimestamp >= GetTimeToUpgradeWeapon(null, weapon.CustomData["Level"])) {
+        UpgradeWeapon(weaponInstanceId, currentPlayerId);
+    }
+
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 }
 
