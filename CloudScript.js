@@ -33,14 +33,14 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
 
     for (var i = 0; i < inventory.length; i++) {
         if (inventory[i].ItemInstanceId == weaponInstanceId) {
-            weaponLevel = inventory[i].CustomData["Level"];
+            weaponLevel = inventory[i].CustomData.Level;
         }
     }
-
     if (weaponLevel == null) {
         weaponLevel = 1;
     }
     weaponLevel++;
+    log.debug("Level up!", weaponLevel);
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel } });
 }
 
@@ -69,22 +69,24 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return;
     }
 
-    log.debug("Custom Data?", weapon.CustomData);
+    log.debug("Custom Data", weapon.CustomData);
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
-    if (weapon.CustomData.UpgradeTimeStamp != undefined) {
-        var weaponUpgradeTimestamp = weapon.CustomData.UpgradeTimeStamp;
+    if (weapon.CustomData.UpgradeTimeStamp === undefined) {
+        var upgradeTimeStamp = Date.now();
+        log.debug("UpgradeTimestamp is undefined");
     } else {
-        var weaponUpgradeTimestamp = Date.now();
+        var upgradeTimeStamp = weapon.CustomData.UpgradeTimeStamp;
     }
 
     var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
 
     log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
-    log.debug("Time that has passed since upgrade start", Date.now() - weaponUpgradeTimestamp);
+    log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
+    log.debug("Level before check", weapon.CustomData.Level);
 
-    if (Date.now() - weaponUpgradeTimestamp >= timeToUpgradeWeapon) {
+    if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
         UpgradeWeapon(weaponInstanceId, currentPlayerId);
     }
 
