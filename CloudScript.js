@@ -52,7 +52,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     var weaponInstanceId = args.weaponInstanceId;
     log.debug("Player id: " + currentPlayerId);
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
-    var weapon;
+    var weapon = undefined;
 
     log.debug("Player's inventory length: " + inventory.length + " - " + inventory);
     for (var i = 0; i < inventory.length; i++) {
@@ -62,7 +62,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
         }
     }
 
-    if (weapon === undefined) {
+    if (weapon === undefined || weapon == null) {
         log.debug("Weapon is not in player's inventory");
         return;
     } else {
