@@ -27,9 +27,6 @@ GetTimeToUpgradeWeapon = function (formula, currentLevel) {
     var a = Math.pow(level + 1, 2);
     var b = Math.pow(level, 2);
     var result = (a - b) * 1000;
-    log.debug("a", a);
-    log.debug("b", b);
-    log.debug("At level " + currentLevel + " the result is " + result)
     return result; //assuming (level+1)^2 - level^2 formula
 }
 
@@ -63,6 +60,9 @@ function GetWeapon(ItemInstanceId) {
     return weapon;
 }
 
+/** 
+ * @returns Null if weapon is not in player's inventory, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
+ */
 handlers.UpdateWeaponUpgrade = function (args) {
     //Consider that players could pay to directly upgrade the weapons without needing to wait.
 
