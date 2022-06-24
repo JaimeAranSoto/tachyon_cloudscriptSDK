@@ -61,13 +61,13 @@ function GetWeapon(ItemInstanceId) {
 }
 
 /** 
- * @returns Null if weapon is not in player's inventory, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
+ * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
 handlers.UpdateWeaponUpgrade = function (args) {
     //Consider that players could pay to directly upgrade the weapons without needing to wait.
 
     //Prevent cheating...
-
+    var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
     var weaponInstanceId = args.weaponInstanceId;
     var weapon = GetWeapon(weaponInstanceId);
 
@@ -76,29 +76,40 @@ handlers.UpdateWeaponUpgrade = function (args) {
         return null;
     }
 
-    if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) {
+    if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) { //Fill CustomData if it's empty.
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
-    if (weapon.CustomData.UpgradeTimeStamp === undefined || weapon.CustomData.UpgradeTimeStamp == -1) {
-        var upgradeTimeStamp = Date.now();
-        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
+
+    var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
+    var upgradeTimeStamp = null; //Default if it's not currently upgrading
+
+    if (isCurrentlyUpdating) {
+        upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
     } else {
-        var upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
+        if (startUpgrade) {
+            upgradeTimeStamp = Date.now();
+            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
+            isCurrentlyUpdating = true;
+        }
     }
 
-    var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
+    if (isCurrentlyUpdating) {
+        var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
 
-    log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
-    log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
+        log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
+        log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
 
-    if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
-        UpgradeWeapon(weaponInstanceId, currentPlayerId);
-        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: -1 } });
+        if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
+            UpgradeWeapon(weaponInstanceId, currentPlayerId);
+            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: -1 } });
 
+        }
+
+        var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
+        if (timeRemaining < 0) timeRemaining = -1;
+        return timeRemaining;
+    } else {
+        return null;
     }
-
-    var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
-    if (timeRemaining < 0) timeRemaining = -1;
-    return timeRemaining;
 }
 
