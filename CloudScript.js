@@ -42,6 +42,8 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     }
     if (weaponLevel == null) {
         weaponLevel = 1;
+    } else {
+        log.debug("Weapon is not in player's inventory", weaponLevel);
     }
     weaponLevel++;
     log.debug("Level up!", weaponLevel);
@@ -117,7 +119,8 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
     var weapon = GetWeapon(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
-        return 0; //Weapon is not in player's inventory;
+        log.debug("Weapon is not in player's inventory");
+        return 0;
     }
 
     var currency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency["TK"];
@@ -125,11 +128,13 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
     var upgradeCost = 1;
 
     if (currency >= upgradeCost) {
-        UpgradeWeapon(weaponInstanceId, currentPlayerId);
+        UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
         server.SubstractUserVirtualCurrency({ Amount: upgradeCost, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
-        return 1; //Success
+        log.debug("Weapon upgraded successfully");
+        return 1;
     } else {
-        return -1; //User has not enough currency
+        log.debug("User has not enough currency");
+        return -1;
     }
 }
 
