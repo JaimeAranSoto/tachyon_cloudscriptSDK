@@ -42,12 +42,10 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     }
     if (weaponLevel == null) {
         weaponLevel = 1;
-    } else {
-        log.debug("Weapon is not in player's inventory", weaponLevel);
     }
     weaponLevel++;
     log.debug("Level up!", weaponLevel);
-    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel } });
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel, UpgradeTimeStamp: -1 } });
 }
 
 function GetWeapon(ItemInstanceId) {
