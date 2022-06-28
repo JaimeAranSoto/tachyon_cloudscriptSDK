@@ -129,7 +129,7 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
 
     if (currency >= upgradeCost) {
         UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
-        server.SubstractUserVirtualCurrency({ Amount: upgradeCost, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
+        server.SubtractUserVirtualCurrency({ Amount: upgradeCost, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
         log.debug("Weapon upgraded successfully");
         return 1;
     } else {
