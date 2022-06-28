@@ -113,3 +113,23 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 }
 
+handlers.UpgradeWeaponUsingCurrency = function (args) {
+    var weapon = GetWeapon(args.weaponInstanceId);
+
+    if (weapon == null || weapon === undefined) {
+        return 0; //Weapon is not in player's inventory;
+    }
+
+    var currency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency["TK"];
+
+    var upgradeCost = 1;
+
+    if (currency >= upgradeCost) {
+        UpgradeWeapon(weaponInstanceId, currentPlayerId);
+        server.SubstractUserVirtualCurrency({ Amount: upgradeCost, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
+        return 1; //Success
+    } else {
+        return -1; //User has not enough currency
+    }
+}
+
