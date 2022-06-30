@@ -60,9 +60,18 @@ handlers.VoteForGuildWar = function (args, context) {
     var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuildId: targetedGuildId };
     log.debug("New Singular Voting", newVoting);
 
-    for (let i = 0; i < votings.length; i++) {
-        if (votings[i].enemyGuildId == targetedGuildId) {
-            votings[i] = newVoting; //Replace old voting
+    if (voting.length == 0) {
+        votings.push(newVoting);
+    } else {
+        for (let i = 0; i < votings.length; i++) {
+            if (votings[i].enemyGuildId == targetedGuildId) {
+                votings[i] = newVoting; //Replace old voting
+                break;
+            }
+            if (i = votings.length - 1) {
+                votings.push(newVoting);
+                break;
+            }
         }
     }
     log.debug("New Votings", votings);
