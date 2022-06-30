@@ -24,12 +24,12 @@ handlers.VoteForGuildWar = function (args, context) {
     }
 
     var myGuildObjects = getObjectsResult.Objects;
-    
-    myGuildObjects.Votings = { ObjectName: "Votings", DataObject: {} };
-    
+
+    if (myGuildObjects.Votings === undefined) {
+        myGuildObjects.Votings = { ObjectName: "Votings", DataObject: {} };
+    }
+
     var votings = myGuildObjects.Votings.DataObject;
-
-
 
     log.debug("Guild Objects", myGuildObjects);
     log.debug("Previous Votings", votings);
@@ -83,7 +83,7 @@ handlers.VoteForGuildWar = function (args, context) {
         }
     }
     log.debug("New Votings", votings);
-
+    myGuildObjects.Votings = votings;
     entity.SetObjects({ Entity: myGuild.Group, Objects: myGuildObjects });
     return 1;
 }
