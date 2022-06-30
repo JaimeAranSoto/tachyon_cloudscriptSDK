@@ -1,4 +1,4 @@
-handlers.VoteForGuildWar = function (args) {
+handlers.VoteForGuildWar = function (args,context) {
     // -2 = Player has already voted (allow to change opinion??)
     // -1 = Guild (mine or targeted) doesn't exist
 
@@ -8,7 +8,7 @@ handlers.VoteForGuildWar = function (args) {
     var myGuild = entity.ListMembership[0];
 
     if (myGuild == null || myGuild === undefined) {
-        log.debug("Current player is not in a guild",entity.ListMembership);
+        log.debug("Current player is not in a guild",context.currentEntity);
         return -1;
     }
 
