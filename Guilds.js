@@ -61,7 +61,8 @@ handlers.VoteForGuildWar = function (args, context) {
     log.debug("New Singular Voting", newVoting);
 
     if (voting == null || voting === undefined || voting.length == 0) {
-        votings.push(newVoting);
+        votings = [];
+        votings[0] = newVoting;
     } else {
         for (let i = 0; i < votings.length; i++) {
             if (votings[i].enemyGuildId == targetedGuildId) {
