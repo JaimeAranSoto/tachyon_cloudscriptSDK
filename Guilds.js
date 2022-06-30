@@ -6,6 +6,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var approve = args.approve; //bool
     var targetedGuildId = args.targetedGuildId;
 
+    log.debug("Player Id", currentPlayerId);
     var myGuild = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_account_data" } })[0];
 
     if (myGuild == null || myGuild === undefined) {
