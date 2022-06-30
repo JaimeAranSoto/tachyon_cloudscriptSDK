@@ -67,9 +67,10 @@ handlers.VoteForGuildWar = function (args, context) {
         for (let i = 0; i < votings.length; i++) {
             if (votings[i].enemyGuildId == targetedGuildId) {
                 votings[i] = newVoting; //Replace old voting
+                log.debug("Previous voting replaced");
                 break;
             }
-            if (i = votings.length - 1) {
+            if (i == votings.length - 1) {
                 votings.push(newVoting);
                 break;
             }
