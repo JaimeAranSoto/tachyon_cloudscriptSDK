@@ -8,7 +8,7 @@ handlers.VoteForGuildWar = function (args) {
     var myGuild = entity.ListMembership[0];
 
     if (myGuild == null || myGuild === undefined) {
-        log.debug("Current player is not in a guild");
+        log.debug("Current player is not in a guild", entity.ListMembership);
         return -1;
     }
 
