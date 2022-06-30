@@ -23,7 +23,7 @@ handlers.VoteForGuildWar = function (args, context) {
         return -1;
     }
 
-    var myGuildObjectResult = myGuild.Objects;
+    var myGuildObjectResult = myGuildObjects.Objects;
     var votings = myGuildObjectResult.Votings;
 
     log.debug("Previous Votings", votings);
