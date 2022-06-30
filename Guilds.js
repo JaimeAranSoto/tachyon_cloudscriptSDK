@@ -24,7 +24,7 @@ handlers.VoteForGuildWar = function (args, context) {
     }
 
     var myGuildObjectResult = myGuildObjects.Objects;
-    var votings = myGuildObjectResult.Votings;
+    var votings = myGuildObjectResult.Votings.DataObject;
 
     log.debug("Previous Votings", votings);
 
