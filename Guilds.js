@@ -16,24 +16,25 @@ handlers.VoteForGuildWar = function (args, context) {
         log.debug("Guild found", myGuild);
     }
 
-    var myGuildObjects = entity.GetObjects({ Entity: myGuild.Group });
+    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
 
-    if (myGuildObjects == null || myGuildObjects === undefined) {
+    if (getObjectsResult == null || getObjectsResult === undefined) {
         log.debug("PlayerGuild has no objects");
         return -1;
     }
 
-    var myGuildObjectResult = myGuildObjects.Objects;
-    var votings = myGuildObjectResult.Votings.DataObject;
+    var myGuildObjects = getObjectsResult.Objects;
+    var votings = myGuildObjects.Votings.DataObject;
 
+    log.debug("Guild Objects", myGuildObjects);
     log.debug("Previous Votings", votings);
 
     var approveVotes = [];
     var denyVotes = [];
     if (approve) {
-        approveVotes.push(currentPlayerId);
+        approveVotes.push(myEntityId);
     } else {
-        denyVotes.push(currentPlayerId);
+        denyVotes.push(myEntityId);
     }
 
     for (let i = 0; i < votings.length; i++) {
@@ -78,6 +79,6 @@ handlers.VoteForGuildWar = function (args, context) {
     }
     log.debug("New Votings", votings);
 
-    entity.SetObjects({ Entity: myGuild.Group, Objects: myGuildObjectResult });
+    entity.SetObjects({ Entity: myGuild.Group, Objects: myGuildObjects });
     return 1;
 }
