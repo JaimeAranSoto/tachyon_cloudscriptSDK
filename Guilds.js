@@ -82,7 +82,7 @@ handlers.VoteForGuildWar = function (args, context) {
     }
     log.debug("New Votings", votings);
     myGuildObjects.Votings = { ObjectName: "Votings", DataObject: votings };
-    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ObjectName: "Test",DataObject: {Algo: 34}}]);
+    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "Test", DataObject: { Algo: "34" } }]});
     // entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
     return 1;
 }
