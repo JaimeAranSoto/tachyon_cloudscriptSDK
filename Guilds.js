@@ -12,6 +12,8 @@ handlers.VoteForGuildWar = function (args, context) {
     if (myGuild == null || myGuild === undefined) {
         log.debug("Current player is not in a guild", myGuilds);
         return -1;
+    } else {
+        log.debug("Guild found", myGuild);
     }
 
     var myGuildObjects = entity.GetObjects({ Entity: myGuild.Group });
