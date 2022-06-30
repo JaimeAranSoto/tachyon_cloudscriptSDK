@@ -1,5 +1,5 @@
-var entity = PlayFab.DataApi;
-var server = PlayFab.ServerApi;
+// var entity = PlayFab.DataApi;
+// var server = PlayFab.ServerApi;
 
 GetPlayerStatisticByName = function (statName) {
     let result = server.GetPlayerStatistics({ PlayFabId: currentPlayerId, StatisticNames: statName });
