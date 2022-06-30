@@ -24,7 +24,12 @@ handlers.VoteForGuildWar = function (args, context) {
     }
 
     var myGuildObjects = getObjectsResult.Objects;
-    var votings = myGuildObjects.Votings.DataObject;
+
+    var votings = new { ObjectName: "Votings", DataObject: {} };
+    if (myGuildObjects !== undefined) {
+        var votings = myGuildObjects.Votings.DataObject;
+    }
+
 
     log.debug("Guild Objects", myGuildObjects);
     log.debug("Previous Votings", votings);
