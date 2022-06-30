@@ -24,6 +24,7 @@ handlers.VoteForGuildWar = function (args, context) {
     }
 
     var myGuildObjects = getObjectsResult.Objects;
+    log.debug("myGuildObjects", myGuildObjects);
 
     var votingsObject = new { ObjectName: "Votings", DataObject: {} };
     myGuildObjects.push(votingsObject);
