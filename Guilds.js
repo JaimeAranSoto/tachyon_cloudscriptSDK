@@ -5,7 +5,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var myEntityId = args.myEntityId;
     var approve = args.approve; //bool
     var targetedGuildId = args.targetedGuildId;
-    var myGuilds = PlayFabGroupsSDK.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
     var myGuild = myGuilds.Groups[0];
 
     if (myGuild == null || myGuild === undefined) {
