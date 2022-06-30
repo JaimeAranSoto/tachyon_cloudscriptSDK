@@ -36,7 +36,9 @@ handlers.VoteForGuildWar = function (args, context) {
         denyVotes.push(currentPlayerId);
     }
 
-    votings.forEach(voting => {
+    for (let i = 0; i < votings.length; i++) {
+        var voting = votings[i];
+        log.debug("Voting found", voting);
         if (voting.enemyGuildId == targetedGuildId) {
 
             voting.approveVotes.forEach(vote => {
@@ -53,8 +55,8 @@ handlers.VoteForGuildWar = function (args, context) {
             approveVotes.concat(voting.approveVotes);
             denyVotes.concat(voting.denyVotes);
         }
-    });
 
+    }
     var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuildId: targetedGuildId };
     log.debug("New Singular Voting", newVoting);
 
