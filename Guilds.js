@@ -57,7 +57,7 @@ handlers.VoteForGuildWar = function (args, context) {
         }
 
     }
-    var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuildId: targetedGuildId };
+    var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuild: targetedGuildId };
     log.debug("New Singular Voting", newVoting);
 
     if (voting == null || voting === undefined || voting.length == 0) {
@@ -65,7 +65,7 @@ handlers.VoteForGuildWar = function (args, context) {
         votings[0] = newVoting;
     } else {
         for (let i = 0; i < votings.length; i++) {
-            if (votings[i].enemyGuildId == targetedGuildId) {
+            if (votings[i].enemyGuild == targetedGuildId) {
                 votings[i] = newVoting; //Replace old voting
                 log.debug("Previous voting replaced");
                 break;
