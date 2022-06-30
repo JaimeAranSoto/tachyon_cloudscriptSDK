@@ -83,7 +83,7 @@ handlers.VoteForGuildWar = function (args, context) {
         }
     }
     log.debug("New Votings", votings);
-    myGuildObjects.Votings = votings;
+    myGuildObjects.Votings = { ObjectName: "Votings", DataObject: votings };
     entity.SetObjects({ Entity: myGuild.Group, Objects: myGuildObjects });
     return 1;
 }
