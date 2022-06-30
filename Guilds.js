@@ -60,7 +60,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuildId: targetedGuildId };
     log.debug("New Singular Voting", newVoting);
 
-    if (voting.length == 0) {
+    if (voting == null || voting === undefined || voting.length == 0) {
         votings.push(newVoting);
     } else {
         for (let i = 0; i < votings.length; i++) {
