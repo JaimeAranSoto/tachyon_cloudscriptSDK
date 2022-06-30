@@ -1,6 +1,5 @@
-import all from './playfab-web-sdk/src/PlayFab';
-
-var server = PlayFabServerSDK;
+var entity = PlayFab.DataApi;
+var server = PlayFab.ServerApi;
 
 GetPlayerStatisticByName = function (statName) {
     let result = server.GetPlayerStatistics({ PlayFabId: currentPlayerId, StatisticNames: statName });
@@ -21,6 +20,7 @@ handlers.GainXP = function (args) {
             Value: newXP
         }]
     };
+
     var result = server.UpdatePlayerStatistics(request);
     return newXP;
 }
