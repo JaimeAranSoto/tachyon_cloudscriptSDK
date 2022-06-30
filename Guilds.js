@@ -7,7 +7,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var targetedGuildId = args.targetedGuildId;
 
     var myGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
-    var myGuild = myGuilds[0];
+    var myGuild = myGuilds.Groups[0];
 
     if (myGuild == null || myGuild === undefined) {
         log.debug("Current player is not in a guild", myGuilds);
