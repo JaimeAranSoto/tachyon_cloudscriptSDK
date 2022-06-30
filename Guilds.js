@@ -1,3 +1,4 @@
+var entity = PlayFabDataSDK;
 handlers.VoteForGuildWar = function (args, context) {
     // -2 = Player has already voted (allow to change opinion??)
     // -1 = Guild (mine or targeted) doesn't exist
@@ -6,7 +7,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var approve = args.approve; //bool
     var targetedGuildId = args.targetedGuildId;
 
-    var myGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuilds = PlayFabGroupsSDK.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
     var myGuild = myGuilds.Groups[0];
 
     if (myGuild == null || myGuild === undefined) {
@@ -15,6 +16,7 @@ handlers.VoteForGuildWar = function (args, context) {
     } else {
         log.debug("Guild found", myGuild);
     }
+
 
     var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
 
@@ -84,6 +86,7 @@ handlers.VoteForGuildWar = function (args, context) {
     }
     log.debug("New Votings", votings);
     myGuildObjects.Votings = { ObjectName: "Votings", DataObject: votings };
-    entity.SetObjects({ Entity: myGuild.Group, Objects: myGuildObjects });
+
+    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
     return 1;
 }

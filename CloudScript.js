@@ -1,10 +1,13 @@
+import all from './playfab-web-sdk/src/PlayFab';
+
+var server = PlayFabServerSDK;
+
 GetPlayerStatisticByName = function (statName) {
     let result = server.GetPlayerStatistics({ PlayFabId: currentPlayerId, StatisticNames: statName });
     log.info(result.Statistics);
     let statistic = result.Statistics[0];
     return statistic.Value;
 }
-
 handlers.GainXP = function (args) {
 
     var xpGained = args.XP; //this could be changed so somehow PlayFab asks for the enemy's xp drop.
@@ -34,6 +37,7 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
 
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var weaponLevel;
+
 
     for (var i = 0; i < inventory.length; i++) {
         if (inventory[i].ItemInstanceId == weaponInstanceId) {
