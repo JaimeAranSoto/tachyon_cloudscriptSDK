@@ -45,6 +45,7 @@ handlers.VoteForGuildWar = function (args, context) {
                 log.debug("Approve vote found", vote);
                 approveVotes.push(vote);
                 if (vote == myEntityId) {
+                    log.debug("Player has already approved this...");
                     return -2;
                 }
             });
@@ -52,6 +53,7 @@ handlers.VoteForGuildWar = function (args, context) {
                 log.debug("Deny vote found", vote);
                 denyVotes.push(vote);
                 if (vote == myEntityId) {
+                    log.debug("Player has already denied this...");
                     return -2;
                 }
             });
