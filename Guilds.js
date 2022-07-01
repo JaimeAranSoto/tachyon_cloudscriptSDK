@@ -5,11 +5,11 @@ handlers.VoteForGuildWar = function (args, context) {
     var myEntityId = args.myEntityId;
     var approve = args.approve; //bool
     var targetedGuildId = args.targetedGuildId;
-    var myGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
-    var myGuild = myGuilds.Groups[0];
+    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuild = allMyGuilds.Groups[0];
 
     if (myGuild == null || myGuild === undefined) {
-        log.debug("Current player is not in a guild", myGuilds);
+        log.debug("Current player is not in a guild", allMyGuilds);
         return -1;
     } else {
         log.debug("Guild found", myGuild);
@@ -29,9 +29,6 @@ handlers.VoteForGuildWar = function (args, context) {
     }
     var votings = myGuildObjects.Votings.DataObject;
 
-    log.debug("Guild Objects", myGuildObjects);
-    log.debug("Previous Votings", votings);
-
     var approveVotes = [];
     var denyVotes = [];
     if (approve) {
@@ -42,29 +39,27 @@ handlers.VoteForGuildWar = function (args, context) {
 
     for (let i = 0; i < votings.length; i++) {
         var voting = votings[i];
-        log.debug("Voting found", voting);
         if (voting.enemyGuildId == targetedGuildId) {
 
             voting.approveVotes.forEach(vote => {
-                if (vote == currentPlayerId) {
+                if (vote == myEntityId) {
                     return -2;
                 }
             });
             voting.denyVotes.forEach(vote => {
-                if (vote == currentPlayerId) {
+                if (vote == myEntityId) {
                     return -2;
                 }
             });
-
+            log.debug("Concatenating previous voting with new one")
             approveVotes.concat(voting.approveVotes);
             denyVotes.concat(voting.denyVotes);
         }
-
     }
     var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuild: targetedGuildId };
     log.debug("New Singular Voting", newVoting);
 
-    if (voting == null || voting === undefined || voting.length == 0) {
+    if (votings == null || votings === undefined || votings.length == 0) {
         votings = [];
         votings[0] = newVoting;
     } else {
