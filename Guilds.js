@@ -39,7 +39,7 @@ handlers.VoteForGuildWar = function (args, context) {
 
     for (let i = 0; i < votings.length; i++) {
         var voting = votings[i];
-        if (voting.enemyGuildId == targetedGuildId) {
+        if (voting.enemyGuild == targetedGuildId) {
 
             voting.approveVotes.forEach(vote => {
                 if (vote == myEntityId) {
