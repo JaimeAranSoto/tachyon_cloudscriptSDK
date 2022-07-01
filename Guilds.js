@@ -41,7 +41,7 @@ handlers.VoteForGuildWar = function (args, context) {
         var voting = votings[i];
         if (voting.enemyGuild == targetedGuildId) {
             for (let j = 0; j < voting.approveVotes.length; j++) {
-                const vote = voting.approveVotes[j];
+                var vote = voting.approveVotes[j];
                 log.debug("Approve vote found", vote);
                 approveVotes.push(vote);
                 if (vote == myEntityId) {
@@ -50,7 +50,7 @@ handlers.VoteForGuildWar = function (args, context) {
                 }
             }
             for (let j = 0; j < voting.denyVotes.length; j++) {
-                const vote = voting.denyVotes[j];
+                var vote = voting.denyVotes[j];
                 log.debug("Approve vote found", vote);
                 denyVotes.push(vote);
                 if (vote == myEntityId) {
@@ -60,30 +60,30 @@ handlers.VoteForGuildWar = function (args, context) {
             }
         }
     }
-}
-var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuild: targetedGuildId };
-log.debug("New Singular Voting", newVoting);
 
-if (votings == null || votings === undefined || votings.length == 0) {
-    votings = [];
-    votings[0] = newVoting;
-} else {
-    for (let i = 0; i < votings.length; i++) {
-        if (votings[i].enemyGuild == targetedGuildId) {
-            votings[i] = newVoting; //Replace old voting
-            log.debug("Previous voting replaced");
-            break;
-        }
-        if (i == votings.length - 1) {
-            votings.push(newVoting);
-            break;
+    var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuild: targetedGuildId };
+    log.debug("New Singular Voting", newVoting);
+
+    if (votings == null || votings === undefined || votings.length == 0) {
+        votings = [];
+        votings[0] = newVoting;
+    } else {
+        for (let i = 0; i < votings.length; i++) {
+            if (votings[i].enemyGuild == targetedGuildId) {
+                votings[i] = newVoting; //Replace old voting
+                log.debug("Previous voting replaced");
+                break;
+            }
+            if (i == votings.length - 1) {
+                votings.push(newVoting);
+                break;
+            }
         }
     }
-}
-log.debug("New Votings", votings);
-entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "Votings", DataObject: votings }] });
-// entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
-return 1;
+    log.debug("New Votings", votings);
+    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "Votings", DataObject: votings }] });
+    // entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
+    return 1;
 }
 
 handlers.GetGuildObjects = function (args) {
