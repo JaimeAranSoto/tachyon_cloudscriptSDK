@@ -43,19 +43,18 @@ handlers.VoteForGuildWar = function (args, context) {
 
             voting.approveVotes.forEach(vote => {
                 log.debug("Approve vote found", vote);
+                approveVotes.push(vote);
                 if (vote == myEntityId) {
                     return -2;
                 }
             });
             voting.denyVotes.forEach(vote => {
                 log.debug("Deny vote found", vote);
+                denyVotes.push(vote);
                 if (vote == myEntityId) {
                     return -2;
                 }
             });
-            log.debug("Concatenating previous voting with new one")
-            approveVotes.concat(voting.approveVotes);
-            denyVotes.concat(voting.denyVotes);
         }
     }
     var newVoting = { approveVotes: approveVotes, denyVotes: denyVotes, enemyGuild: targetedGuildId };
