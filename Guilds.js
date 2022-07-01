@@ -85,3 +85,10 @@ handlers.VoteForGuildWar = function (args, context) {
     // entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
     return 1;
 }
+
+handlers.GetGuildObjects = function (args) {
+    var guildId = args.guildId;
+
+    var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } })
+    return getObjectsResult.Objects.DataObject;
+}
