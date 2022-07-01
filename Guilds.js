@@ -42,11 +42,13 @@ handlers.VoteForGuildWar = function (args, context) {
         if (voting.enemyGuild == targetedGuildId) {
 
             voting.approveVotes.forEach(vote => {
+                log.debug("Approve vote found", vote);
                 if (vote == myEntityId) {
                     return -2;
                 }
             });
             voting.denyVotes.forEach(vote => {
+                log.debug("Deny vote found", vote);
                 if (vote == myEntityId) {
                     return -2;
                 }
