@@ -90,5 +90,5 @@ handlers.GetGuildObjects = function (args) {
     var guildId = args.guildId;
 
     var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } })
-    return getObjectsResult.Objects.DataObject;
+    return getObjectsResult.Objects;
 }
