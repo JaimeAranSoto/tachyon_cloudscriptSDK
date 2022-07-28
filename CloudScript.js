@@ -140,3 +140,48 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
     }
 }
 
+handlers.UpgradeWeaponUsingMaterials = function (args) {
+    var weapon = GetWeapon(args.weaponInstanceId);
+
+    if (weapon == null || weapon === undefined) {
+        log.debug("Weapon is not in player's inventory");
+        return 0;
+    }
+
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+
+    const CURRENCY_ID = "QS";
+    var currency = inventory.VirtualCurrency[CURRENCY_ID];
+
+    var materialCount = 0;
+    var materialInstanceId = "";
+    const MATERIAL_ID = "RED_ROCK";
+
+    inventory.forEach(item => {
+        if (item.ItemId == MATERIAL_ID) {
+            materialCount = item.RemainingUses;
+            materialInstanceId = item.ItemInstanceId;
+            return;
+        }
+    });
+
+    var currencyCost = 1;
+    var materialCost = 1;
+
+    if (materialCount < materialCost) {
+        log.debug("Player has not enough material " + MATERIAL_ID);
+        return -2;
+    }
+    if (currency < currencyCost) {
+        log.debug("User has not enough currency");
+        return -1;
+    }
+
+    UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
+    server.SubtractUserVirtualCurrency({ Amount: currencyCost, PlayFabId: currentPlayerId, VirtualCurrency: CURRENCY_ID });
+    server.ConsumeItem({ ConsumeCount: materialCost, ItemInstanceId: materialInstanceId, PlayFabId: currentPlayerId });
+    log.debug("Weapon upgraded successfully");
+    return 1;
+
+}
+

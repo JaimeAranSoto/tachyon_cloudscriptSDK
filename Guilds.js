@@ -1,5 +1,5 @@
 handlers.VoteForGuildWar = function (args, context) {
-    // -2 = Player has already voted (allow to change opinion??)
+    // -2 = Player has already voted (allow to change opinion?? To be discussed...)
     // -1 = Guild (mine or targeted) doesn't exist
 
     var myEntityId = args.myEntityId;
@@ -42,19 +42,15 @@ handlers.VoteForGuildWar = function (args, context) {
         if (voting.enemyGuild == targetedGuildId) {
             for (let j = 0; j < voting.approveVotes.length; j++) {
                 var vote = voting.approveVotes[j];
-                log.debug("Approve vote found", vote);
                 approveVotes.push(vote);
                 if (vote == myEntityId) {
-                    log.debug("Player has already approved this...");
                     return -2;
                 }
             }
             for (let j = 0; j < voting.denyVotes.length; j++) {
                 var vote = voting.denyVotes[j];
-                log.debug("Approve vote found", vote);
                 denyVotes.push(vote);
                 if (vote == myEntityId) {
-                    log.debug("Player has already denied this...");
                     return -2;
                 }
             }
