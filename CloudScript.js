@@ -162,6 +162,7 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
         if (item.ItemId == MATERIAL_ID) {
             materialCount = item.RemainingUses;
             materialInstanceId = item.ItemInstanceId;
+            log.debug("Material found with id: " + materialInstanceId + " count: " + materialCount);
             break;
         }
     }
