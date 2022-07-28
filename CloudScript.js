@@ -148,10 +148,11 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
         return 0;
     }
 
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
 
     const CURRENCY_ID = "QS";
-    var currency = inventory.VirtualCurrency[CURRENCY_ID];
+    var currency = inventoryResult.VirtualCurrency[CURRENCY_ID];
+    var inventory = inventoryResult.Inventory;
 
     var materialCount = 0;
     var materialInstanceId = "";
