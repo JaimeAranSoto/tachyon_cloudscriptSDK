@@ -159,6 +159,7 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
 
     for (let i = 0; i < inventory.length; i++) {
         var item = inventory[i];
+        log.debug("Item found: "+item.ItemId);
         if (item.ItemId == MATERIAL_ID) {
             materialCount = item.RemainingUses;
             materialInstanceId = item.ItemInstanceId;
