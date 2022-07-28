@@ -157,9 +157,10 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
     var materialInstanceId = "";
     const MATERIAL_ID = "RED_ROCK";
 
+    log.debug("Inventory lenght: " + inventory.length);
     for (let i = 0; i < inventory.length; i++) {
         var item = inventory[i];
-        log.debug("Item found: "+item.ItemId);
+        log.debug("Item found: " + item.ItemId);
         if (item.ItemId == MATERIAL_ID) {
             materialCount = item.RemainingUses;
             materialInstanceId = item.ItemInstanceId;
