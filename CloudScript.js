@@ -156,7 +156,7 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
 
     var materialCount = 0;
     var materialInstanceId = "";
-    const MATERIAL_ID = "RED_ROCK";
+    const MATERIAL_ID = "YELLOW_ROCK";
 
     for (let i = 0; i < inventory.length; i++) {
         var item = inventory[i];
