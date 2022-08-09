@@ -119,6 +119,9 @@ handlers.VoteForGuildWar = function (args, context) {
         votings.timestamps = Date.now();
     }
 
+    if (votings.yes == null) votings.yes = [];
+    if (votings.no == null) votings.no = [];
+
     if (vote) {
         votings.yes.push(myEntityId);
     } else {
