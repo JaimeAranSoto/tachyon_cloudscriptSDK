@@ -1,4 +1,4 @@
-handlers.VoteForGuildWar = function (args, context) {
+/*handlers.VoteForGuildWar = function (args, context) {
     // -2 = Player has already voted (allow to change opinion?? To be discussed...)
     // -1 = Guild (mine or targeted) doesn't exist
 
@@ -80,7 +80,55 @@ handlers.VoteForGuildWar = function (args, context) {
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "Votings", DataObject: votings }] });
     // entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: myGuildObjects });
     return 1;
+}*/
+
+handlers.VoteForGuildWar = function (args, context) {
+    var myEntityId = args.myEntityId;
+    var vote = args.vote; //bool
+    var targetedGuildId = args.targetedGuildId; //this could be null
+
+    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuild = allMyGuilds.Groups[0];
+
+    if (myGuild == null || myGuild === undefined) {
+        log.debug("Current player is not in a guild", allMyGuilds);
+        return -1;
+    } else {
+        log.debug("Guild found", myGuild);
+    }
+
+    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("PlayerGuild has no objects");
+        return -1;
+    }
+
+    var myGuildObjects = getObjectsResult.Objects;
+
+    var isNewAttack = false;
+
+    if (myGuildObjects.guildAttack === undefined) {
+        myGuildObjects.guildAttack = { ObjectName: "guildAttack", DataObject: {} };
+        isNewAttack = true;
+    }
+    var votings = myGuildObjects.guildAttack.DataObject;
+    votings.guildId = targetedGuildId;
+    if (isNewAttack) {
+        votings.responsible = myEntityId;
+        votings.timestamps = Date.now();
+    }
+
+    if (vote) {
+        votings.yes.push(myEntityId);
+    } else {
+        votings.no.push(myEntityId);
+    }
+
+    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "guildAttack", DataObject: votings }] });
+    return 1;
 }
+
 
 handlers.GetGuildObjects = function (args) {
     var guildId = args.guildId;
