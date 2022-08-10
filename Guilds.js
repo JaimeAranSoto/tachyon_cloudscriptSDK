@@ -86,6 +86,7 @@ handlers.VoteForGuildWar = function (args, context) {
     var myEntityId = args.myEntityId;
     var vote = args.vote; //bool
     var targetedGuildId = args.targetedGuildId; //this could be null
+    var date = args.date;
 
     var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
     var myGuild = allMyGuilds.Groups[0];
@@ -116,7 +117,7 @@ handlers.VoteForGuildWar = function (args, context) {
     votings.guildId = targetedGuildId;
     if (isNewAttack) {
         votings.responsible = myEntityId;
-        votings.timestamps = Date.now();
+        votings.date = date;
     }
 
     if (votings.yes == null) votings.yes = [];
