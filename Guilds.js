@@ -123,9 +123,9 @@ handlers.VoteForGuildWar = function (args, context) {
     if (votings.yes == null) votings.yes = [];
     if (votings.no == null) votings.no = [];
 
-    if (vote) {
+    if (vote && !votings.yes.includes(myEntityId)) {
         votings.yes.push(myEntityId);
-    } else {
+    } else if (!votings.no.includes(myEntityId)) {
         votings.no.push(myEntityId);
     }
 
