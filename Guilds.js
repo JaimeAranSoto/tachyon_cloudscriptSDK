@@ -115,10 +115,10 @@ handlers.VoteForGuildWar = function (args, context) {
     }
     var votings = myGuildObjects.guildAttack.DataObject;
     votings.guildId = targetedGuildId;
-    if (isNewAttack) {
+    //if (isNewAttack) { //This will be reactivated again
         votings.responsible = myEntityId;
         votings.date = date;
-    }
+    //}
 
     if (votings.yes == null) votings.yes = [];
     if (votings.no == null) votings.no = [];
