@@ -80,7 +80,7 @@ function GetWeapon(ItemInstanceId) {
     }
     return weapon;
 }
-
+//HI
 /** 
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
