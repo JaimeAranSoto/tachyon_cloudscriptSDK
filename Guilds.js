@@ -155,5 +155,5 @@ handlers.AssignRandomGuild = function (args, context) {
     var chosenGuild = Math.floor(Math.random(allGuilds.length));
     log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
-    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "member" });
+    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "members" });
 }
