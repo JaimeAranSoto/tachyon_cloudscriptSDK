@@ -142,7 +142,11 @@ handlers.GetGuildObjects = function (args) {
 }
 
 handlers.AssignRandomGuild = function (args, context) {
-    log.debug("Entity:", entity);
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+
+
+    log.debug("Entity:", myEntity);
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     log.debug("Title data:", titleData);
@@ -151,7 +155,5 @@ handlers.AssignRandomGuild = function (args, context) {
     var chosenGuild = Math.floor(Math.random(allGuilds.length));
     log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
-    let entityProfile = context.currentEntity;
-    log.debug("My entity:", entityProfile);
-    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [entityProfile.Entity], RoleId: "member" });
+    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "member" });
 }
