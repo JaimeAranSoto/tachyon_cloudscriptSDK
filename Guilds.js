@@ -142,14 +142,16 @@ handlers.GetGuildObjects = function (args) {
 }
 
 handlers.AssignRandomGuild = function (args, context) {
+    log.debug("Context:", context);
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     log.debug("Title data:", titleData);
     var allGuilds = titleData.sa.split(","); //All in South America
     log.debug("All guilds:", allGuilds);
     var chosenGuild = Math.random(allGuilds.length);
-    log.debug("Chosen guild:", allGuilds[chosenGuild]);
+    log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
     let entityProfile = context.currentEntity;
+    log.debug("My entity:", entityProfile);
     entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [entityProfile.Entity], RoleId: "member" });
 }
