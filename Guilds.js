@@ -141,22 +141,15 @@ handlers.GetGuildObjects = function (args) {
     return getObjectsResult.Objects;
 }
 
-handlers.AssignRandomGuild = function (args,context) {
+handlers.AssignRandomGuild = function (args, context) {
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     log.debug("Title data:", titleData);
-    var allGuilds = titleData.sa.split(','); //All in South America
+    var allGuilds = titleData.sa.split(","); //All in South America
     log.debug("All guilds:", allGuilds);
     var chosenGuild = Math.random(allGuilds.length);
     log.debug("Chosen guild:", allGuilds[chosenGuild]);
 
     let entityProfile = context.currentEntity;
-    try {
-        entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [entityProfile.Entity], RoleId: "member" });
-    }
-    catch (error) {
-        log.error(error);
-        return false;
-    }
-    return true;
+    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [entityProfile.Entity], RoleId: "member" });
 }
