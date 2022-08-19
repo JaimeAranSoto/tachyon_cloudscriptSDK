@@ -116,8 +116,8 @@ handlers.VoteForGuildWar = function (args, context) {
     var votings = myGuildObjects.guildAttack.DataObject;
     votings.guildId = targetedGuildId;
     //if (isNewAttack) { //This will be reactivated again
-        votings.responsible = myEntityId;
-        votings.date = date;
+    votings.responsible = myEntityId;
+    votings.date = date;
     //}
 
     if (votings.yes == null) votings.yes = [];
@@ -139,4 +139,21 @@ handlers.GetGuildObjects = function (args) {
 
     var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } })
     return getObjectsResult.Objects;
+}
+
+handlers.AssignRandomGuild = function (args) {
+    var titleData = server.GetTitleData({ Keys: "guilds" });
+    var allGuilds = titleData.sa; //All in South America
+    var chosenGuild = Math.random(allGuilds.length);
+    log.debug("Chosen guild:", allGuilds[chosenGuild]);
+
+    let entityProfile = context.currentEntity;
+    try {
+        entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [entityProfile.Entity], RoleId: "member" });
+    }
+    catch (error) {
+        log.error(error);
+        return false;
+    }
+    return true;
 }
