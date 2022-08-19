@@ -141,11 +141,12 @@ handlers.GetGuildObjects = function (args) {
     return getObjectsResult.Objects;
 }
 
-handlers.AssignRandomGuild = function (args) {
+handlers.AssignRandomGuild = function (args,context) {
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     log.debug("Title data:", titleData);
     var allGuilds = titleData.sa.split(','); //All in South America
+    log.debug("All guilds:", allGuilds);
     var chosenGuild = Math.random(allGuilds.length);
     log.debug("Chosen guild:", allGuilds[chosenGuild]);
 
