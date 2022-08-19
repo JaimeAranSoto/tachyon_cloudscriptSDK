@@ -145,13 +145,15 @@ handlers.AssignRandomGuild = function (args, context) {
     var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
     var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
 
+    var allMyGuilds = entity.ListMembership({ Entity: myEntity });
+    if (allMyGuilds.Groups.length > 0) {
+        log.debug("Player is already in a group.");
+        return;
+    }
 
-    log.debug("Entity:", myEntity);
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
-    log.debug("Title data:", titleData);
-    var allGuilds = titleData.sa.split(","); //All in South America
-    log.debug("All guilds:", allGuilds);
+    var allGuilds = titleData.sa.split(","); //All in South America;
     var chosenGuild = Math.floor(Math.random(allGuilds.length));
     log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
