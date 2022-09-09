@@ -13,8 +13,9 @@ handlers.AddRobotXP = function (args) {
     var addition = args.addition;
 
     var robot = GetItem(args.robotInstanceId);
+    log.debug("Robot:", robot);
     var customData = robot.CustomData;
-
+    log.debug("Robot custom data:", customData);
     if (customData.xp === undefined) {
         customData.xp = addition;
     } else {
