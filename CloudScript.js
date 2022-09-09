@@ -1,5 +1,5 @@
-var entity = PlayFab.DataApi;
-var server = PlayFab.ServerApi;
+//var entity = PlayFab.DataApi;
+//var server = PlayFab.ServerApi;
 
 handlers.AddCurrency = function (args) {
     var amount = args.Amount;
