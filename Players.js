@@ -14,10 +14,11 @@ handlers.AddRobotXP = function (args) {
 
     var robot = GetItem(args.robotInstanceId);
     var customData = robot.CustomData;
-    var JSONObject = JSON.parse(customData);
 
-    JSONObject.xp += addition;
-
-
-    server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: JSONObject });
+    if (customData.xp === undefined) {
+        customData.xp = addition;
+    } else {
+        customData.xp += addition;
+    }
+    server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
 }
