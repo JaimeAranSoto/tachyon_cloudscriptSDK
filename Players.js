@@ -10,7 +10,7 @@ handlers.AssignPresets = function (args) {
 }
 
 handlers.AddRobotXP = function (args) {
-    var addition = args.addition;
+    var addition = Number(args.addition);
 
     var robot = GetItem(args.robotInstanceId);
     log.debug("Robot:", robot);
@@ -22,7 +22,7 @@ handlers.AddRobotXP = function (args) {
         if (customData.xp === undefined) {
             customData.xp = addition;
         } else {
-            customData.xp += addition;
+            customData.xp += Number(addition);
         }
     }
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
