@@ -20,9 +20,9 @@ handlers.AddRobotXP = function (args) {
         var customData = { xp: addition };
     } else {
         if (customData.xp === undefined) {
-            customData.xp = addition;
+            customData.xp = Number(addition);
         } else {
-            customData.xp += Number(addition);
+            customData.xp = Number(customData.xp) + Number(addition);
         }
     }
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
