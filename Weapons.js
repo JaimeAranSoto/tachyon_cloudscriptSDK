@@ -25,16 +25,16 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel, UpgradeTimeStamp: -1 } });
 }
 
-function GetWeapon(ItemInstanceId) {
+function GetItem(ItemInstanceId) {
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
-    var weapon = undefined;
+    var item = undefined;
 
     for (var i = 0; i < inventory.length; i++) {
         if (inventory[i].ItemInstanceId == ItemInstanceId) {
-            weapon = inventory[i];
+            item = inventory[i];
         }
     }
-    return weapon;
+    return item;
 }
 //HI
 /** 
@@ -46,7 +46,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     //Prevent cheating...
     var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
     var weaponInstanceId = args.weaponInstanceId;
-    var weapon = GetWeapon(weaponInstanceId);
+    var weapon = GetItem(weaponInstanceId);
 
     if (weapon === undefined || weapon == null) {
         log.debug("Weapon is not in player's inventory");
@@ -91,7 +91,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
 }
 
 handlers.UpgradeWeaponUsingCurrency = function (args) {
-    var weapon = GetWeapon(args.weaponInstanceId);
+    var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
         log.debug("Weapon is not in player's inventory");
@@ -114,7 +114,7 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
 }
 
 handlers.UpgradeWeaponUsingMaterials = function (args) {
-    var weapon = GetWeapon(args.weaponInstanceId);
+    var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
         log.debug("Weapon is not in player's inventory");
@@ -159,15 +159,3 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
     return 1;
 }
 
-handlers.AddWeaponXP = function (args) {
-    var addition = args.addition;
-
-    var weapon = GetWeapon(args.weaponInstanceId);
-    var customData = weapon.CustomData;
-    var JSONObject = JSON.parse(customData);
-
-    JSONObject.xp += addition;
-
-
-    server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.weaponInstanceId, PlayFabId: currentPlayerId, Data: JSONObject });
-}
