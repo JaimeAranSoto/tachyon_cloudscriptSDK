@@ -82,6 +82,53 @@
     return 1;
 }*/
 
+handlers.AcceptOrCreateBattleInvitation = function (args, context) {
+    var myEntityId = args.myEntityId;
+    var targetedGuildId = args.targetedGuildId; //this could be null
+    var date = args.date;
+
+    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuild = allMyGuilds.Groups[0];
+
+    if (myGuild == null || myGuild === undefined) {
+        log.debug("Current player is not in a guild", allMyGuilds);
+        return -1;
+    } else {
+        log.debug("Guild found", myGuild);
+    }
+    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("PlayerGuild has no objects");
+        return -1;
+    }
+
+    var myGuildObjects = getObjectsResult.Objects;
+
+    var isNewInvitation = false;
+    if (myGuildObjects.battleInvitation === undefined) {
+        myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+        isNewInvitation = true;
+    }
+
+    var invitation = myGuildObjects.battleInvitation.DataObject;
+    invitation.guildId = targetedGuildId;
+    if (isNewInvitation) {
+        invitation.leader = myEntityId;
+        invitation.date = date;
+    }
+
+    if (invitation.participants == null) invitation.participants = [];
+
+    if (!invitation.participants.includes(myEntityId)) {
+        invitation.participants.push(myEntityId);
+    }
+
+    entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+    return 1;
+}
+
+/*
 handlers.VoteForGuildWar = function (args, context) {
     var myEntityId = args.myEntityId;
     var vote = args.vote; //bool
@@ -132,7 +179,7 @@ handlers.VoteForGuildWar = function (args, context) {
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "guildAttack", DataObject: votings }] });
     return 1;
 }
-
+*/
 
 handlers.GetGuildObjects = function (args) {
     var guildId = args.guildId;
