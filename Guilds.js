@@ -147,7 +147,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
         log.debug("A new Battle Invitation was created.")
         myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
     } else {
-        if (CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Group.Id })) { //If has just expired
+        if (handlers.CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Group.Id })) { //If has just expired
             isNewInvitation = true;
             log.debug("Since last invitation expired, a new Battle Invitation was created.")
             myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
