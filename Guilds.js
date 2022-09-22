@@ -87,7 +87,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     const EXPIRATION_TIME = 3 * 60; //Seconds
 
     var attackerGuildId = args.attackerGuildId;
-    var groupObjectData = server.GetObjects({
+    var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
     });
 
