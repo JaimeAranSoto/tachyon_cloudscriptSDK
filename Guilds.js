@@ -163,7 +163,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
 
     if (invitation.participants == null) invitation.participants = [];
 
-    if (!invitation.participants.includes(myEntityId)) {
+    if (!invitation.participants.includes(myEntityId) && invitation.leader != myEntityId) {
         invitation.participants.push(myEntityId);
     }
 
