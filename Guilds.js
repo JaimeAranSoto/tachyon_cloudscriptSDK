@@ -82,8 +82,33 @@
     return 1;
 }*/
 
-handlers.AcceptOrCreateBattleInvitation = function (args, context) {
+
+handlers.CheckExpirationForBattleInvitation = function (args) {
     const EXPIRATION_TIME = 3 * 60; //Seconds
+
+    var attackerGuildId = args.attackerGuildId;
+    var groupObjectData = server.GetObjects({
+        Entity: { Id: attackerGuildId, Type: "group" }
+    });
+
+    var expired = true;
+
+    var myGuildObjects = groupObjectData.Objects;
+    if (myGuildObjects.battleInvitation !== undefined) {
+        var invitation = myGuildObjects.battleInvitation.DataObject;
+
+        var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
+        if (timeSinceCreated >= EXPIRATION_TIME) {
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: null }] });
+        } else {
+            expired = false;
+        }
+    }
+
+    return expired;
+}
+
+handlers.AcceptOrCreateBattleInvitation = function (args) {
     var myEntityId = args.myEntityId;
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
@@ -107,28 +132,29 @@ handlers.AcceptOrCreateBattleInvitation = function (args, context) {
     var myGuildObjects = getObjectsResult.Objects;
 
     var isNewInvitation = false;
-    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined) {
+    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined) { //If it doesn't exist
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
         myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+    } else {
+        if (CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Group.Id })) { //If has just expired
+            isNewInvitation = true;
+            myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+        }
     }
 
     var invitation = myGuildObjects.battleInvitation.DataObject;
+
     invitation.guildId = targetedGuildId;
     if (isNewInvitation) {
         invitation.leader = myEntityId;
         invitation.date = date;
     }
-    var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
-    if (timeSinceCreated >= EXPIRATION_TIME) {
-        log.debug("The previous Battle Invitation expired.")
-        invitation = undefined;
-    } else {
-        if (invitation.participants == null) invitation.participants = [];
 
-        if (!invitation.participants.includes(myEntityId)) {
-            invitation.participants.push(myEntityId);
-        }
+    if (invitation.participants == null) invitation.participants = [];
+
+    if (!invitation.participants.includes(myEntityId)) {
+        invitation.participants.push(myEntityId);
     }
 
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
@@ -141,28 +167,28 @@ handlers.VoteForGuildWar = function (args, context) {
     var vote = args.vote; //bool
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
-
+ 
     var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
     var myGuild = allMyGuilds.Groups[0];
-
+ 
     if (myGuild == null || myGuild === undefined) {
         log.debug("Current player is not in a guild", allMyGuilds);
         return -1;
     } else {
         log.debug("Guild found", myGuild);
     }
-
+ 
     var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
-
+ 
     if (getObjectsResult == null || getObjectsResult === undefined) {
         log.debug("PlayerGuild has no objects");
         return -1;
     }
-
+ 
     var myGuildObjects = getObjectsResult.Objects;
-
+ 
     var isNewAttack = false;
-
+ 
     if (myGuildObjects.guildAttack === undefined) {
         myGuildObjects.guildAttack = { ObjectName: "guildAttack", DataObject: {} };
         isNewAttack = true;
@@ -173,16 +199,16 @@ handlers.VoteForGuildWar = function (args, context) {
     votings.responsible = myEntityId;
     votings.date = date;
     //}
-
+ 
     if (votings.yes == null) votings.yes = [];
     if (votings.no == null) votings.no = [];
-
+ 
     if (vote && !votings.yes.includes(myEntityId)) {
         votings.yes.push(myEntityId);
     } else if (!votings.no.includes(myEntityId)) {
         votings.no.push(myEntityId);
     }
-
+ 
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "guildAttack", DataObject: votings }] });
     return 1;
 }
