@@ -83,6 +83,7 @@
 }*/
 
 handlers.AcceptOrCreateBattleInvitation = function (args, context) {
+    const EXPIRATION_TIME = 3 * 60; //Seconds
     var myEntityId = args.myEntityId;
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
@@ -106,9 +107,10 @@ handlers.AcceptOrCreateBattleInvitation = function (args, context) {
     var myGuildObjects = getObjectsResult.Objects;
 
     var isNewInvitation = false;
-    if (myGuildObjects.battleInvitation === undefined) {
-        myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined) {
         isNewInvitation = true;
+        log.debug("A new Battle Invitation was created.")
+        myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
     }
 
     var invitation = myGuildObjects.battleInvitation.DataObject;
@@ -117,11 +119,16 @@ handlers.AcceptOrCreateBattleInvitation = function (args, context) {
         invitation.leader = myEntityId;
         invitation.date = date;
     }
+    var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
+    if (timeSinceCreated >= EXPIRATION_TIME) {
+        log.debug("The previous Battle Invitation expired.")
+        invitation = undefined;
+    } else {
+        if (invitation.participants == null) invitation.participants = [];
 
-    if (invitation.participants == null) invitation.participants = [];
-
-    if (!invitation.participants.includes(myEntityId)) {
-        invitation.participants.push(myEntityId);
+        if (!invitation.participants.includes(myEntityId)) {
+            invitation.participants.push(myEntityId);
+        }
     }
 
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
