@@ -94,15 +94,19 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     var expired = true;
 
     var myGuildObjects = groupObjectData.Objects;
-    if (myGuildObjects.battleInvitation !== undefined) {
+    if (myGuildObjects.battleInvitation !== undefined && myGuildObjects.battleInvitation.DataObject != "") {
         var invitation = myGuildObjects.battleInvitation.DataObject;
 
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
         if (timeSinceCreated >= EXPIRATION_TIME) {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: "" }] });
+            log.debug("The BatlleInvitation is expired.")
         } else {
             expired = false;
+            log.debug("The BatlleInvitation has not expired yet.")
         }
+    } else {
+        log.debug("The BatlleInvitation doesn't exist.")
     }
 
     return expired;
@@ -132,7 +136,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var myGuildObjects = getObjectsResult.Objects;
 
     var isNewInvitation = false;
-    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined) { //If it doesn't exist
+    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined || myGuild.battleInvitation.DataObject == "") { //If it doesn't exist
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
         myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
