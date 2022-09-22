@@ -99,7 +99,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
         if (timeSinceCreated >= EXPIRATION_TIME) {
-            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: null }] });
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: "" }] });
         } else {
             expired = false;
         }
