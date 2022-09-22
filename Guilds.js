@@ -142,7 +142,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var myGuildObjects = getObjectsResult.Objects;
 
     var isNewInvitation = false;
-    if (myGuildObjects.battleInvitation === undefined || myGuild.battleInvitation.DataObject === undefined || myGuild.battleInvitation.DataObject == "") { //If it doesn't exist
+    if (myGuildObjects.battleInvitation === undefined) { //If it doesn't exist
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
         myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
