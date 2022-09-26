@@ -102,8 +102,14 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         }
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
         if (timeSinceCreated >= EXPIRATION_TIME) {
-            //entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: "" }] });
             log.debug("The BatlleInvitation is expired.")
+
+            if (invitation.participants.length >= 4) {
+                log.debug("The battle invitation was successful and a GuildWar started.");
+                invitation.successful = true;
+                entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+            }
+
             expired = true;
         } else {
             expired = false;
@@ -167,6 +173,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     if (!invitation.participants.includes(myEntityId) && invitation.leader != myEntityId) {
         invitation.participants.push(myEntityId);
     }
+    invitation.successful = invitation.participants.length >= 4;
 
     entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
     return 1;
