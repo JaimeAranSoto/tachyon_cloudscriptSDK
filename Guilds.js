@@ -85,6 +85,7 @@
 
 handlers.CheckExpirationForBattleInvitation = function (args) {
     const EXPIRATION_TIME = 3 * 60; //Seconds
+    const BATTLE_MAX_DURATION = 5 * 60;
 
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
@@ -106,7 +107,14 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
             if (invitation.participants.length >= 4) {
                 log.debug("The battle invitation was successful and a GuildWar started.");
-                invitation.successful = true;
+                var battleDuration = timeSinceCreated - EXPIRATION_TIME;
+                if (battleDuration >= BATTLE_MAX_DURATION) {
+                    invitation.successful = false;
+                    invitation.participants = [];
+                    invitation.leader = "";
+                } else {
+                    invitation.successful = true;
+                }
                 entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
             }
 
