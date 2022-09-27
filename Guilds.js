@@ -186,6 +186,7 @@ handlers.DefendGuild = function (args) {
 
     defense.participants.push(myEntityId);
     entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId), Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+    return 1;
 }
 
 handlers.FinishWar = function (args) {
