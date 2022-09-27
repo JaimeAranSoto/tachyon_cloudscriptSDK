@@ -188,6 +188,43 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     return 1;
 }
 
+handlers.FinishWar = function (args) {
+    var myEntityId = args.myEntityId;
+    var won = args.won; //bool
+
+    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
+    var myGuild = allMyGuilds.Groups[0];
+
+    if (myGuild == null || myGuild === undefined) {
+        log.debug("Current player is not in a guild", allMyGuilds);
+        return -1; //Player is not in a guild
+    }
+    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("PlayerGuild has no objects");
+        return -1;
+    }
+
+    var myGuildObjects = getObjectsResult.Objects;
+    if (myGuildObjects.battleInvitation != null) {
+        var invitation = myGuildObjects.battleInvitation.DataObject;
+        if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
+            //TODO: Give prizes
+            { }
+            invitation.leader = "";
+            invitation.participants = [];
+            invitation.successful = false;
+            entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+            return 1; //War finished successfully, battleInvitation was reset.
+        } else {
+            return -3; //Player is not a participant or method was already called by another player.
+        }
+    } else {
+        return -2; //Guild has no active invitation
+    }
+}
+
 /*
 handlers.VoteForGuildWar = function (args, context) {
     var myEntityId = args.myEntityId;
