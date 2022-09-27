@@ -115,6 +115,9 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.leader = "";
                 } else {
                     invitation.successful = true;
+                    //TODO: Create battle defense in defender guild.
+                    var defense = { date: Date.now(), participants: [], attackerGuildId: attackerGuildId };
+                    entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                 }
                 entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
             }
@@ -138,23 +141,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
 
-    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
-    var myGuild = allMyGuilds.Groups[0];
-
-    if (myGuild == null || myGuild === undefined) {
-        log.debug("Current player is not in a guild", allMyGuilds);
-        return -1;
-    } else {
-        log.debug("Guild found", myGuild);
-    }
-    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
-
-    if (getObjectsResult == null || getObjectsResult === undefined) {
-        log.debug("PlayerGuild has no objects");
-        return -1;
-    }
-
-    var myGuildObjects = getObjectsResult.Objects;
+    var myGuildObjects = GetMyGuildObjects(myEntityId);
 
     var isNewInvitation = false;
     if (myGuildObjects.battleInvitation === undefined) { //If it doesn't exist
@@ -188,25 +175,25 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     return 1;
 }
 
+handlers.DefendGuild = function (args) {
+    var myEntityId = args.myEntityId;
+    var myGuildObjects = GetMyGuildObjects(myEntityId);
+
+    if (myGuildObjects.battleDefense == null) return -1;
+    var defense = myGuildObjects.battleDefense.DataObject;
+
+    if (defense.participants.includes(myEntityId)) return -2; //already entered
+
+    defense.participants.push(myEntityId);
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId), Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+}
+
 handlers.FinishWar = function (args) {
     var myEntityId = args.myEntityId;
     var won = args.won; //bool
 
-    var allMyGuilds = entity.ListMembership({ Entity: { Id: myEntityId, Type: "title_player_account" } });
-    var myGuild = allMyGuilds.Groups[0];
+    var myGuildObjects = GetMyGuildObjects(myEntityId);
 
-    if (myGuild == null || myGuild === undefined) {
-        log.debug("Current player is not in a guild", allMyGuilds);
-        return -1; //Player is not in a guild
-    }
-    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
-
-    if (getObjectsResult == null || getObjectsResult === undefined) {
-        log.debug("PlayerGuild has no objects");
-        return -1;
-    }
-
-    var myGuildObjects = getObjectsResult.Objects;
     if (myGuildObjects.battleInvitation != null) {
         var invitation = myGuildObjects.battleInvitation.DataObject;
         if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
@@ -223,6 +210,33 @@ handlers.FinishWar = function (args) {
     } else {
         return -2; //Guild has no active invitation
     }
+}
+
+GetMyGuildObjects = function (playerId) {
+    var myGuild = GetMyGuild(playerId);
+
+    if (myGuild == null) return null;
+
+    var getObjectsResult = entity.GetObjects({ Entity: myGuild.Group });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("PlayerGuild has no objects");
+        return null;
+    }
+
+    var myGuildObjects = getObjectsResult.Objects;
+    return myGuildObjects;
+}
+
+GetMyGuild = function (playerId) {
+    var allMyGuilds = entity.ListMembership({ Entity: { Id: playerId, Type: "title_player_account" } });
+    var myGuild = allMyGuilds.Groups[0];
+
+    if (myGuild == null || myGuild === undefined) {
+        log.debug("Current player is not in a guild", allMyGuilds);
+        return null; //Player is not in a guild
+    }
+    return myGuild;
 }
 
 /*
