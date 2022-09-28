@@ -137,7 +137,7 @@ handlers.FinishWar = function (args) {
 
 handlers.CollectWarPoints = function (args) {
     var playerEntityId = args.myEntityId;
-    var objects = this.GetGuildObjects(playerEntityId);
+    var objects = GetGuildObjects(playerEntityId);
 
     var pool = objects.warPointsPool;
     if (pool == null) return;
@@ -150,7 +150,7 @@ handlers.CollectWarPoints = function (args) {
         server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: participants[playerEntityId] }] });
         delete participants[playerEntityId];
 
-        entity.SetObjects({ Entity: { Id: this.GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: participants }] });
+        entity.SetObjects({ Entity: { Id: GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: participants }] });
     }
 
 }
