@@ -120,7 +120,7 @@ handlers.FinishWar = function (args) {
         if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
             SplitWarPoints(attackerGuild, didAttackersWon, false);
             SplitWarPoints(defenderGuild, !didAttackersWon, true);
- 
+
             var newInvitation = { leader: "", participants: [], successful: false };
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
@@ -133,6 +133,26 @@ handlers.FinishWar = function (args) {
     } else {
         return -2; //Guild has no active invitation
     }
+}
+
+handlers.CollectWarPoints = function (args) {
+    var playerEntityId = args.myEntityId;
+    var objects = this.GetGuildObjects(playerEntityId);
+
+    var pool = objects.warPointsPool;
+    if (pool == null) return;
+    var poolData = pool.DataObject;
+    if (poolData == null) return;
+    var participants = poolData.pool;
+    if (participants == null) return;
+
+    if (participants[playerEntityId] != null) {
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: participants[playerEntityId] }] });
+        delete participants[playerEntityId];
+
+        entity.SetObjects({ Entity: { Id: this.GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: participants }] });
+    }
+
 }
 
 SplitWarPoints = function (guildId, won, defending) {
