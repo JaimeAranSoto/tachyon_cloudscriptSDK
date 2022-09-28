@@ -113,7 +113,7 @@ handlers.FinishWar = function (args) {
     var myGuildObjects = GetMyGuildObjects(myEntityId);
 
     var attackerGuild = myGuild.Id;
-    var defenderGuild = myGuildObjects.battleInvitation.guildId;
+    var defenderGuild = myGuildObjects.battleInvitation.DataObject.guildId;
 
     if (myGuildObjects.battleInvitation != null) {
         var invitation = myGuildObjects.battleInvitation.DataObject;
