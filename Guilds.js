@@ -150,18 +150,17 @@ SplitWarPoints = function (guildId, won, defending) {
     var objects = getObjectsResult.Objects;
 
     log.debug("SplitWarPoints, guildObjects", objects);
-    return;
 
     if (defending) {
-        var division = objects.battleDefense.participants.length;
+        var division = objects.battleDefense.DataObject.participants.length;
         for (let i = 0; i < division; i++) {
-            const player = objects.battleDefense.participants[i];
+            const player = objects.battleDefense.DataObject.participants[i];
             pool[player] = won ? WINNER_POOL / division : LOSER_POOL / division; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
-        var division = objects.battleInvitation.participants.length;
+        var division = objects.battleInvitation.DataObject.participants.length;
         for (let i = 0; i < division; i++) {
-            const player = objects.battleInvitation.participants[i];
+            const player = objects.battleInvitation.DataObject.participants[i];
             pool[player] = won ? WINNER_POOL / division : LOSER_POOL / division; //TODO: Check if has NFT and add multiplier system
         }
     }
