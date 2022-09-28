@@ -138,13 +138,23 @@ handlers.FinishWar = function (args) {
 handlers.CollectWarPoints = function (args) {
     var playerEntityId = args.myEntityId;
     var objects = GetMyGuildObjects(playerEntityId);
+    log.debug("GuildObjects", objects);
 
     var pool = objects.warPointsPool;
-    if (pool == null) return "Pool is null";
+    if (pool == null) {
+        log.debug("Pool is null");
+        return;
+    }
     var poolData = pool.DataObject;
-    if (poolData == null) return "PoolData is null";
+    if (poolData == null) {
+        log.debug("PoolData is null");
+        return;
+    }
     var participants = poolData.pool;
-    if (participants == null) return "Participants is null";
+    if (participants == null) {
+        log.debug("Participants is null");
+        return;
+    }
 
     if (participants[playerEntityId] != null) {
         server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: participants[playerEntityId] }] });
