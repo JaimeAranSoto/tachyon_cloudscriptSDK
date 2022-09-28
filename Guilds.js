@@ -114,11 +114,17 @@ handlers.FinishWar = function (args) {
     if (myGuildObjects.battleInvitation != null) {
         var invitation = myGuildObjects.battleInvitation.DataObject;
         if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
-            //TODO: Give prizes
+            //TODO: Give rank points
             { }
             invitation.leader = "";
             invitation.participants = [];
             invitation.successful = false;
+
+            
+            var defense = { date: Date.getUTCDate(), participants: [], attackerGuildId: attackerGuildId };
+
+            entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+
             entity.SetObjects({ Entity: { Id: myGuild.Group.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
@@ -126,6 +132,26 @@ handlers.FinishWar = function (args) {
         }
     } else {
         return -2; //Guild has no active invitation
+    }
+}
+
+SplitRankPoints = function (guildId, points, defending) {
+    var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("Guild has no objects");
+        return null;
+    }
+
+    var objects = getObjectsResult.Objects;
+    if (defending) {
+        for (let i = 0; i < objects.battleDefense.participants.length; i++) {
+            const player = objects.battleDefense.participants[i];
+            /* entity.Get
+             server.UpdatePlayerStatistics({PlayFabId:player})*/
+        }
+    } else { //Attacking
+
     }
 }
 
