@@ -147,6 +147,10 @@ SplitWarPoints = function (guildId, won, defending) {
     }
     var pool = {};
     var objects = getObjectsResult.Objects;
+
+    log.debug("SplitWarPoints, guildObjects", objects);
+    return;
+
     if (defending) {
         var division = objects.battleDefense.participants.length;
         for (let i = 0; i < division; i++) {
