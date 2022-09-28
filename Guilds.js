@@ -150,7 +150,7 @@ handlers.CollectWarPoints = function (args) {
         log.debug("PoolData is null");
         return;
     }
-    var participants = poolData.pool;
+    var participants = poolData.warPointsPool;
     if (participants == null) {
         log.debug("Participants is null");
         return;
