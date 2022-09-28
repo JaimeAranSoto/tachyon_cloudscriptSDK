@@ -120,7 +120,7 @@ handlers.FinishWar = function (args) {
         if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
             SplitWarPoints(attackerGuild, didAttackersWon, true);
             SplitWarPoints(defenderGuild, !didAttackersWon, false);
-
+            return;
             var newInvitation = { leader: "", participants: [], successful: false };
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
@@ -136,6 +136,7 @@ handlers.FinishWar = function (args) {
 }
 
 SplitWarPoints = function (guildId, won, defending) {
+    log.debug("SplitWarPoints called, guild id: " + guildId + " has won?: " + won + " is defending?:" + defending);
     const WINNER_POOL = 8000;
     const LOSER_POOL = 2000;
 
