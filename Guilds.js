@@ -151,6 +151,8 @@ handlers.CollectWarPoints = function (args) {
         delete participants[playerEntityId];
 
         entity.SetObjects({ Entity: { Id: GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: participants }] });
+    }else{
+        log.debug("Player is not eligible for war points.")
     }
 
 }
