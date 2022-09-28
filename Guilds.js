@@ -150,17 +150,12 @@ handlers.CollectWarPoints = function (args) {
         log.debug("PoolData is null");
         return;
     }
-    var participants = poolData.warPointsPool;
-    if (participants == null) {
-        log.debug("Participants is null");
-        return;
-    }
 
-    if (participants[playerEntityId] != null) {
-        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: participants[playerEntityId] }] });
-        delete participants[playerEntityId];
+    if (poolData[playerEntityId] != null) {
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData[playerEntityId] }] });
+        delete poolData[playerEntityId];
 
-        entity.SetObjects({ Entity: { Id: GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: participants }] });
+        entity.SetObjects({ Entity: { Id: GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: poolData }] });
     } else {
         log.debug("Player is not eligible for war points.")
     }
