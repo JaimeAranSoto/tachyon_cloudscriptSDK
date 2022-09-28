@@ -30,8 +30,8 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.leader = "";
                 } else {
                     invitation.successful = true;
-                    //TODO: Create battle defense in defender guild.
-                    var defense = { date: Date.now(), participants: [], attackerGuildId: attackerGuildId };
+                    //Create battle defense in defender guild.
+                    var defense = { date: Date.getUTCDate(), participants: [], attackerGuildId: attackerGuildId };
                     entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                 }
                 entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
