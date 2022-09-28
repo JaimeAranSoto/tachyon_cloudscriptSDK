@@ -137,7 +137,7 @@ handlers.FinishWar = function (args) {
 
 handlers.CollectWarPoints = function (args) {
     var playerEntityId = args.myEntityId;
-    var objects = GetGuildObjects(playerEntityId);
+    var objects = GetMyGuildObjects(playerEntityId);
 
     var pool = objects.warPointsPool;
     if (pool == null) return;
