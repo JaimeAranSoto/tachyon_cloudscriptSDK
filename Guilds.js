@@ -155,7 +155,7 @@ handlers.CollectWarPoints = function (args) {
         server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData[playerEntityId] }] });
         delete poolData[playerEntityId];
 
-        entity.SetObjects({ Entity: { Id: GetMyGuild().Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: poolData }] });
+        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: poolData }] });
     } else {
         log.debug("Player is not eligible for war points.")
     }
