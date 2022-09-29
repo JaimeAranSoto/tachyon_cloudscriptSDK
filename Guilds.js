@@ -121,7 +121,7 @@ handlers.FinishWar = function (args) {
             SplitWarPoints(attackerGuild, didAttackersWon, false);
             SplitWarPoints(defenderGuild, !didAttackersWon, true);
 
-            var newInvitation = { leader: "", participants: [], successful: false };
+            var newInvitation = { leader: "", participants: [], successful: false , date: "2020-09-28T13:54:50"};
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
             var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: "" };
