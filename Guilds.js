@@ -124,7 +124,7 @@ handlers.FinishWar = function (args) {
             var newInvitation = { leader: "", participants: [], successful: false };
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
-            var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId };
+            var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: "" };
             entity.SetObjects({ Entity: { Id: defenderGuild, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
