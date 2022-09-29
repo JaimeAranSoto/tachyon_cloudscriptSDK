@@ -121,7 +121,7 @@ handlers.FinishWar = function (args) {
             SplitWarPoints(attackerGuild, didAttackersWon, false);
             SplitWarPoints(defenderGuild, !didAttackersWon, true);
 
-            var newInvitation = { leader: "", participants: [], successful: false , date: "2020-09-28T13:54:50"};
+            var newInvitation = { leader: "", participants: [], successful: false, date: "2020-09-28T13:54:50" };
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
             var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: "" };
@@ -178,16 +178,17 @@ SplitWarPoints = function (guildId, won, defending) {
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
-    var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
 
     if (defending) {
         var division = objects.battleDefense.DataObject.participants.length;
+        var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
             pool[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
         var division = objects.battleInvitation.DataObject.participants.length;
+        var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
             pool[player] = reward; //TODO: Check if has NFT and add multiplier system
