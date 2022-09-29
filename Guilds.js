@@ -31,7 +31,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 } else {
                     invitation.successful = true;
                     //Create battle defense in defender guild.
-                    var defense = { date: new Date().getUTCDate(), participants: [], attackerGuildId: attackerGuildId };
+                    var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId };
                     entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                 }
                 entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
@@ -124,7 +124,7 @@ handlers.FinishWar = function (args) {
             var newInvitation = { leader: "", participants: [], successful: false };
             entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
-            var newDefense = { date: new Date().getUTCDate(), participants: [], attackerGuildId: attackerGuildId };
+            var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId };
             entity.SetObjects({ Entity: { Id: defenderGuild, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
