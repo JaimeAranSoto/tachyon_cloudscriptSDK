@@ -178,18 +178,21 @@ SplitWarPoints = function (guildId, won, defending) {
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
+    var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
+
     if (defending) {
         var division = objects.battleDefense.DataObject.participants.length;
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
-            pool[player] = won ? WINNER_POOL / division : LOSER_POOL / division; //TODO: Check if has NFT and add multiplier system
+            pool[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
         var division = objects.battleInvitation.DataObject.participants.length;
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
-            pool[player] = won ? WINNER_POOL / division : LOSER_POOL / division; //TODO: Check if has NFT and add multiplier system
+            pool[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
+        pool[objects.battleInvitation.DataObject.leader] = reward;
     }
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: pool }] });
 }
