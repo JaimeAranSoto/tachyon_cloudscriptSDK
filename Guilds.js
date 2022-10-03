@@ -20,7 +20,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         if (timeSinceCreated >= EXPIRATION_TIME) {
             log.debug("The BatlleInvitation is expired.")
 
-            if (invitation.participants.length >= 4) {
+            if (invitation.participants.length >=3 /*Includes leader*/) {
                 log.debug("The battle invitation was successful and a GuildWar started.");
                 var battleDuration = timeSinceCreated - EXPIRATION_TIME;
                 log.debug("Battle duration: " + battleDuration);
