@@ -6,6 +6,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     var INVITATION_DURATION = config.INVITATION_DURATION;
 
     log.debug("config: " + config);
+    log.debug("Invitation duration: " + INVITATION_DURATION);
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
