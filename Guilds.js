@@ -1,6 +1,10 @@
 handlers.CheckExpirationForBattleInvitation = function (args) {
-    const EXPIRATION_TIME = 3 * 60; //Seconds
-    const BATTLE_MAX_DURATION = 5 * 60;
+
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    var MIN_ATTACKERS = config.MIN_ATTACKERS;
+    var WAR_DURATION = config.WAR_DURATION;
+    var INVITATION_DURATION = config.INVITATION_DURATION;
+
 
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
@@ -17,14 +21,14 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             expired = true;
         }
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
-        if (timeSinceCreated >= EXPIRATION_TIME) {
+        if (timeSinceCreated >= INVITATION_DURATION) {
             log.debug("The BatlleInvitation is expired.")
 
-            if (invitation.participants.length >= 3 /*Includes leader*/) {
+            if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
                 log.debug("The battle invitation was successful and a GuildWar started.");
-                var battleDuration = timeSinceCreated - EXPIRATION_TIME;
+                var battleDuration = timeSinceCreated - INVITATION_DURATION;
                 log.debug("Battle duration: " + battleDuration);
-                if (battleDuration >= BATTLE_MAX_DURATION) {
+                if (battleDuration >= WAR_DURATION) {
                     invitation.successful = false;
                     invitation.participants = [];
                     invitation.leader = "";
@@ -56,6 +60,9 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
 
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    var MIN_ATTACKERS = config.MIN_ATTACKERS;
+
     var myGuild = GetMyGuild(myEntityId);
     var myGuildObjects = GetMyGuildObjects(myEntityId);
 
@@ -85,7 +92,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     if (!invitation.participants.includes(myEntityId) && invitation.leader != myEntityId) {
         invitation.participants.push(myEntityId);
     }
-    invitation.successful = invitation.participants.length >= 3 /*Including leader!*/;
+    invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
     entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
     return 1;
@@ -164,8 +171,11 @@ handlers.CollectWarPoints = function (args) {
 
 SplitWarPoints = function (guildId, won, defending) {
     log.debug("SplitWarPoints called, guild id: " + guildId + " has won?: " + won + " is defending?:" + defending);
-    const WINNER_POOL = 8000;
-    const LOSER_POOL = 2000;
+
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    var WINNER_POOL = config.WINNER_POOL;
+    var LOSER_POOL = config.LOSER_POOL;
+
 
     var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
 
