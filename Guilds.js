@@ -1,12 +1,13 @@
 handlers.CheckExpirationForBattleInvitation = function (args) {
 
-    var config = JSON.parse(server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig);
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     var MIN_ATTACKERS = config.MIN_ATTACKERS;
     var WAR_DURATION = config.WAR_DURATION;
     var INVITATION_DURATION = config.INVITATION_DURATION;
 
     log.debug("config: " + config);
     log.debug("Invitation duration: " + INVITATION_DURATION);
+    log.debug("JSON: " + JSON.parse(config));
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
