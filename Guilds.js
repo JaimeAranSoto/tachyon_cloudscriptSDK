@@ -1,6 +1,6 @@
 handlers.CheckExpirationForBattleInvitation = function (args) {
 
-    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    var config = JSON.parse(server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig);
     var MIN_ATTACKERS = config.MIN_ATTACKERS;
     var WAR_DURATION = config.WAR_DURATION;
     var INVITATION_DURATION = config.INVITATION_DURATION;
