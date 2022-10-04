@@ -1,13 +1,10 @@
 handlers.CheckExpirationForBattleInvitation = function (args) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    config = JSON.parse(config);
     var MIN_ATTACKERS = config.MIN_ATTACKERS;
     var WAR_DURATION = config.WAR_DURATION;
     var INVITATION_DURATION = config.INVITATION_DURATION;
-
-    log.debug("config: " + config);
-    log.debug("Invitation duration: " + INVITATION_DURATION);
-    log.debug("JSON: " + JSON.parse(config).MIN_ATTACKERS);
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
@@ -63,6 +60,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var date = args.date;
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    config = JSON.parse(config);
     var MIN_ATTACKERS = config.MIN_ATTACKERS;
 
     var myGuild = GetMyGuild(myEntityId);
@@ -175,6 +173,7 @@ SplitWarPoints = function (guildId, won, defending) {
     log.debug("SplitWarPoints called, guild id: " + guildId + " has won?: " + won + " is defending?:" + defending);
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    config = JSON.parse(config);
     var WINNER_POOL = config.WINNER_POOL;
     var LOSER_POOL = config.LOSER_POOL;
 
