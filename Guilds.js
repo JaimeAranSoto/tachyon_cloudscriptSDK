@@ -118,26 +118,29 @@ handlers.DefendGuild = function (args) {
 }
 
 handlers.FinishWar = function (args) {
-    var myEntityId = args.myEntityId;
+    var attackerGuildId = args.attackerGuild;
     var didAttackersWon = args.won; //bool
 
-    var myGuild = GetMyGuild(myEntityId);
-    var myGuildObjects = GetMyGuildObjects(myEntityId);
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+    var myEntityId = myEntity.Id;
 
-    var attackerGuild = myGuild.Id;
-    var defenderGuild = myGuildObjects.battleInvitation.DataObject.guildId;
+    var attackerGuild = GetGuildObjects(attackerGuildId);
 
-    if (myGuildObjects.battleInvitation != null) {
-        var invitation = myGuildObjects.battleInvitation.DataObject;
-        if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId) {
-            SplitWarPoints(attackerGuild, didAttackersWon, false);
+    if (attackerGuild.battleInvitation != null) {
+        var invitation = attackerGuild.battleInvitation.DataObject;
+        var defenderGuildId = invitation.guildId;
+        var defenderGuild = GetGuildObjects(defenderGuildId);
+
+        if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
+            SplitWarPoints(attackerGuildId, didAttackersWon, false);
             SplitWarPoints(defenderGuild, !didAttackersWon, true);
 
-            var newInvitation = { leader: "", participants: [], successful: false, date: "2020-09-28T13:54:50" };
-            entity.SetObjects({ Entity: { Id: attackerGuild, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
+            var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
 
-            var newDefense = { date: new Date().toUTCString(), participants: [], attackerGuildId: "" };
-            entity.SetObjects({ Entity: { Id: defenderGuild, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
+            var newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
+            entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
             return -3; //Player is not a participant or method was already called by another player.
@@ -222,6 +225,18 @@ GetMyGuildObjects = function (playerId) {
     if (myGuild == null) return null;
 
     var getObjectsResult = entity.GetObjects({ Entity: myGuild });
+
+    if (getObjectsResult == null || getObjectsResult === undefined) {
+        log.debug("PlayerGuild has no objects");
+        return null;
+    }
+
+    var myGuildObjects = getObjectsResult.Objects;
+    return myGuildObjects;
+}
+
+GetGuildObjects = function (guildId) {
+    var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
 
     if (getObjectsResult == null || getObjectsResult === undefined) {
         log.debug("PlayerGuild has no objects");
