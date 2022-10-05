@@ -10,7 +10,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         Entity: { Id: attackerGuildId, Type: "group" }
     });
 
-    var expired = 0;
+    var expired = false;
 
     var myGuildObjects = groupObjectData.Objects;
     if (myGuildObjects.battleInvitation !== undefined) {
@@ -27,24 +27,29 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 log.debug("The battle invitation was successful and a GuildWar started.");
                 var battleDuration = timeSinceCreated - INVITATION_DURATION;
                 log.debug("Battle duration: " + battleDuration);
-                if (battleDuration >= WAR_DURATION) {
+                if (battleDuration >= WAR_DURATION) { //War should have ended
                     invitation.successful = false;
                     invitation.participants = [];
                     invitation.leader = "";
+                    invitation.date = new Date(2000, 1, 1).toUTCString();
                 } else {
                     invitation.successful = true;
                     //Create battle defense in defender guild.
                     var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId };
                     entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                 }
-                entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+            } else {
+                invitation.successful = false;
+                invitation.participants = [];
+                invitation.leader = "";
+                invitation.date = new Date(2000, 1, 1).toUTCString();
             }
-
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
             expired = true;
         } else {
             expired = false;
             log.debug("The BatlleInvitation has not expired yet.")
-            expired = 0;
+            expired = false;
         }
     } else {
         log.debug("The BatlleInvitation doesn't exist.")
@@ -249,15 +254,16 @@ handlers.AssignRandomGuild = function (args, context) {
 
     var allMyGuilds = entity.ListMembership({ Entity: myEntity });
     if (allMyGuilds.Groups.length > 0) {
-        log.debug("Player is already in a group!");
+        log.debug("Player is already in a group.");
         return;
     }
 
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     var allGuilds = titleData.sa.split(","); //All in South America;
-    log.debug("Guilds amount: " + allGuilds.length);    
-    var chosenGuild = Math.floor(Math.random(allGuilds.length));
+    var max = allGuilds.length;
+    var chosenGuild = Math.floor(Math.random() * max);
+    log.debug("Total guild: " + allGuilds.length);
     log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
     entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "members" });
