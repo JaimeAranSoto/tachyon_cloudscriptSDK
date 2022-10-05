@@ -197,6 +197,7 @@ SplitWarPoints = function (guildId, won, defending) {
 
     if (defending) {
         var division = objects.battleDefense.DataObject.participants.length;
+        if (division == 0) return;
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
@@ -204,6 +205,7 @@ SplitWarPoints = function (guildId, won, defending) {
         }
     } else { //Attacking
         var division = objects.battleInvitation.DataObject.participants.length;
+        if (division == 0) return;
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
