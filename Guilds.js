@@ -249,14 +249,14 @@ handlers.AssignRandomGuild = function (args, context) {
 
     var allMyGuilds = entity.ListMembership({ Entity: myEntity });
     if (allMyGuilds.Groups.length > 0) {
-        log.debug("Player is already in a group.");
+        log.debug("Player is already in a group!");
         return;
     }
 
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     titleData = JSON.parse(titleData);
     var allGuilds = titleData.sa.split(","); //All in South America;
-    log.debug("Guilds amount: " + allGuilds.length);
+    log.debug("Guilds amount: " + allGuilds.length);    
     var chosenGuild = Math.floor(Math.random(allGuilds.length));
     log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
 
