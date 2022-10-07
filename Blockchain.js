@@ -19,6 +19,6 @@ handlers.PurchaseItem = function (args) {
     }
     */
 
-    log.debug("Purchase Item request received.")
+    log.debug("Purchase Item request received.");
     return "Purchase received, PlayFabId: " + PlayFabId;
 }
