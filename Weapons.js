@@ -1,3 +1,5 @@
+////////////// WEAPONS
+
 GetTimeToUpgradeWeapon = function (formula, currentLevel) {
     var level = parseInt(currentLevel);
     var a = Math.pow(level + 1, 2);

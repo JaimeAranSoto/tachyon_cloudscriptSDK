@@ -1,3 +1,5 @@
+////////////// GUILDS
+
 handlers.CheckExpirationForBattleInvitation = function (args) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
