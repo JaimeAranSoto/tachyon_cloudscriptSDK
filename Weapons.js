@@ -32,7 +32,7 @@ GetItem = function (ItemInstanceId) {
 /** 
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
-handlers.UpdateStandartUpgrade = function (args) {
+handlers.UpdateStandardUpgrade = function (args) {
     var weaponInstanceId = args.weaponInstanceId;
 
     var weapon = GetItem(weaponInstanceId);
@@ -75,7 +75,7 @@ handlers.UpdateStandartUpgrade = function (args) {
     }
 }
 
-handlers.StandartUpgrade = function (args) {
+handlers.StandardUpgrade = function (args) {
     var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
@@ -114,7 +114,7 @@ handlers.StandartUpgrade = function (args) {
     }
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
-    UpdateWeaponUpgrade({ weaponInstanceId: args.weaponInstanceId });
+    handlers.UpdateWeaponUpgrade({ weaponInstanceId: args.weaponInstanceId });
 
     server.SubtractUserVirtualCurrency({ Amount: quasarCost, PlayFabId: currentPlayerId, VirtualCurrency: QUASAR });
     server.SubtractUserVirtualCurrency({ Amount: rocksCost, PlayFabId: currentPlayerId, VirtualCurrency: YELLOW_ROCKS });
