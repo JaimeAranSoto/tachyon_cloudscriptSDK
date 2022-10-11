@@ -54,9 +54,9 @@ handlers.UpdateWeaponUpgrade = function (args) {
         upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
     } else {
         /*if (startUpgrade) {*/
-            upgradeTimeStamp = Date.now();
-            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
-            isCurrentlyUpdating = true;
+        upgradeTimeStamp = Date.now();
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
+        isCurrentlyUpdating = true;
         /*}*/
     }
 
@@ -103,7 +103,9 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
     var cost = JSON.parse(json);
 
     var quasarCost = cost[weapon.CustomData.Level].quasar;
+    log.debug("Quasar cost: " + quasarCost);
     var rocksCost = cost[weapon.CustomData.Level].rocks;
+    log.debug("Rocks cost: " + rocksCost);
 
     if (quasar < quasarCost) {
         log.debug("User has not enough Quasar");
