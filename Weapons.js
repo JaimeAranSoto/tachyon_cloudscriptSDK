@@ -84,7 +84,7 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 }
 
-handlers.UpgradeWeaponUsingMaterials = function (args) {
+handlers.UpgradeWeaponUsingCurrency = function (args) {
     var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
