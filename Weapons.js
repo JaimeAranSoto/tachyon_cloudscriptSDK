@@ -70,6 +70,7 @@ handlers.UpdateStandartUpgrade = function (args) {
         if (timeRemaining < 0) timeRemaining = -1;
         return timeRemaining;
     } else {
+        log.debug("Weapon is not upgrading!");
         return null;
     }
 }
