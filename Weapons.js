@@ -32,8 +32,7 @@ GetItem = function (ItemInstanceId) {
 /** 
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
-handlers.UpdateWeaponUpgrade = function (args) {
-    //var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
+handlers.UpdateStandartUpgrade = function (args) {
     var weaponInstanceId = args.weaponInstanceId;
 
     var weapon = GetItem(weaponInstanceId);
@@ -47,21 +46,12 @@ handlers.UpdateWeaponUpgrade = function (args) {
         server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
     }
 
-    var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
+    var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp >= 0;
     var upgradeTimeStamp = null; //Default if it's not currently upgrading
 
     if (isCurrentlyUpdating) {
+
         upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
-    } else {
-        /*if (startUpgrade) {*/
-        upgradeTimeStamp = Date.now();
-        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
-        isCurrentlyUpdating = true;
-        /*}*/
-    }
-
-    if (isCurrentlyUpdating) {
-
         var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
         var cost = JSON.parse(json);
 
@@ -84,12 +74,18 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 }
 
-handlers.UpgradeWeaponUsingCurrency = function (args) {
+handlers.StandartUpgrade = function (args) {
     var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
         log.debug("Weapon is not in player's inventory");
         return 0;
+    }
+
+    var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
+
+    if (isCurrentlyUpdating) {
+        return -3; //Weapon is currently upgrading!
     }
 
     var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
@@ -115,10 +111,48 @@ handlers.UpgradeWeaponUsingCurrency = function (args) {
         log.debug("User has not enough Rocks");
         return -1;
     }
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
-    UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
+    UpdateWeaponUpgrade({ weaponInstanceId: args.weaponInstanceId });
+
     server.SubtractUserVirtualCurrency({ Amount: quasarCost, PlayFabId: currentPlayerId, VirtualCurrency: QUASAR });
     server.SubtractUserVirtualCurrency({ Amount: rocksCost, PlayFabId: currentPlayerId, VirtualCurrency: YELLOW_ROCKS });
+    log.debug("Weapon upgraded successfully");
+    return 1;
+}
+
+handlers.InstantUpgrade = function (args) {
+    var weapon = GetItem(args.weaponInstanceId);
+
+    if (weapon == null || weapon === undefined) {
+        log.debug("Weapon is not in player's inventory");
+        return 0;
+    }
+
+    var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
+
+    if (!isCurrentlyUpdating) {
+        return -1; //Weapon is not currently upgrading!
+    }
+
+    var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
+
+    const TACHYON = "TK";
+    var tachyon = inventoryResult.VirtualCurrency[TACHYON];
+
+    var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
+    var cost = JSON.parse(json);
+
+    var tachyonCost = (cost[weapon.CustomData.Level].time / 60) * 10;
+    log.debug("Tachyon cost: " + tachyonCost);
+
+    if (tachyon < tachyonCost) {
+        log.debug("User has not enough Tachyon");
+        return -2;
+    }
+
+    UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
+    server.SubtractUserVirtualCurrency({ Amount: tachyonCost, PlayFabId: currentPlayerId, VirtualCurrency: TACHYON });
     log.debug("Weapon upgraded successfully");
     return 1;
 }
