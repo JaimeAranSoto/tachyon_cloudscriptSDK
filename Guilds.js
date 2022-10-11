@@ -38,8 +38,8 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.guildId = "";
                 } else {
                     var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
-                    log.debug("Defender data:\nAttackerGuild: " + origin.attackerGuild);
-                    if (originalDefense.attackerGuild.length < 2) { //null or empty
+                    log.debug("Defender data:\nAttackerGuild: " + origin.attackerGuildId);
+                    if (originalDefense.attackerGuildId.length < 2) { //null or empty
                         invitation.successful = true;
                         //Create battle defense in defender guild.
                         var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
