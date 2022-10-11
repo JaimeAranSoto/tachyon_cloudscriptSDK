@@ -35,6 +35,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.leader = "";
                     invitation.date = new Date(2000, 1, 1).toUTCString();
                     invitation.deaths = [];
+                    invitation.guildId = "";
                 } else {
                     invitation.successful = true;
                     //Create battle defense in defender guild.
@@ -45,6 +46,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 invitation.successful = false;
                 invitation.participants = [];
                 invitation.leader = "";
+                invitation.guildId = "";
                 invitation.deaths = [];
                 invitation.date = new Date(2000, 1, 1).toUTCString();
             }
