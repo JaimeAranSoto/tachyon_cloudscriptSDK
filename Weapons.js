@@ -33,7 +33,7 @@ GetItem = function (ItemInstanceId) {
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
 handlers.UpdateWeaponUpgrade = function (args) {
-    var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
+    //var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
     var weaponInstanceId = args.weaponInstanceId;
 
     var weapon = GetItem(weaponInstanceId);
@@ -53,11 +53,11 @@ handlers.UpdateWeaponUpgrade = function (args) {
     if (isCurrentlyUpdating) {
         upgradeTimeStamp = parseInt(weapon.CustomData.UpgradeTimeStamp);
     } else {
-        if (startUpgrade) {
+        /*if (startUpgrade) {*/
             upgradeTimeStamp = Date.now();
             server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: upgradeTimeStamp } });
             isCurrentlyUpdating = true;
-        }
+        /*}*/
     }
 
     if (isCurrentlyUpdating) {
