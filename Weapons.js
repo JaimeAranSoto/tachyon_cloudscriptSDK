@@ -112,7 +112,7 @@ handlers.StandardUpgrade = function (args) {
         log.debug("User has not enough Rocks");
         return -1;
     }
-    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: args.weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
     handlers.UpdateStandardUpgrade({ weaponInstanceId: args.weaponInstanceId });
 
