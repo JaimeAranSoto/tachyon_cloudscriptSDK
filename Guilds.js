@@ -119,6 +119,49 @@ handlers.DefendGuild = function (args) {
     return 1;
 }
 
+handlers.DieDuringWar = function (args) {
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+    var myEntityId = myEntity.Id;
+
+    var objects = GetMyGuildObjects(myEntityId);
+
+    var invitation = objects.battleInvitation;
+    if (invitation != null) {
+        var invitationData = invitation.DataObject;
+        if (invitationData.successful) {
+            if (invitationData.participants.includes(myEntityId) || invitationData.leader == myEntityId) {
+                if (invitationData.deaths == null) {
+                    invitationData.deaths = [];
+                }
+                if (!invitationData.deaths.includes(myEntityId)) {
+                    invitationData.deaths.push(myEntityId);
+                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitationData }] });
+                    return "DEATH ADDDED TO ATTACK/INVITATION DATA";
+                }
+            }
+        }
+    }
+
+    var defense = objects.battleDefense;
+    if (defense != null) {
+        var defenseData = defense.DataObject;
+        if (defenseData.attackerGuild.length > 1) { //validate defense
+            if (defenseData.deaths == null) {
+                defenseData.deaths = [];
+            }
+            if (defenseData.participants.includes(myEntityId)) {
+                if (!defenseData.deaths.includes(myEntityId)) {
+                    defenseData.deaths.push(myEntityId);
+                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defenseData }] });
+                    return "DEATH ADDDED TO DEFENSE DATA";
+                }
+            }
+        }
+    }
+    return "DEATH NOT ADDED TO REGISTRY";
+}
+
 handlers.FinishWar = function (args) {
     var attackerGuildId = args.attackerGuild;
     var didAttackersWon = args.won; //bool
