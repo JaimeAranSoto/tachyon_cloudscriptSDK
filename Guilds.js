@@ -34,16 +34,18 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.participants = [];
                     invitation.leader = "";
                     invitation.date = new Date(2000, 1, 1).toUTCString();
+                    invitation.deaths = [];
                 } else {
                     invitation.successful = true;
                     //Create battle defense in defender guild.
-                    var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId };
+                    var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
                     entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                 }
             } else {
                 invitation.successful = false;
                 invitation.participants = [];
                 invitation.leader = "";
+                invitation.deaths = [];
                 invitation.date = new Date(2000, 1, 1).toUTCString();
             }
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
