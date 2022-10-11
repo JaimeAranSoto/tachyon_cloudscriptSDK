@@ -1,15 +1,6 @@
 ////////////// WEAPONS
 
-GetTimeToUpgradeWeapon = function (formula, currentLevel) {
-    var level = parseInt(currentLevel);
-    var a = Math.pow(level + 1, 2);
-    var b = Math.pow(level, 2);
-    var result = (a - b) * 1000;
-    return result; //assuming (level+1)^2 - level^2 formula
-}
-
 UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
-
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var weaponLevel;
 
@@ -27,7 +18,7 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: weaponLevel, UpgradeTimeStamp: -1 } });
 }
 
-function GetItem(ItemInstanceId) {
+GetItem = function (ItemInstanceId) {
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
     var item = undefined;
 
@@ -38,16 +29,13 @@ function GetItem(ItemInstanceId) {
     }
     return item;
 }
-//HI
 /** 
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
 handlers.UpdateWeaponUpgrade = function (args) {
-    //Consider that players could pay to directly upgrade the weapons without needing to wait.
-
-    //Prevent cheating...
     var startUpgrade = args.startUpgrade; //Start upgrading if it's not currently doing so?
     var weaponInstanceId = args.weaponInstanceId;
+
     var weapon = GetItem(weaponInstanceId);
 
     if (weapon === undefined || weapon == null) {
@@ -73,7 +61,11 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 
     if (isCurrentlyUpdating) {
-        var timeToUpgradeWeapon = GetTimeToUpgradeWeapon(null, weapon.CustomData.Level)
+
+        var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
+        var cost = JSON.parse(json);
+
+        var timeToUpgradeWeapon = cost[weapon.CustomData.Level].time * 60000; //minutes -> milliseconds
 
         log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
         log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
@@ -92,29 +84,6 @@ handlers.UpdateWeaponUpgrade = function (args) {
     }
 }
 
-handlers.UpgradeWeaponUsingCurrency = function (args) {
-    var weapon = GetItem(args.weaponInstanceId);
-
-    if (weapon == null || weapon === undefined) {
-        log.debug("Weapon is not in player's inventory");
-        return 0;
-    }
-
-    var currency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency["TK"];
-
-    var upgradeCost = 1;
-
-    if (currency >= upgradeCost) {
-        UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
-        server.SubtractUserVirtualCurrency({ Amount: upgradeCost, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
-        log.debug("Weapon upgraded successfully");
-        return 1;
-    } else {
-        log.debug("User has not enough currency");
-        return -1;
-    }
-}
-
 handlers.UpgradeWeaponUsingMaterials = function (args) {
     var weapon = GetItem(args.weaponInstanceId);
 
@@ -125,39 +94,29 @@ handlers.UpgradeWeaponUsingMaterials = function (args) {
 
     var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
 
-    const CURRENCY_ID = "QS";
-    var currency = inventoryResult.VirtualCurrency[CURRENCY_ID];
-    var inventory = inventoryResult.Inventory;
+    const QUASAR = "QS";
+    const YELLOW_ROCKS = "YR";
+    var quasar = inventoryResult.VirtualCurrency[QUASAR];
+    var rocks = inventoryResult.VirtualCurrency[YELLOW_ROCKS];
 
-    var materialCount = 0;
-    var materialInstanceId = "";
-    const MATERIAL_ID = "YELLOW_ROCK";
+    var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
+    var cost = JSON.parse(json);
 
-    for (let i = 0; i < inventory.length; i++) {
-        var item = inventory[i];
-        if (item.ItemId == MATERIAL_ID) {
-            materialCount = item.RemainingUses;
-            materialInstanceId = item.ItemInstanceId;
-            break;
-        }
-    }
+    var quasarCost = cost[weapon.CustomData.Level].quasar;
+    var rocksCost = cost[weapon.CustomData.Level].rocks;
 
-    var currencyCost = 1;
-    var materialCost = 1;
-
-    if (materialCount < materialCost) {
-        log.debug("Player has not enough material " + MATERIAL_ID);
+    if (quasar < quasarCost) {
+        log.debug("User has not enough Quasar");
         return -2;
     }
-    if (currency < currencyCost) {
-        log.debug("User has not enough currency");
+    if (rocks < rocksCost) {
+        log.debug("User has not enough Rocks");
         return -1;
     }
 
     UpgradeWeapon(args.weaponInstanceId, currentPlayerId);
-    server.SubtractUserVirtualCurrency({ Amount: currencyCost, PlayFabId: currentPlayerId, VirtualCurrency: CURRENCY_ID });
-    server.ConsumeItem({ ConsumeCount: materialCost, ItemInstanceId: materialInstanceId, PlayFabId: currentPlayerId });
+    server.SubtractUserVirtualCurrency({ Amount: quasarCost, PlayFabId: currentPlayerId, VirtualCurrency: QUASAR });
+    server.SubtractUserVirtualCurrency({ Amount: rocksCost, PlayFabId: currentPlayerId, VirtualCurrency: YELLOW_ROCKS });
     log.debug("Weapon upgraded successfully");
     return 1;
 }
-
