@@ -114,7 +114,7 @@ handlers.StandardUpgrade = function (args) {
     }
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
-    handlers.UpdateWeaponUpgrade({ weaponInstanceId: args.weaponInstanceId });
+    handlers.UpdateStandardUpgrade({ weaponInstanceId: args.weaponInstanceId });
 
     server.SubtractUserVirtualCurrency({ Amount: quasarCost, PlayFabId: currentPlayerId, VirtualCurrency: QUASAR });
     server.SubtractUserVirtualCurrency({ Amount: rocksCost, PlayFabId: currentPlayerId, VirtualCurrency: YELLOW_ROCKS });
