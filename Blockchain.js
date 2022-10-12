@@ -81,7 +81,7 @@ handlers.ConfirmPurchase = function (args) {
             //--Buy item or do whatever is needed to do--//
             server.UpdateUserInternalData({
                 PlayFabId: currentPlayerId, Data: {
-                    "confirmedPurchases": JSON.stringify(internalData)
+                    "confirmedPurchases": JSON.stringify(storedPurchase)
                 }
             })
 
