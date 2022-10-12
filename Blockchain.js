@@ -68,7 +68,7 @@ handlers.ConfirmPurchase = function (args) {
 
     var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
 
-    if (internalData.Data.purchases != null) {
+    if (internalData.Data.purchases == null) {
         log.debug("Player has no purchases");
         return "Player has no purchases";
     }
