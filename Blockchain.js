@@ -69,6 +69,7 @@ handlers.ConfirmPurchase = function (args) {
     var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
 
     if (internalData.Data.purchases != null) {
+        log.debug("Player has no purchases");
         return "Player has no purchases";
     }
 
@@ -84,9 +85,11 @@ handlers.ConfirmPurchase = function (args) {
                 }
             })
 
+            log.debug("Purchase confirmed");
             return "Purchase confirmed!";
         }
     }
 
-    return "Player has not this purchase";
+    log.debug("Player doesn't have this purchase");
+    return "Player doesn't have this purchase";
 }
