@@ -55,7 +55,7 @@ handlers.PurchaseItem = function (args) {
 
         server.UpdateUserInternalData({
             PlayFabId: currentPlayerId, Data: {
-                "purchases": JSON.stringify(internalData);
+                "purchases": JSON.stringify(internalData)
             }
         })
     }
