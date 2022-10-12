@@ -62,3 +62,31 @@ handlers.PurchaseItem = function (args) {
 
     return response;
 }
+
+handlers.ConfirmPurchase = function (args) {
+    var purchaseId = args.purchaseId;
+
+    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
+
+    if (internalData.Data.purchases != null) {
+        return "Player has no purchases";
+    }
+
+    internalData = JSON.parse(internalData.Data.purchases.Value);
+
+    for (let i = 0; i < internalData.length; i++) {
+        const storedPurchase = internalData[i];
+        if (storedPurchase.purchaseId == purchaseId) {
+            //--Buy item or do whatever is needed to do--//
+            server.UpdateUserInternalData({
+                PlayFabId: currentPlayerId, Data: {
+                    "confirmedPurchases": JSON.stringify(internalData)
+                }
+            })
+
+            return "Purchase confirmed!";
+        }
+    }
+
+    return "Player has not this purchase";
+}
