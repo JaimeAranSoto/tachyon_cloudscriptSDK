@@ -66,22 +66,35 @@ handlers.PurchaseItem = function (args) {
 handlers.ConfirmPurchase = function (args) {
     var purchaseId = args.purchaseId;
 
-    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
+    var purchasesData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
+    var confirmedPurchasesData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["confirmedPurchases"] });
 
-    if (internalData.Data.purchases == null) {
+    if (purchasesData.Data.purchases == null) {
         log.debug("Player has no purchases");
         return "Player has no purchases";
     }
+    if (confirmedPurchasesData.Data.confirmedPurchases != null) {
+        var data = JSON.parse(confirmedPurchasesData.Data.confirmedPurchases.Value);
+        for (let i = 0; i < data.length; i++) {
+            const confirmedPurchase = data[i];
+            if (confirmedPurchase.purchaseId == purchaseId) {
+                return "Player already confirmed this purchase";
+            }
 
-    internalData = JSON.parse(internalData.Data.purchases.Value);
+        }
 
-    for (let i = 0; i < internalData.length; i++) {
-        const storedPurchase = internalData[i];
+        return "Player has no purchases";
+    }
+
+    purchasesData = JSON.parse(purchasesData.Data.purchases.Value);
+
+    for (let i = 0; i < purchasesData.length; i++) {
+        const storedPurchase = purchasesData[i];
         if (storedPurchase.purchaseId == purchaseId) {
             //--Buy item or do whatever is needed to do--//
             server.UpdateUserInternalData({
                 PlayFabId: currentPlayerId, Data: {
-                    "confirmedPurchases": JSON.stringify(storedPurchase)
+                    "confirmedPurchases": [JSON.stringify(storedPurchase)]
                 }
             })
 
