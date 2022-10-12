@@ -6,7 +6,6 @@ handlers.PurchaseItem = function (args) {
     "purchases": [
         {
             "purchaseId": 1,
-            "PlayFabId": "C13ABC128B3492CD",
             "tokenAmount": 247.00000000,
             "gemAmount": 80.00000000,
             "packId": 1,
@@ -15,7 +14,6 @@ handlers.PurchaseItem = function (args) {
         },
         {
             "purchaseId": 2,
-            "PlayFabId": "C13ABC128B3492CD",
             "tokenAmount": 247.00000000,
             "gemAmount": 80.00000000,
             "packId": 1,
@@ -52,6 +50,14 @@ handlers.PurchaseItem = function (args) {
         var type = purchase.type;
         var transactionHash = purchase.transactionHash;
         response.push({ purchaseId: newPurchaseId, status: "confirmed" });
+
+        internalData.push(purchase);
+
+        server.UpdateUserInternalData({
+            PlayFabId: currentPlayerId, Data: {
+                "purchases": internalData
+            }
+        })
     }
 
     return response;
