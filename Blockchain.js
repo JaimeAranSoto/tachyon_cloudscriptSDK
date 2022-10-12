@@ -22,18 +22,18 @@ handlers.PurchaseItem = function (args) {
         }
     ]
     */
-    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
-
-    if (internalData.Data.purchases != null) {
-        var internalData = JSON.parse(internalData.Data.purchases.Value);
-    } else {
-        var internalData = [];
-    }
 
     var response = [];
 
     purchasesLoop: for (let i = 0; i < purchases.length; i++) {
         const purchase = purchases[i];
+        var internalData = server.GetUserInternalData({ PlayFabId: purchase.PlayFabId, Keys: ["purchases"] });
+
+        if (internalData.Data.purchases != null) {
+            var internalData = JSON.parse(internalData.Data.purchases.Value);
+        } else {
+            var internalData = [];
+        }
         var newPurchaseId = purchase.purchaseId;
 
         for (let j = 0; j < internalData.length; j++) {
@@ -54,7 +54,7 @@ handlers.PurchaseItem = function (args) {
         internalData.push(purchase);
 
         server.UpdateUserInternalData({
-            PlayFabId: currentPlayerId, Data: {
+            PlayFabId: purchase.PlayFabId, Data: {
                 "purchases": JSON.stringify(internalData)
             }
         })
