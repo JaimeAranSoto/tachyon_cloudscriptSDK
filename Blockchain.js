@@ -1,24 +1,58 @@
 ////////////// BLOCKCHAIN
 
 handlers.PurchaseItem = function (args) {
-    var PlayFabId = args.PlayFabId;
-    var tokenAmount = args.tokenAmount;
-    var gemAmount = args.gemAmount;
-    var packId = args.packId;
-    var type = args.type;
-    var transactionHash = args.transactionHash;
-
+    var purchases = args.purchases;
     /* EXAMPLE:
-    {
-        "PlayFabId": "C13ABC128B3492CD",
-        "tokenAmount": 247.00000000,
-        "gemAmount": 80.00000000,
-        "packId": 1,
-        "type": "ON_CHAIN",
-        "transactionHash": "0x8e34e52401b29cf09da424429591ae3321d3cb54ade858e80b992f447fac684e"
-    }
+    "purchases": [
+        {
+            "purchaseId": 1,
+            "PlayFabId": "C13ABC128B3492CD",
+            "tokenAmount": 247.00000000,
+            "gemAmount": 80.00000000,
+            "packId": 1,
+            "type": "ON_CHAIN",
+            "transactionHash": "0x8e34e52401b29cf09da424429591ae3321d3cb54ade858e80b992f447fac684e"
+        },
+        {
+            "purchaseId": 2,
+            "PlayFabId": "C13ABC128B3492CD",
+            "tokenAmount": 247.00000000,
+            "gemAmount": 80.00000000,
+            "packId": 1,
+            "type": "ON_CHAIN",
+            "transactionHash": "0x8e34e52401b29cf09da424429591ae3321d3cb54ade858e80b992f447fac684e"
+        }
+    ]
     */
+    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
 
-    log.debug("Purchase Item request received.");
-    return "Purchase received, PlayFabId: " + PlayFabId;
+    if (internalData.Data.purchases != null) {
+        var internalData = JSON.parse(internalData.Data.purchases.Value);
+    } else {
+        var internalData = [];
+    }
+
+    var response = [];
+
+    purchasesLoop: for (let i = 0; i < purchases.length; i++) {
+        const purchase = purchases[i];
+        var newPurchaseId = purchase.purchaseId;
+
+        for (let j = 0; j < internalData.length; j++) {
+            const storedPurchase = internalData[j];
+            if (storedPurchase.purchaseId == newPurchaseId) {
+                response.push({ purchaseId: newPurchaseId, status: "already_confirmed" });
+                continue purchasesLoop;
+            }
+        }
+
+        var tokenAmount = purchase.tokenAmount;
+        var gemAmount = purchase.gemAmount;
+        var packId = purchase.packId;
+        var type = purchase.type;
+        var transactionHash = purchase.transactionHash;
+        response.push({ purchaseId: newPurchaseId, status: "confirmed" });
+    }
+
+    return response;
 }
