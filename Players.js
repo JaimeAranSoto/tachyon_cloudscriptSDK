@@ -36,6 +36,7 @@ handlers.GetDisplayNames = function (args) {
     for (let i = 0; i < ids.length; i++) {
         entities.push({ Id: ids[i], Type: "title_player_account" });
     }
+    console.log("Entities", entities);
     var playerProfiles = entity.GetProfiles({ Entities: entities });
 
     for (let i = 0; i < playerProfiles.length; i++) {
@@ -43,7 +44,7 @@ handlers.GetDisplayNames = function (args) {
 
         response.push(profile.DisplayName);
     }
-
+    console.log("Profiles", playerProfiles);
     return response;
 
 }
