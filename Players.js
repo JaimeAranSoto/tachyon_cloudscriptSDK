@@ -37,7 +37,7 @@ handlers.GetDisplayNames = function (args) {
         entities.push({ Id: ids, Type: "title_player_account" });
         const playerProfile = ids[i];
     }
-    var playerProfiles = server.GetProfiles({ Entities: entities });
+    var playerProfiles = entity.GetProfiles({ Entities: entities });
 
     for (let i = 0; i < playerProfiles.length; i++) {
         const profile = playerProfiles[i];
