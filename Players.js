@@ -39,6 +39,7 @@ handlers.GetDisplayNames = function (args) {
     //log.debug("Entities", entities);
     var playerProfiles = entity.GetProfiles({ Entities: entities });
 
+    log.debug("PlayerProfles", playerProfiles);
     for (let i = 0; i < playerProfiles.length; i++) {
         const profile = playerProfiles[i];
         var masterProfile = server.GetPlayerProfile({ PlayFabId: profile.Lineage.MasterPlayerAccountId });
