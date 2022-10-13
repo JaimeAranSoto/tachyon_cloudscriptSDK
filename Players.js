@@ -27,3 +27,24 @@ handlers.AddRobotXP = function (args) {
     }
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
 }
+
+handlers.GetDisplayNames = function (args) {
+    var ids = args.ids; //[]
+    var entities = [];
+    var response = [];
+
+    for (let i = 0; i < ids.length; i++) {
+        entities.push({ Id: ids, Type: "title_player_account" });
+        const playerProfile = ids[i];
+    }
+    var playerProfiles = profiles.GetProfiles({ Entities: entities });
+
+    for (let i = 0; i < playerProfiles.length; i++) {
+        const profile = playerProfiles[i];
+
+        response.push(profile.DisplayName);
+    }
+
+    return response;
+
+}
