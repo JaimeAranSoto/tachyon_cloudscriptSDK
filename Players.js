@@ -34,8 +34,7 @@ handlers.GetDisplayNames = function (args) {
     var response = [];
 
     for (let i = 0; i < ids.length; i++) {
-        entities.push({ Id: ids, Type: "title_player_account" });
-        const playerProfile = ids[i];
+        entities.push({ Id: ids[i], Type: "title_player_account" });
     }
     var playerProfiles = entity.GetProfiles({ Entities: entities });
 
