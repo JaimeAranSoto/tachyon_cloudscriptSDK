@@ -36,16 +36,17 @@ handlers.GetDisplayNames = function (args) {
     for (let i = 0; i < ids.length; i++) {
         entities.push({ Id: ids[i], Type: "title_player_account" });
     }
-    log.debug("Entities", entities);
+    //log.debug("Entities", entities);
     var playerProfiles = entity.GetProfiles({ Entities: entities });
 
     for (let i = 0; i < playerProfiles.length; i++) {
         const profile = playerProfiles[i];
         var masterProfile = server.GetPlayerProfile({ PlayFabId: profile.Lineage.MasterPlayerAccountId });
+        log.debug("Profile detected", masterProfile);
         response.push(masterProfile.PlayerProfile.DisplayName);
     }
 
-    log.debug("Profiles", playerProfiles);
+    //log.debug("Profiles", response);
     return response;
 
 }
