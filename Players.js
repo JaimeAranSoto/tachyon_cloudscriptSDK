@@ -41,7 +41,7 @@ handlers.GetDisplayNames = function (args) {
 
     log.debug("PlayerProfles", playerProfiles);
     for (let i = 0; i < playerProfiles.length; i++) {
-        const profile = playerProfiles[i];
+        const profile = playerProfiles.Profiles[i];
         var masterProfile = server.GetPlayerProfile({ PlayFabId: profile.Lineage.MasterPlayerAccountId });
         log.debug("Profile detected", masterProfile);
         response.push(masterProfile.PlayerProfile.DisplayName);
