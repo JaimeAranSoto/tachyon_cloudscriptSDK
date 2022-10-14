@@ -95,6 +95,9 @@ handlers.ConfirmPurchase = function (args) {
                 var data = JSON.parse(internalData.confirmedPurchases.Value);
             }
             data.push(storedPurchase);
+
+            server.AddUserVirtualCurrency({ Amount: storedPurchase.gemAmount, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
+
             server.UpdateUserInternalData({
                 PlayFabId: currentPlayerId, Data: {
                     "confirmedPurchases": JSON.stringify(data)
