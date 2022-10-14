@@ -125,6 +125,7 @@ handlers.CheckPendingPurchases = function (args) {
         for (let j = 0; j < confirmedPurchasesData.length; j++) {
             const confirmedPurchase = confirmedPurchasesData[j];
             if (purchase.purchaseId != confirmedPurchase.purchaseId) {
+                log.debug(purchase.purchaseId + " is not equal to " + confirmedPurchase.purchaseId);
                 pendingPurchases.push(purchase);
                 purchaseValue += purchase.gemAmount;
             }
