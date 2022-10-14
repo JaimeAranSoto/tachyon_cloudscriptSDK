@@ -44,8 +44,8 @@ handlers.PurchaseItem = function (args) {
             }
         }
 
-        var tokenAmount = purchase.tokenAmount;
-        var gemAmount = purchase.gemAmount;
+        var tokenAmount = Math.trunc(purchase.tokenAmount);
+        var gemAmount = Math.trunc(purchase.gemAmount);
         var packId = purchase.packId;
         var type = purchase.type;
         var transactionHash = purchase.transactionHash;
