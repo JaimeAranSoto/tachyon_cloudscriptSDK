@@ -66,15 +66,14 @@ handlers.PurchaseItem = function (args) {
 handlers.ConfirmPurchase = function (args) {
     var purchaseId = args.purchaseId;
 
-    var purchasesData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases"] });
-    var confirmedPurchasesData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["confirmedPurchases"] });
+    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases", "confirmedPurchases"] }).Data;
 
-    if (purchasesData.Data.purchases == null) {
+    if (internalData.purchases == null) {
         log.debug("Player has no purchases");
         return "Player has no purchases";
     }
-    if (confirmedPurchasesData.Data.confirmedPurchases != null) {
-        var data = JSON.parse(confirmedPurchasesData.Data.confirmedPurchases.Value);
+    if (internalData.confirmedPurchases != null) {
+        var data = JSON.parse(internalData.confirmedPurchases.Value);
         for (let i = 0; i < data.length; i++) {
             const confirmedPurchase = data[i];
             if (confirmedPurchase.purchaseId == purchaseId) {
@@ -82,11 +81,9 @@ handlers.ConfirmPurchase = function (args) {
             }
 
         }
-
-        return "Player has no purchases";
     }
 
-    purchasesData = JSON.parse(purchasesData.Data.purchases.Value);
+    purchasesData = JSON.parse(internalData.purchases.Value);
 
     for (let i = 0; i < purchasesData.length; i++) {
         const storedPurchase = purchasesData[i];
