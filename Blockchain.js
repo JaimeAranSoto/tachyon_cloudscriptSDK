@@ -106,3 +106,36 @@ handlers.ConfirmPurchase = function (args) {
     log.debug("Player doesn't have this purchase");
     return "Player doesn't have this purchase";
 }
+
+handlers.CheckPendingPurchases = function (args) {
+    var internalData = server.GetUserInternalData({ PlayFabId: currentPlayerId, Keys: ["purchases", "confirmedPurchases"] }).Data;
+
+    if (internalData.purchases == null) {
+        log.debug("Player has no purchases");
+        return 0;
+    }
+
+    var purchasesData = JSON.parse(internalData.purchases.Value);
+    var confirmedPurchasesData = JSON.parse(internalData.confirmedPurchases.Value);
+
+    var pendingPurchases = [];
+    var purchaseValue = 0;
+
+    for (let i = 0; i < purchasesData.length; i++) {
+        const purchase = purchasesData[i];
+        for (let j = 0; j < confirmedPurchasesData.length; j++) {
+            const confirmedPurchase = confirmedPurchasesData[j];
+            if (purchase.purchaseId != confirmedPurchase.purchaseId) {
+                pendingPurchases.push(purchase);
+                purchaseValue += purchase.gemAmount;
+            }
+        }
+    }
+
+    for (let i = 0; i < pendingPurchases.length; i++) {
+        const pendingPurchase = pendingPurchases[i];
+        handlers.ConfirmPurchase({ purchaseId: pendingPurchase.purchaseId });
+    }
+
+    return purchaseValue;
+}
