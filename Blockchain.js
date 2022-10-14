@@ -89,7 +89,11 @@ handlers.ConfirmPurchase = function (args) {
         const storedPurchase = purchasesData[i];
         if (storedPurchase.purchaseId == purchaseId) {
             //--Buy item or do whatever is needed to do--//
-            var data = JSON.parse(internalData.confirmedPurchases.Value);
+            if (internalData.confirmedPurchases == null) {
+                var data = [];
+            } else {
+                var data = JSON.parse(internalData.confirmedPurchases.Value);
+            }
             data.push(storedPurchase);
             server.UpdateUserInternalData({
                 PlayFabId: currentPlayerId, Data: {
