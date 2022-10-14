@@ -76,10 +76,9 @@ handlers.ConfirmPurchase = function (args) {
         var data = JSON.parse(internalData.confirmedPurchases.Value);
         for (let i = 0; i < data.length; i++) {
             const confirmedPurchase = data[i];
-            if (confirmedPurchase.purchaseId == purchaseId) {
+            if (confirmedPurchase == purchaseId) {
                 return "Player already confirmed this purchase";
             }
-
         }
     }
 
@@ -94,7 +93,7 @@ handlers.ConfirmPurchase = function (args) {
             } else {
                 var data = JSON.parse(internalData.confirmedPurchases.Value);
             }
-            data.push(storedPurchase);
+            data.push(storedPurchase.purchaseId);
 
             server.AddUserVirtualCurrency({ Amount: Math.trunc(storedPurchase.gemAmount), PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
 
@@ -135,7 +134,7 @@ handlers.CheckPendingPurchases = function (args) {
         const purchase = purchasesData[i];
         for (let j = 0; j < confirmedPurchasesData.length; j++) {
             const confirmedPurchase = confirmedPurchasesData[j];
-            if (purchase.purchaseId == confirmedPurchase.purchaseId) {
+            if (purchase.purchaseId == confirmedPurchase) {
                 continue existingPurchases;
             }
         }
