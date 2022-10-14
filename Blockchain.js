@@ -88,7 +88,7 @@ handlers.ConfirmPurchase = function (args) {
     for (let i = 0; i < purchasesData.length; i++) {
         const storedPurchase = purchasesData[i];
         if (storedPurchase.purchaseId == purchaseId) {
-            //--Buy item or do whatever is needed to do--//
+
             if (internalData.confirmedPurchases == null) {
                 var data = [];
             } else {
@@ -96,7 +96,7 @@ handlers.ConfirmPurchase = function (args) {
             }
             data.push(storedPurchase);
 
-            server.AddUserVirtualCurrency({ Amount: storedPurchase.gemAmount, PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
+            server.AddUserVirtualCurrency({ Amount: Math.trunc(storedPurchase.gemAmount), PlayFabId: currentPlayerId, VirtualCurrency: "TK" });
 
             server.UpdateUserInternalData({
                 PlayFabId: currentPlayerId, Data: {
