@@ -120,16 +120,17 @@ handlers.CheckPendingPurchases = function (args) {
     var pendingPurchases = [];
     var purchaseValue = 0;
 
-    for (let i = 0; i < purchasesData.length; i++) {
+    existingPurchases: for (let i = 0; i < purchasesData.length; i++) {
         const purchase = purchasesData[i];
         for (let j = 0; j < confirmedPurchasesData.length; j++) {
             const confirmedPurchase = confirmedPurchasesData[j];
-            if (purchase.purchaseId != confirmedPurchase.purchaseId) {
-                log.debug(purchase.purchaseId + " is not equal to " + confirmedPurchase.purchaseId);
-                pendingPurchases.push(purchase);
-                purchaseValue += purchase.gemAmount;
+            if (purchase.purchaseId == confirmedPurchase.purchaseId) {
+                continue existingPurchases;
             }
         }
+
+        pendingPurchases.push(purchase);
+        purchaseValue += purchase.gemAmount;
     }
 
     for (let i = 0; i < pendingPurchases.length; i++) {
