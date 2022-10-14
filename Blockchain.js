@@ -134,7 +134,8 @@ handlers.CheckPendingPurchases = function (args) {
 
     for (let i = 0; i < pendingPurchases.length; i++) {
         const pendingPurchase = pendingPurchases[i];
-        handlers.ConfirmPurchase({ purchaseId: pendingPurchase.purchaseId });
+        var result = handlers.ConfirmPurchase({ purchaseId: pendingPurchase.purchaseId });
+        log.debug("Pending purchase id: " + pendingPurchase.purchaseId + " - " + result);
     }
 
     return purchaseValue;
