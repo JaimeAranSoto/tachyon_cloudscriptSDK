@@ -115,7 +115,11 @@ handlers.CheckPendingPurchases = function (args) {
     }
 
     var purchasesData = JSON.parse(internalData.purchases.Value);
-    var confirmedPurchasesData = JSON.parse(internalData.confirmedPurchases.Value);
+    if (internalData.confirmedPurchases == null) {
+        var confirmedPurchasesData = [];
+    } else {
+        var confirmedPurchasesData = JSON.parse(internalData.confirmedPurchases.Value);
+    }
 
     var pendingPurchases = [];
     var purchaseValue = 0;
