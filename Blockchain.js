@@ -138,7 +138,7 @@ handlers.CheckPendingPurchases = function (args) {
         }
 
         pendingPurchases.push(purchase);
-        purchaseValue += purchase.gemAmount;
+        purchaseValue += parseInt(purchase.gemAmount);
     }
 
     for (let i = 0; i < pendingPurchases.length; i++) {
