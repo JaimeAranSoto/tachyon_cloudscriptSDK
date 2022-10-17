@@ -178,10 +178,10 @@ handlers.FinishWar = function (args) {
     var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
     var myEntityId = myEntity.Id;
 
-    var attackerGuild = GetGuildObjects(attackerGuildId);
+    var attackerGuildObjects = GetGuildObjects(attackerGuildId);
 
-    if (attackerGuild.battleInvitation != null) {
-        var invitation = attackerGuild.battleInvitation.DataObject;
+    if (attackerGuildObjects.battleInvitation != null) {
+        var invitation = attackerGuildObjects.battleInvitation.DataObject;
         var defenderGuildId = invitation.guildId;
         var defenderGuild = GetGuildObjects(defenderGuildId);
 
@@ -260,7 +260,7 @@ SplitWarPoints = function (guildId, won, defending) {
             pool[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
-        var division = objects.battleInvitation.DataObject.participants.length;
+        var division = objects.battleInvitation.DataObject.participants.length + 1;
         if (division == 0) return;
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
@@ -269,6 +269,7 @@ SplitWarPoints = function (guildId, won, defending) {
         }
         pool[objects.battleInvitation.DataObject.leader] = reward;
     }
+    log.debug("New pool:", pool);
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: pool }] });
 }
 
