@@ -239,14 +239,14 @@ SplitWarPoints = function (guildId, won, defending) {
     var LOSER_POOL = config.LOSER_POOL;
 
 
-    var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
+    var objects = GetGuildObjects(guildId);
 
-    if (getObjectsResult == null || getObjectsResult === undefined) {
-        log.debug("Guild has no objects");
-        return null;
+    if (objects == null) {
+        log.debug("Error spliting war points: guild has no objects.");
+        return;
     }
+
     var pool = {};
-    var objects = getObjectsResult.Objects;
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
