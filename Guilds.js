@@ -179,6 +179,11 @@ handlers.DieDuringWar = function (args) {
 }
 
 handlers.FinishWar = function (args) {
+
+    if (args.attackerGuild == null || args.attackerGuild == "") {
+        return -2;
+    }
+
     var attackerGuildId = args.attackerGuild;
     var didAttackersWon = args.won; //bool
 
