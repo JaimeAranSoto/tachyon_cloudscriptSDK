@@ -30,7 +30,9 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 var battleDuration = timeSinceCreated - INVITATION_DURATION;
                 log.debug("Battle duration: " + battleDuration);
                 if (battleDuration >= WAR_DURATION) { //War should have ended
-                    handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
+                    if (attackerGuildId != null) {
+                        handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
+                    }
 
                     invitation.successful = false;
                     invitation.participants = [];
