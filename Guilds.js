@@ -35,7 +35,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     invitation.leader = "";
                     invitation.date = new Date(2000, 1, 1).toUTCString();
                     invitation.deaths = [];
-                    invitation.guildId = "";
+                    invitation.guildId = invitation.guildId; //We need this in case FinishWar() is called after this method.
                 } else {
                     var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
                     log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
