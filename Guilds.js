@@ -197,6 +197,10 @@ handlers.FinishWar = function (args) {
         var battleInvitation = attackerGuildObjects.battleInvitation.DataObject;
         var defenderGuildId = battleInvitation.guildId;
         log.debug("Defender guild id: " + defenderGuildId, battleInvitation);
+        if (defenderGuildId == null || defenderGuildId == "") {
+            log.debug("Defender guild id is null.");
+            return -2;
+        }
         var defenderGuild = GetGuildObjects(defenderGuildId);
 
         if (battleInvitation.participants.includes(myEntityId) || battleInvitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
