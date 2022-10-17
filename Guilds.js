@@ -328,8 +328,7 @@ handlers.AssignRandomGuild = function (args, context) {
     }
 
     var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
-    titleData = JSON.parse(titleData);
-    var allGuilds = titleData.sa.split(","); //All in South America;
+    var allGuilds = JSON.parse(titleData);
     var max = allGuilds.length;
     var chosenGuild = Math.floor(Math.random() * max);
     log.debug("Total guild: " + allGuilds.length);
