@@ -181,11 +181,12 @@ handlers.FinishWar = function (args) {
     var attackerGuildObjects = GetGuildObjects(attackerGuildId);
 
     if (attackerGuildObjects.battleInvitation != null) {
-        var invitation = attackerGuildObjects.battleInvitation.DataObject;
-        var defenderGuildId = invitation.guildId;
+        var battleInvitation = attackerGuildObjects.battleInvitation.DataObject;
+        var defenderGuildId = battleInvitation.guildId;
+        log.debug("Defender guild id: " + defenderGuildId, battleInvitation);
         var defenderGuild = GetGuildObjects(defenderGuildId);
 
-        if (invitation.participants.includes(myEntityId) || invitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
+        if (battleInvitation.participants.includes(myEntityId) || battleInvitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
             SplitWarPoints(attackerGuildId, didAttackersWon, false);
             SplitWarPoints(defenderGuildId, !didAttackersWon, true);
 
