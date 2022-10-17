@@ -30,12 +30,16 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 var battleDuration = timeSinceCreated - INVITATION_DURATION;
                 log.debug("Battle duration: " + battleDuration);
                 if (battleDuration >= WAR_DURATION) { //War should have ended
+                    handlers.FinishWar({ attackerGuildId: attackerGuildId, won: false });
+
                     invitation.successful = false;
                     invitation.participants = [];
                     invitation.leader = "";
                     invitation.date = new Date(2000, 1, 1).toUTCString();
                     invitation.deaths = [];
-                    invitation.guildId = invitation.guildId; //We need this in case FinishWar() is called after this method.
+                    invitation.guildId = "";
+
+
                 } else {
                     var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
                     log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
