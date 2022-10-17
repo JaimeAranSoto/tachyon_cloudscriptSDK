@@ -74,7 +74,9 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 }
 
 handlers.AcceptOrCreateBattleInvitation = function (args) {
-    var myEntityId = args.myEntityId;
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+    var myEntityId = myEntity.Id;
     var targetedGuildId = args.targetedGuildId; //this could be null
     var date = args.date;
 
