@@ -270,6 +270,7 @@ SplitWarPoints = function (guildId, won, defending) {
 
 
     if (defending) {
+        if (objects.battleDefense == null) return;
         var division = objects.battleDefense.DataObject.participants.length;
         if (division == 0) return;
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
@@ -278,6 +279,7 @@ SplitWarPoints = function (guildId, won, defending) {
             pool[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
+        if (objects.battleInvitation == null) return;
         var division = objects.battleInvitation.DataObject.participants.length + 1;
         if (division == 0) return;
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
