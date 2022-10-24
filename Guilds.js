@@ -359,17 +359,17 @@ handlers.AssignRandomGuild = function (args, context) {
 }
 
 handlers.DonateCurrencyToGuild = function (args) {
-    ///TODO: Conversion factor, by now we will assume 1:1
-    const conversionFactor = { TK: 1, QS: 1, YR: 1 };
-
+    
     var originCurrency = args.currencyName;
     var amount = args.amount;
-
+    
     var playerCurrency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency[originCurrency];
     if (playerCurrency > amount) {
-        playerCurrency = amount;
+        playerCurrency = amount; //Clamp value
     }
-
+    
+    ///TODO: Conversion factor, by now we will assume 1:1
+    const conversionFactor = { TK: 1, QS: 1, YR: 1 };
     playerCurrency *= conversionFactor[originCurrency];
 
     var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
