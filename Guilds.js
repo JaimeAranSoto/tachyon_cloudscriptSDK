@@ -359,18 +359,18 @@ handlers.AssignRandomGuild = function (args, context) {
 }
 
 handlers.DonateCurrencyToGuild = function (args) {
-    
-    var originCurrency = args.currencyName;
+
+    var currencyName = args.currencyName;
     var amount = args.amount;
-    
-    var playerCurrency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency[originCurrency];
-    if (playerCurrency > amount) {
-        playerCurrency = amount; //Clamp value
+
+    var donation = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency[currencyName];
+    if (donation > amount) {
+        donation = amount; //Clamp value
     }
-    
+
     ///TODO: Conversion factor, by now we will assume 1:1
     const conversionFactor = { TK: 1, QS: 1, YR: 1 };
-    playerCurrency *= conversionFactor[originCurrency];
+    donation *= conversionFactor[currencyName];
 
     var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
     var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
@@ -385,15 +385,61 @@ handlers.DonateCurrencyToGuild = function (args) {
         guildCurrency += Math.floor(stats.currency);
     }
 
-    log.debug(guildCurrency + "+" + playerCurrency + " = " + (guildCurrency + playerCurrency));
+    log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
 
-    guildCurrency += Math.floor(playerCurrency);
+    guildCurrency += Math.floor(donation);
 
     stats.currency = guildCurrency;
 
     entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
 
-    if (playerCurrency > 0) {
-        server.SubtractUserVirtualCurrency({ Amount: playerCurrency, PlayFabId: currentPlayerId, VirtualCurrency: originCurrency });
+    if (donation > 0) {
+        server.SubtractUserVirtualCurrency({ Amount: donation, PlayFabId: currentPlayerId, VirtualCurrency: currencyName });
     }
+}
+
+handlers.DonateItemToGuild = function (args) {
+    var itemId = args.itemId;
+    var amount = args.amount;
+
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+
+    var donation = 0;
+    var itemInstanceId;
+
+    for (let i = 0; i < inventory.length; i++) {
+        const item = inventory[i];
+        if (item.ItemId == itemId) {
+            var usesLeft = item.RemainingUses;
+            if (usesLeft > amount) {
+                usesLeft = amount;
+            }
+            log.debug("Player has " + usesLeft + " uses left from this item.");
+            donation += Math.floor(usesLeft);
+            itemInstanceId = item.ItemInstanceId;
+            break;
+        }
+    }
+
+    var guildObjects = GetMyGuildObjects(myEntityId);
+
+    var stats = guildObjects.stats.DataObject;
+
+    var guildCurrency = 0;
+    if (stats.currency != null) {
+        guildCurrency += Math.floor(stats.currency);
+    }
+
+    log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
+
+    guildCurrency += Math.floor(donation);
+
+    stats.currency = guildCurrency;
+
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+
+    if (donation > 0) {
+        server.ConsumeItem({ ConsumeCount: donation, ItemInstanceId: itemInstanceId, PlayFabId: currentPlayerId });
+    }
+
 }
