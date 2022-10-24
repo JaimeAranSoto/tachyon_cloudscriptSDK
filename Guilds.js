@@ -372,28 +372,28 @@ handlers.DonateCurrencyToGuild = function (args) {
     const conversionFactor = { TK: 1, QS: 1, YR: 1 };
     donation *= conversionFactor[currencyName];
 
-    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
-    var myEntityId = myEntity.Id;
-
-    var guildObjects = GetMyGuildObjects(myEntityId);
-
-    var stats = guildObjects.stats.DataObject;
-
-    var guildCurrency = 0;
-    if (stats.currency != null) {
-        guildCurrency += Math.floor(stats.currency);
-    }
-
-    log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
-
-    guildCurrency += Math.floor(donation);
-
-    stats.currency = guildCurrency;
-
-    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
-
     if (donation > 0) {
+        var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+        var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+        var myEntityId = myEntity.Id;
+
+        var guildObjects = GetMyGuildObjects(myEntityId);
+
+        var stats = guildObjects.stats.DataObject;
+
+        var guildCurrency = 0;
+        if (stats.currency != null) {
+            guildCurrency += Math.floor(stats.currency);
+        }
+
+        log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
+
+        guildCurrency += Math.floor(donation);
+
+        stats.currency = guildCurrency;
+
+        entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+
         server.SubtractUserVirtualCurrency({ Amount: donation, PlayFabId: currentPlayerId, VirtualCurrency: currencyName });
     }
 }
@@ -421,24 +421,24 @@ handlers.DonateItemToGuild = function (args) {
         }
     }
 
-    var guildObjects = GetMyGuildObjects(myEntityId);
-
-    var stats = guildObjects.stats.DataObject;
-
-    var guildCurrency = 0;
-    if (stats.currency != null) {
-        guildCurrency += Math.floor(stats.currency);
-    }
-
-    log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
-
-    guildCurrency += Math.floor(donation);
-
-    stats.currency = guildCurrency;
-
-    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
-
     if (donation > 0) {
+        var guildObjects = GetMyGuildObjects(myEntityId);
+
+        var stats = guildObjects.stats.DataObject;
+
+        var guildCurrency = 0;
+        if (stats.currency != null) {
+            guildCurrency += Math.floor(stats.currency);
+        }
+
+        log.debug(guildCurrency + "+" + donation + " = " + (guildCurrency + donation));
+
+        guildCurrency += Math.floor(donation);
+
+        stats.currency = guildCurrency;
+
+        entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+
         server.ConsumeItem({ ConsumeCount: donation, ItemInstanceId: itemInstanceId, PlayFabId: currentPlayerId });
     }
 
