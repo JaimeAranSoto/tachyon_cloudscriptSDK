@@ -373,9 +373,7 @@ handlers.DonateCurrencyToGuild = function (args) {
     donation *= conversionFactor[currencyName];
 
     if (donation > 0) {
-        var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-        var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
-        var myEntityId = myEntity.Id;
+        var myEntityId = GetEntityId(currentPlayerId);
 
         var guildObjects = GetMyGuildObjects(myEntityId);
 
@@ -422,6 +420,8 @@ handlers.DonateItemToGuild = function (args) {
     }
 
     if (donation > 0) {
+        var myEntityId = GetEntityId(currentPlayerId);
+
         var guildObjects = GetMyGuildObjects(myEntityId);
 
         var stats = guildObjects.stats.DataObject;

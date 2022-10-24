@@ -50,5 +50,11 @@ handlers.GetDisplayNames = function (args) {
 
     //log.debug("Profiles", response);
     return response;
+}
 
+GetEntityId = function (playerId) {
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: playerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+    var myEntityId = myEntity.Id;
+    return myEntityId;
 }
