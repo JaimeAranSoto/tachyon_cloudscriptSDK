@@ -357,3 +357,37 @@ handlers.AssignRandomGuild = function (args, context) {
 
     entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "members" });
 }
+
+handlers.DonateCurrencyToGuild = function (args) {
+    ///TODO: Conversion factor, by now we will assume 1:1
+
+    var originCurrency = args.currencyName;
+    var amount = args.amount;
+
+    var playerCurrency = server.GetUserInventory({ PlayFabId: currentPlayerId }).VirtualCurrency[originCurrency];
+    if (playerCurrency > amount) {
+        playerCurrency = amount;
+    }
+
+    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+    var myEntityId = myEntity.Id;
+
+    var guildObjects = GetMyGuildObjects(myEntityId);
+
+    var stats = guildObjects.stats.DataObject;
+
+    var guildCurrency = 0;
+    if (stats.currency != null) {
+        guildCurrency += Math.floor(stats.currency);
+    }
+
+    log.debug(guildCurrency + "+" + playerCurrency + " = " + (guildCurrency + playerCurrency));
+
+    guildCurrency += Math.floor(playerCurrency);
+
+    stats.currency = guildCurrency;
+
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+
+}
