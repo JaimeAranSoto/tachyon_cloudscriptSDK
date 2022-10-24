@@ -389,6 +389,8 @@ handlers.DonateCurrencyToGuild = function (args) {
     stats.currency = guildCurrency;
 
     entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
-    server.SubtractUserVirtualCurrency({ Amount: playerCurrency, PlayFabId: currentPlayerId, VirtualCurrency: originCurrency });
 
+    if (playerCurrency > 0) {
+        server.SubtractUserVirtualCurrency({ Amount: playerCurrency, PlayFabId: currentPlayerId, VirtualCurrency: originCurrency });
+    }
 }
