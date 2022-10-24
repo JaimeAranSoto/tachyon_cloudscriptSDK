@@ -397,6 +397,9 @@ handlers.DonateCurrencyToGuild = function (args) {
 }
 
 handlers.DonateItemToGuild = function (args) {
+
+    //This function demands the item to be stackabled and consumable.
+
     var itemId = args.itemId;
     var amount = args.amount;
 
