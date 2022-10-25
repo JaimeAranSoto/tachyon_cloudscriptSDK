@@ -444,5 +444,42 @@ handlers.DonateItemToGuild = function (args) {
 
         server.ConsumeItem({ ConsumeCount: donation, ItemInstanceId: itemInstanceId, PlayFabId: currentPlayerId });
     }
+}
 
+//Technically, this will not be called by a player becuase a voting system will be implemented
+handlers.UpgradeSpaceFortress = function (args) {
+    var myEntityId = GetEntityId(currentPlayerId);
+    var guildObjects = GetMyGuildObjects(myEntityId);
+    var stats = guildObjects.stats.DataObject;
+
+    var guildCurrency = 0;
+    if (stats.currency != null) {
+        guildCurrency += Math.floor(stats.currency);
+    }
+
+    var guildLevel = 1;
+    if (stats.level != null) {
+        guildLevel += Math.floor(stats.level) - 1;
+    }
+
+
+    var config = server.GetTitleData({ Keys: ["spaceFortressLevels"] }).Data.spaceFortressLevels;
+    config = JSON.parse(config);
+    var cost = config[guildLevel].cost;
+
+    if (guildLevel == config.length) {
+        log.debug("Guild level is the maximum level.");
+        return;
+    }
+    if (guildCurrency < cost) {
+        log.debug("Guild currency is lower than upgrade cost.");
+        return;
+    }
+
+    stats.level = guildLevel + 1;
+    stats.currency = guildCurrency - cost;
+
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+    log.debug("Guild successfully upgraded from level " + guildLevel + " to level " + (guildLevel + 1));
+    return;
 }
