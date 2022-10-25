@@ -465,12 +465,12 @@ handlers.UpgradeSpaceFortress = function (args) {
 
     var config = server.GetTitleData({ Keys: ["spaceFortressLevels"] }).Data.spaceFortressLevels;
     config = JSON.parse(config);
-    var cost = config[guildLevel].cost;
 
     if (guildLevel == config.length) {
         log.debug("Guild level is the maximum level.");
         return;
     }
+    var cost = config[guildLevel].cost;
     if (guildCurrency < cost) {
         log.debug("Guild currency is lower than upgrade cost.");
         return;
