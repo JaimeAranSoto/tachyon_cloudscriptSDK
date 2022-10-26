@@ -502,14 +502,16 @@ handlers.VoteForPurchase = function (args) {
 
     var item = args.item; //Id of the item to purchase (upgrade, shield, etc).
 
-    if (purchases[item] == null) {
-        purchases[item] = [myEntityId];
-    } else {
-        if (purchases[item].includes(myEntityId)) {
-            log.debug("Player has already voted for this purchase.");
-            return;
+    addPlayer: {
+        if (purchases[item] == null) {
+            purchases[item] = [myEntityId];
+        } else {
+            if (purchases[item].includes(myEntityId)) {
+                log.debug("Player has already voted for this purchase.");
+                break addPlayer;
+            }
+            purchases[item].push(myEntityId);
         }
-        purchases[item].push(myEntityId);
     }
 
     purchasing: {
@@ -521,7 +523,6 @@ handlers.VoteForPurchase = function (args) {
                     break purchasing;
                 }
             }
-
             log.debug("Purchase of " + item + " succeded!");
             purchases[item] = [];
         } else {
