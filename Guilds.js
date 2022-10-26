@@ -515,7 +515,11 @@ handlers.VoteForPurchase = function (args) {
     if (purchases.item.length >= 4) {
         //Purchase...
         log.debug("Purchase of " + item + " succeded!");
-
-        //Reset purchase array.
+        purchases.item = [];
+    } else {
+        log.debug("Player voted for purchase.")
     }
+
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "purchases", DataObject: purchases }] });
+    return;
 }
