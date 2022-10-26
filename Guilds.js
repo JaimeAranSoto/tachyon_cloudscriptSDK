@@ -515,7 +515,7 @@ handlers.VoteForPurchase = function (args) {
     purchasing: {
         if (purchases[item].length >= 4) {
             if (item == "upgrade") {
-                var upgradeTry = handles.UpgradeSpaceFortress();
+                var upgradeTry = handlers.UpgradeSpaceFortress();
                 if (!upgradeTry) {
                     log.debug("Purchase failed.");
                     break purchasing;
