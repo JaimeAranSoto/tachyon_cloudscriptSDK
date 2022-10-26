@@ -483,3 +483,39 @@ handlers.UpgradeSpaceFortress = function (args) {
     log.debug("Guild successfully upgraded from level " + guildLevel + " to level " + (guildLevel + 1));
     return;
 }
+
+handlers.VoteForPurchase = function (args) {
+    var myEntityId = GetEntityId(currentPlayerId);
+    var guildObjects = GetMyGuildObjects(myEntityId);
+
+    var purchasesObject = guildObjects.purchases;
+
+    if (purchasesObject != null) {
+        var purchases = guildObjects.purchases.DataObject;
+    } else {
+        var purchases = {};
+    }
+
+    if (purchases == null) {
+        purchases = {};
+    }
+
+    var item = args.item; //Id of the item to purchase (upgrade, shield, etc).
+
+    if (purchases.item == null) {
+        purchases.item = [myEntityId];
+    } else {
+        if (purchases.item.includes(myEntityId)) {
+            log.debug("Player has already voted for this purchase.");
+            return;
+        }
+        purchases.item.push(myEntityId);
+    }
+
+    if (purchases.item.length >= 4) {
+        //Purchase...
+        log.debug("Purchase of " + item + " succeded!");
+
+        //Reset purchase array.
+    }
+}
