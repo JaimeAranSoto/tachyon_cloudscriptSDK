@@ -468,12 +468,12 @@ handlers.UpgradeSpaceFortress = function (args) {
 
     if (guildLevel == config.length) {
         log.debug("Guild level is the maximum level.");
-        return;
+        return false;
     }
     var cost = config[guildLevel].cost;
     if (guildCurrency < cost) {
         log.debug("Guild currency is lower than upgrade cost.");
-        return;
+        return false;
     }
 
     stats.level = guildLevel + 1;
@@ -481,7 +481,7 @@ handlers.UpgradeSpaceFortress = function (args) {
 
     entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
     log.debug("Guild successfully upgraded from level " + guildLevel + " to level " + (guildLevel + 1));
-    return;
+    return true;
 }
 
 handlers.VoteForPurchase = function (args) {
@@ -512,12 +512,21 @@ handlers.VoteForPurchase = function (args) {
         purchases[item].push(myEntityId);
     }
 
-    if (purchases[item].length >= 4) {
-        //Purchase...
-        log.debug("Purchase of " + item + " succeded!");
-        purchases[item] = [];
-    } else {
-        log.debug("Player voted for purchase.")
+    purchasing: {
+        if (purchases[item].length >= 4) {
+            if (item == "upgrade") {
+                var upgradeTry = handles.UpgradeSpaceFortress();
+                if (!upgradeTry) {
+                    log.debug("Purchase failed.");
+                    break purchasing;
+                }
+            }
+
+            log.debug("Purchase of " + item + " succeded!");
+            purchases[item] = [];
+        } else {
+            log.debug("Player voted for purchase.");
+        }
     }
 
     entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "purchases", DataObject: purchases }] });
