@@ -37,7 +37,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     failed = true;
                 } else {
                     //DISCOUNT RED ROCKS
-                    var stats = myGuildObjects.stats;
+                    var stats = myGuildObjects.stats.DataObject;
                     log.debug("Stats:" + JSON.stringify(stats));
                     if (stats.level == undefined) {
                         stats.level = 1;
