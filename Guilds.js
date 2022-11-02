@@ -43,6 +43,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                         stats.level = 1;
                     }
                     var discount = Number(COST[Number(stats.level) - 1]);
+                    console.log("Guild currency: " + stats.currency + " | Cost: " + discount);
                     if (stats.currency >= discount) {
                         stats.currency -= discount;
                         entity.SetObjects({
