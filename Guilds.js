@@ -52,6 +52,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                             CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
                         }); //Discount Red Rocks.
                         log.debug("The battle invitation was successful and a GuildWar started.");
+                        failed = false;
                         var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
                         log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
                         if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
