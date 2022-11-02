@@ -14,7 +14,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     });
 
     var expired = false;
-
+    var failed = true;
     var myGuildObjects = groupObjectData.Objects;
     if (myGuildObjects.battleInvitation !== undefined) {
         var invitation = myGuildObjects.battleInvitation.DataObject;
