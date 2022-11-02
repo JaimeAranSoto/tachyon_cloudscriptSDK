@@ -8,6 +8,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     var WAR_DURATION = config.WAR_DURATION;
     var INVITATION_DURATION = config.INVITATION_DURATION;
     var attackerGuildId = args.attackerGuildId;
+    var COST = config.cost; //[]
     var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
     });
@@ -26,10 +27,10 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             log.debug("The BatlleInvitation is expired.")
 
             if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
-                log.debug("The battle invitation was successful and a GuildWar started.");
                 var battleDuration = timeSinceCreated - INVITATION_DURATION;
                 log.debug("Battle duration: " + battleDuration);
                 if (battleDuration >= WAR_DURATION) { //War should have ended
+                    log.debug("The Guild War should have ended.");
                     if (attackerGuildId != null) {
                         handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
                     }
@@ -43,6 +44,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
 
                 } else {
+                    log.debug("The battle invitation was successful and a GuildWar started.");
                     var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
                     log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
                     if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
@@ -51,6 +53,13 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                         var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
                         entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                     }
+
+                    //DISCOUNT RED ROCKS
+                    var stats = myGuildObjects.stats;
+                    log.debug("Stats:", stats);
+                    stats.currency -= Number(cost[Number(stats.level) - 1]);
+                    entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] }); //Discount Red Rocks.
+
                 }
             } else {
                 invitation.successful = false;
