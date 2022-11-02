@@ -34,34 +34,35 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     if (attackerGuildId != null) {
                         handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
                     }
-
-                    invitation.successful = false;
-                    invitation.participants = [];
-                    invitation.leader = "";
-                    invitation.date = new Date(2000, 1, 1).toUTCString();
-                    invitation.deaths = [];
-                    invitation.guildId = "";
-
-
+                    failed = true;
                 } else {
-                    log.debug("The battle invitation was successful and a GuildWar started.");
-                    var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
-                    log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
-                    if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
-                        invitation.successful = true;
-                        //Create battle defense in defender guild.
-                        var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
-                        entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
-                    }
-
                     //DISCOUNT RED ROCKS
                     var stats = myGuildObjects.stats;
                     log.debug("Stats:", stats);
-                    stats.currency -= Number(cost[Number(stats.level) - 1]);
-                    entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] }); //Discount Red Rocks.
-
+                    var discount = Number(cost[Number(stats.level) - 1]);
+                    if (stats.currency >= discount) {
+                        stats.currency -= discount;
+                        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] }); //Discount Red Rocks.
+                        log.debug("The battle invitation was successful and a GuildWar started.");
+                        var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
+                        log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
+                        if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
+                            invitation.successful = true;
+                            //Create battle defense in defender guild.
+                            var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
+                            entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+                        }
+                    } else {
+                        log.debug("Attacker guild has no enough currency to start the battle!.");
+                        failed = true;
+                    }
                 }
             } else {
+                failed = true;
+            }
+
+            if (failed) {
+
                 invitation.successful = false;
                 invitation.participants = [];
                 invitation.leader = "";
