@@ -7,7 +7,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     var MIN_ATTACKERS = config.MIN_ATTACKERS;
     var WAR_DURATION = config.WAR_DURATION;
     var INVITATION_DURATION = config.INVITATION_DURATION;
-    var COST = config.cost; //[]
+    var COST = config.COST; //[]
     var attackerGuildId = args.attackerGuildId;
     var groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
