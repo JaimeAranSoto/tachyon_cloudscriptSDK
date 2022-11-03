@@ -42,15 +42,19 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     if (stats.level == undefined) {
                         stats.level = 1;
                     }
-                    var discount = Number(COST[Number(stats.level) - 1]);
-                    log.debug("Guild currency: " + stats.currency + " | Cost: " + discount);
-                    if (stats.currency >= discount) {
-                        stats.currency -= discount;
-                        entity.SetObjects({
-                            Entity: { Id: attackerGuildId, Type: "group" },
-                            Objects: [{ ObjectName: "stats", DataObject: stats }],
-                            CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
-                        }); //Discount Red Rocks.
+                    var requiredRocks = Number(COST[Number(stats.level) - 1]);
+                    log.debug("Guild currency: " + stats.currency + " | Cost: " + requiredRocks);
+                    if (stats.currency >= requiredRocks) {
+
+                        /*{ I'm pretty sure this will be requested again ¬¬ 
+                            stats.currency -= discount;
+                            entity.SetObjects({
+                                Entity: { Id: attackerGuildId, Type: "group" },
+                                Objects: [{ ObjectName: "stats", DataObject: stats }],
+                                CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
+                            }); //Discount Red Rocks.
+                        }/*/
+
                         log.debug("The battle invitation was successful and a GuildWar started.");
                         failed = false;
                         var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
@@ -283,7 +287,8 @@ SplitWarPoints = function (guildId, won, defending) {
         return;
     }
 
-    var pool = {};
+    var points = {};
+    var currency = 0;
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
@@ -295,7 +300,7 @@ SplitWarPoints = function (guildId, won, defending) {
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
-            pool[player] = reward; //TODO: Check if has NFT and add multiplier system
+            points[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
     } else { //Attacking
         if (objects.battleInvitation == null) return;
@@ -304,12 +309,24 @@ SplitWarPoints = function (guildId, won, defending) {
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
-            pool[player] = reward; //TODO: Check if has NFT and add multiplier system
+            points[player] = reward; //TODO: Check if has NFT and add multiplier system
         }
-        pool[objects.battleInvitation.DataObject.leader] = reward;
+        points[objects.battleInvitation.DataObject.leader] = reward;
     }
-    log.debug("New pool:", pool);
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: pool }] });
+
+    //Currency management
+    if (won) {
+        //IDK
+    } else {
+        //IDK
+    }
+
+    log.debug("New pool:", points);
+    var dataObject = {};
+    dataObject.points = points;
+    dataObject.currency = currency;
+
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: dataObject }] });
 }
 
 GetMyGuildObjects = function (playerId) {
