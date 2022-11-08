@@ -227,14 +227,19 @@ handlers.FinishWar = function (args) {
         var defenderGuild = GetGuildObjects(defenderGuildId);
 
         if (battleInvitation.participants.includes(myEntityId) || battleInvitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
+            log.debug("Will Split War Points...");
             SplitWarPoints(attackerGuildId, didAttackersWon, false);
+            log.debug("Attacker War Points assigned...");
             SplitWarPoints(defenderGuildId, !didAttackersWon, true);
+            log.debug("Defender War Points assigned...");
 
             var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
+            log.debug("BattleInvitation cleared...");
 
             var newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
             entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
+            log.debug("BattñeDefense cleared...");
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
             return -3; //Player is not a participant or method was already called by another player.
@@ -278,7 +283,6 @@ SplitWarPoints = function (guildId, won, defending) {
     config = JSON.parse(config);
     var WINNER_POOL = config.WINNER_POOL;
     var LOSER_POOL = config.LOSER_POOL;
-
 
     var objects = GetGuildObjects(guildId);
 
@@ -326,7 +330,7 @@ SplitWarPoints = function (guildId, won, defending) {
     dataObject.points = points;
     dataObject.currency = currency;
 
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: dataObject }] });
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: points /*Change to dataObject in next update!*/ }] });
 }
 
 GetMyGuildObjects = function (playerId) {
