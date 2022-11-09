@@ -354,7 +354,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
     dataObject.currencyClaimed = false;
 
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: points /*Change to dataObject in next update!*/ }] });
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: dataObject }] });
 }
 
 GetMyGuildObjects = function (playerId) {
