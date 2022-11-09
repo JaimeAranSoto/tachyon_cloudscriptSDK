@@ -237,11 +237,14 @@ handlers.FinishWar = function (args) {
             var defenderCurrencyCost = COST[defenderGuild.stats.DataObject.level - 1];
 
             var warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
-
-            SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
-            log.debug("Attacker War Points assigned...");
-            SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
-            log.debug("Defender War Points assigned...");
+            try {
+                SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
+                log.debug("Attacker War Points assigned...");
+                SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
+                log.debug("Defender War Points assigned...");
+            } catch (error) {
+                log.debug("SplitWarPoints was not executed. " + error)
+            }
 
             var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
