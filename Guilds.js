@@ -260,7 +260,7 @@ handlers.FinishWar = function (args) {
 }
 
 handlers.CollectWarPoints = function (args) {
-    var playerEntityId = args.myEntityId;
+    var playerEntityId = GetEntityId(currentPlayerId);
     var objects = GetMyGuildObjects(playerEntityId);
     log.debug("GuildObjects", objects);
 
@@ -275,15 +275,24 @@ handlers.CollectWarPoints = function (args) {
         return;
     }
 
-    if (poolData[playerEntityId] != null) {
-        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData[playerEntityId] }] });
-        delete poolData[playerEntityId];
-
-        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: poolData }] });
+    if (poolData.points[playerEntityId] != null) {
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData.points[playerEntityId] }] });
+        delete poolData.points[playerEntityId];
     } else {
-        log.debug("Player is not eligible for war points.")
+        log.debug("Player is not eligible for WarPoints.")
     }
-
+    if (poolData.tachyon[playerEntityId] != null) {
+        server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, Amount: poolData.tachyon[playerEntityId], VirtualCurrency: "TK" })
+        delete poolData.tachyon[playerEntityId];
+    } else {
+        log.debug("Player is not eligible for Tachyon reward.")
+    }
+    if (!poolData.currencyClaimed) {
+        objects.stats.DataObject.currency += Number(poolData.currency);
+        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: objects.stats.DataObject }] });
+        poolData.currencyClaimed = true;
+    }
+    entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: poolData }] });
 }
 
 SplitWarPoints = function (guildId, won, defending, currencyReward) {
@@ -335,6 +344,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.points = points;
     dataObject.tachyon = tachyon;
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
+    dataObject.currencyClaimed = false;
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: points /*Change to dataObject in next update!*/ }] });
 }
