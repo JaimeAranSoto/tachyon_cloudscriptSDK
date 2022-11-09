@@ -264,7 +264,7 @@ handlers.CollectWarPoints = function (args) {
     var objects = GetMyGuildObjects(playerEntityId);
     log.debug("GuildObjects", objects);
 
-    var pool = objects.warPointsPool;
+    var pool = objects.warPool;
     if (pool == null) {
         log.debug("Pool is null");
         return;
@@ -279,7 +279,7 @@ handlers.CollectWarPoints = function (args) {
         server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData[playerEntityId] }] });
         delete poolData[playerEntityId];
 
-        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: poolData }] });
+        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: poolData }] });
     } else {
         log.debug("Player is not eligible for war points.")
     }
@@ -336,7 +336,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.tachyon = tachyon;
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
 
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: points /*Change to dataObject in next update!*/ }] });
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: points /*Change to dataObject in next update!*/ }] });
 }
 
 GetMyGuildObjects = function (playerId) {
