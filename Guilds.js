@@ -330,6 +330,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
+            if (player == undefined) continue;
             points[player] = reward; //TODO: Check if has NFT and add multiplier system
             tachyon[player] = won ? 10 : 4;
         }
@@ -340,11 +341,14 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
+            if (player == undefined) continue;
             points[player] = reward; //TODO: Check if has NFT and add multiplier system
             tachyon[player] = won ? 10 : 4;
         }
-        points[objects.battleInvitation.DataObject.leader] = reward;
-        tachyon[objects.battleInvitation.DataObject.leader] = won ? 10 : 4;
+        if (objects.battleInvitation.DataObject.leader != undefined) {
+            points[objects.battleInvitation.DataObject.leader] = reward;
+            tachyon[objects.battleInvitation.DataObject.leader] = won ? 10 : 4;
+        }
     }
 
     log.debug("New pool:", points);
