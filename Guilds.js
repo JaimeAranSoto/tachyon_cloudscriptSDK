@@ -216,6 +216,10 @@ handlers.FinishWar = function (args) {
 
     var attackerGuildObjects = GetGuildObjects(attackerGuildId);
 
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    config = JSON.parse(config);
+    var COST = config.COST; //[]
+
     if (attackerGuildObjects.battleInvitation != null) {
         var battleInvitation = attackerGuildObjects.battleInvitation.DataObject;
         var defenderGuildId = battleInvitation.guildId;
@@ -228,9 +232,15 @@ handlers.FinishWar = function (args) {
 
         if (battleInvitation.participants.includes(myEntityId) || battleInvitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
             log.debug("Will Split War Points...");
-            SplitWarPoints(attackerGuildId, didAttackersWon, false);
+
+            var attackerCurrencyCost = COST[attackerGuildObjects.stats.DataObject.level - 1];
+            var defenderCurrencyCost = COST[defenderGuild.stats.DataObject.level - 1];
+
+            var warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
+
+            SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
             log.debug("Attacker War Points assigned...");
-            SplitWarPoints(defenderGuildId, !didAttackersWon, true);
+            SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
             log.debug("Defender War Points assigned...");
 
             var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
@@ -239,7 +249,7 @@ handlers.FinishWar = function (args) {
 
             var newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
             entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
-            log.debug("BattñeDefense cleared...");
+            log.debug("BattleDefense cleared...");
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
             return -3; //Player is not a participant or method was already called by another player.
@@ -276,7 +286,7 @@ handlers.CollectWarPoints = function (args) {
 
 }
 
-SplitWarPoints = function (guildId, won, defending) {
+SplitWarPoints = function (guildId, won, defending, currencyReward) {
     log.debug("SplitWarPoints called, guild id: " + guildId + " has won?: " + won + " is defending?:" + defending);
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
@@ -290,9 +300,8 @@ SplitWarPoints = function (guildId, won, defending) {
         log.debug("Error spliting war points: guild has no objects.");
         return;
     }
-
     var points = {};
-    var currency = 0;
+    var tachyon = {};
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
@@ -305,6 +314,7 @@ SplitWarPoints = function (guildId, won, defending) {
         for (let i = 0; i < division; i++) {
             const player = objects.battleDefense.DataObject.participants[i];
             points[player] = reward; //TODO: Check if has NFT and add multiplier system
+            tachyon[player] = won ? 10 : 4;
         }
     } else { //Attacking
         if (objects.battleInvitation == null) return;
@@ -314,21 +324,17 @@ SplitWarPoints = function (guildId, won, defending) {
         for (let i = 0; i < division; i++) {
             const player = objects.battleInvitation.DataObject.participants[i];
             points[player] = reward; //TODO: Check if has NFT and add multiplier system
+            tachyon[player] = won ? 10 : 4;
         }
         points[objects.battleInvitation.DataObject.leader] = reward;
-    }
-
-    //Currency management
-    if (won) {
-        //IDK
-    } else {
-        //IDK
+        tachyon[objects.battleInvitation.DataObject.leader] = won ? 10 : 4;
     }
 
     log.debug("New pool:", points);
     var dataObject = {};
     dataObject.points = points;
-    dataObject.currency = currency;
+    dataObject.tachyon = tachyon;
+    dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPointsPool", DataObject: points /*Change to dataObject in next update!*/ }] });
 }
