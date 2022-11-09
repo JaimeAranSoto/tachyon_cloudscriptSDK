@@ -57,8 +57,13 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
                         log.debug("The battle invitation was successful and a GuildWar started.");
                         failed = false;
-                        var originalDefense = GetGuildObjects(invitation.guildId).battleDefense.DataObject;
-                        log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
+                        var originalDefense = GetGuildObjects(invitation.guildId).battleDefense
+                        if (originalDefense == null || originalDefense == undefined) {
+                            originalDefense = { date: new Date(2000, 1, 1), participants: [], attackerGuildId: "" };
+                        } else {
+                            originalDefense = originalDefense.DataObject;
+                            log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
+                        }
                         if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
                             invitation.successful = true;
                             //Create battle defense in defender guild.
