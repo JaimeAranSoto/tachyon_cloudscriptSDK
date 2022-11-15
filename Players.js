@@ -16,16 +16,21 @@ handlers.AddRobotXP = function (args) {
     log.debug("Robot:", robot);
     var customData = robot.CustomData;
     log.debug("Robot custom data:", customData);
+
+    var oldXP = 0;
+
     if (customData === undefined) {
         var customData = { xp: addition };
     } else {
         if (customData.xp === undefined) {
             customData.xp = Number(addition);
         } else {
+            oldXP = customData.xp;
             customData.xp = Number(customData.xp) + Number(addition);
         }
     }
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
+    return "Player ${robotInstanceId} XP was ${oldXP} and now is ${customData.xp}";
 }
 
 handlers.GetDisplayNames = function (args) {
