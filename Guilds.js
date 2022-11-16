@@ -248,9 +248,7 @@ handlers.FinishWar = function (args) {
     var attackerGuildId = args.attackerGuild;
     var didAttackersWon = args.won; //bool
 
-    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
-    var myEntityId = myEntity.Id;
+    var myEntityId = GetEntityId(currentPlayerId);
 
     var attackerGuildObjects = GetGuildObjects(attackerGuildId);
 
@@ -276,9 +274,9 @@ handlers.FinishWar = function (args) {
 
             var warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
             try {
-                //SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
+                SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
                 log.debug("Attacker War Points assigned...");
-                //SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
+                SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
                 log.debug("Defender War Points assigned...");
             } catch (error) {
                 log.debug("SplitWarPoints was not executed. " + error)
