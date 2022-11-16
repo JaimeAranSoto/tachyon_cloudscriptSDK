@@ -276,21 +276,21 @@ handlers.FinishWar = function (args) {
 
             var warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
             try {
-                SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
+                //SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
                 log.debug("Attacker War Points assigned...");
-                SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
+                //SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
                 log.debug("Defender War Points assigned...");
             } catch (error) {
                 log.debug("SplitWarPoints was not executed. " + error)
             }
 
             var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
+            log.debug("BattleInvitation will be cleared...");
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
-            log.debug("BattleInvitation cleared...");
 
             var newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
+            log.debug("BattleDefense will be cleared...");
             entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
-            log.debug("BattleDefense cleared...");
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
             return -3; //Player is not a participant or method was already called by another player.
@@ -354,7 +354,6 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     var tachyon = {};
 
     log.debug("SplitWarPoints, guildObjects", objects);
-
 
     if (defending) {
         if (objects.battleDefense == null) return;
