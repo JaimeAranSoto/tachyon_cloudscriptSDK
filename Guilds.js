@@ -73,13 +73,13 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
                         //Create player performances
                         attakcers: {
-                            var participants = invitation.participants;
-                            participants.push(invitation.leader);
+                            var originalParticipants = [...invitation.participants];
+                            originalParticipants.push(invitation.leader);
 
                             var attackerPlayerPerformances = {};
 
-                            for (let index = 0; index < participants.length; index++) {
-                                const player = participants[index];
+                            for (let index = 0; index < originalParticipants.length; index++) {
+                                const player = originalParticipants[index];
                                 attackerPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
                             }
 
@@ -88,9 +88,6 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
                             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
                         }
-
-
-
                     } else {
                         log.debug("Attacker guild has no enough currency to start the battle!.");
                         failed = true;
@@ -395,6 +392,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.currencyClaimed = false;
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: dataObject }] });
+    log.debug("Pool created.");
 }
 
 handlers.KillDuringWar = function (args) {
