@@ -397,7 +397,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
             points[participant] = reward * Number(GetNFTMultiplier(participant));
         }
         if (leader != undefined) {
-            points[leader] = reward * Number(GetNFTMultiplier(player));
+            points[leader] = reward * Number(GetNFTMultiplier(leader));
             tachyon[leader] = won ? 10 : 4;
         }
     }
