@@ -64,12 +64,12 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                             originalDefense = originalDefense.DataObject;
                             log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
                         }
-                        if (originalDefense.attackerGuildId.length < 2 || (new Date() - Date.parse(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
-                            invitation.successful = true;
-                            //Create battle defense in defender guild.
-                            var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
-                            entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
-                        }
+                        //if (originalDefense.attackerGuildId.length < 2 || (new Date() - Date.parse(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
+                        invitation.successful = true;
+                        //Create battle defense in defender guild.
+                        var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
+                        entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+                        //}
 
                         //Create player performances
                         attakcers: {
