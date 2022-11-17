@@ -98,7 +98,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             }
 
             if (failed) {
-
+                log.debug("failed...");
                 invitation.successful = false;
                 invitation.participants = [];
                 invitation.leader = "";
