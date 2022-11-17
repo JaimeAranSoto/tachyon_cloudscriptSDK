@@ -374,9 +374,15 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         }
 
     } else { //Attacking
-        if (objects.battleInvitation == null) return;
+        if (objects.battleInvitation == null) {
+            log.debug("Split war points: battle invitation is null")
+            return;
+        }
         var count = objects.battleInvitation.DataObject.participants.length + 1;
-        if (count == 0) return;
+        if (count == 0) {
+            log.debug("Split war points: battle invitation count is 0")
+            return;
+        }
         var reward = won ? WINNER_POOL / count : LOSER_POOL / count;
 
         const leader = objects.battleInvitation.DataObject.leader;
