@@ -35,7 +35,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                         handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
                     }
                     failed = true;
-                } else if (!invitation.successful) {
+                } else if (!invitation.successful || invitation.successful == undefined) {
                     //DISCOUNT RED ROCKS
                     var stats = attackerGuildObjects.stats.DataObject;
                     log.debug("Stats:" + JSON.stringify(stats));
