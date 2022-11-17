@@ -25,91 +25,92 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
         if (timeSinceCreated >= INVITATION_DURATION) {
             log.debug("The BatlleInvitation is expired.")
-
-            if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
-                var battleDuration = timeSinceCreated - INVITATION_DURATION;
-                log.debug("Battle duration: " + battleDuration);
-                if (battleDuration >= WAR_DURATION) { //War should have ended
-                    log.debug("The Guild War should have ended.");
-                    if (attackerGuildId != null) {
-                        handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
-                    }
-                    failed = true;
-                } else {
-                    //DISCOUNT RED ROCKS
-                    var stats = attackerGuildObjects.stats.DataObject;
-                    log.debug("Stats:" + JSON.stringify(stats));
-                    if (stats.level == undefined) {
-                        stats.level = 1;
-                    }
-                    var requiredRocks = Number(COST[Number(stats.level) - 1]);
-                    log.debug("Guild currency: " + stats.currency + " | Cost: " + requiredRocks);
-                    if (stats.currency >= requiredRocks) {
-
-                        /*{ I'm pretty sure this will be requested again ¬¬ 
-                            stats.currency -= discount;
-                            entity.SetObjects({
-                                Entity: { Id: attackerGuildId, Type: "group" },
-                                Objects: [{ ObjectName: "stats", DataObject: stats }],
-                                CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
-                            }); //Discount Red Rocks.
-                        }/*/
-
-                        log.debug("The battle invitation was successful and a GuildWar started.");
-                        failed = false;
-                        var originalDefense = GetGuildObjects(invitation.guildId).battleDefense
-                        if (originalDefense == null || originalDefense == undefined) {
-                            originalDefense = { date: new Date(2000, 1, 1), participants: [], attackerGuildId: "" };
-                        } else {
-                            originalDefense = originalDefense.DataObject;
-                            log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
+            if (!invitation.successful) {
+                if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
+                    var battleDuration = timeSinceCreated - INVITATION_DURATION;
+                    log.debug("Battle duration: " + battleDuration);
+                    if (battleDuration >= WAR_DURATION) { //War should have ended
+                        log.debug("The Guild War should have ended.");
+                        if (attackerGuildId != null) {
+                            handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
                         }
-                        if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
-                            invitation.successful = true;
-                            //Create battle defense in defender guild.
-                            var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
-                            entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+                        failed = true;
+                    } else {
+                        //DISCOUNT RED ROCKS
+                        var stats = attackerGuildObjects.stats.DataObject;
+                        log.debug("Stats:" + JSON.stringify(stats));
+                        if (stats.level == undefined) {
+                            stats.level = 1;
                         }
+                        var requiredRocks = Number(COST[Number(stats.level) - 1]);
+                        log.debug("Guild currency: " + stats.currency + " | Cost: " + requiredRocks);
+                        if (stats.currency >= requiredRocks) {
 
-                        //Create player performances
-                        attakcers: {
-                            var originalParticipants = [...invitation.participants];
-                            originalParticipants.push(invitation.leader);
+                            /*{ I'm pretty sure this will be requested again ¬¬ 
+                                stats.currency -= discount;
+                                entity.SetObjects({
+                                    Entity: { Id: attackerGuildId, Type: "group" },
+                                    Objects: [{ ObjectName: "stats", DataObject: stats }],
+                                    CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
+                                }); //Discount Red Rocks.
+                            }/*/
 
-                            var attackerPlayerPerformances = {};
-
-                            for (let index = 0; index < originalParticipants.length; index++) {
-                                const player = originalParticipants[index];
-                                attackerPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
+                            log.debug("The battle invitation was successful and a GuildWar started.");
+                            failed = false;
+                            var originalDefense = GetGuildObjects(invitation.guildId).battleDefense
+                            if (originalDefense == null || originalDefense == undefined) {
+                                originalDefense = { date: new Date(2000, 1, 1), participants: [], attackerGuildId: "" };
+                            } else {
+                                originalDefense = originalDefense.DataObject;
+                                log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
+                            }
+                            if (originalDefense.attackerGuildId.length < 2 || (new Date() - new Date(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
+                                invitation.successful = true;
+                                //Create battle defense in defender guild.
+                                var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
+                                entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
                             }
 
-                            var warPool = attackerGuildObjects.warPool.DataObject;
-                            warPool.playerPerformances = attackerPlayerPerformances;
+                            //Create player performances
+                            attakcers: {
+                                var originalParticipants = [...invitation.participants];
+                                originalParticipants.push(invitation.leader);
 
-                            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+                                var attackerPlayerPerformances = {};
+
+                                for (let index = 0; index < originalParticipants.length; index++) {
+                                    const player = originalParticipants[index];
+                                    attackerPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
+                                }
+
+                                var warPool = attackerGuildObjects.warPool.DataObject;
+                                warPool.playerPerformances = attackerPlayerPerformances;
+
+                                entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+                            }
+                        } else {
+                            log.debug("Attacker guild has no enough currency to start the battle!.");
+                            failed = true;
                         }
-                    } else {
-                        log.debug("Attacker guild has no enough currency to start the battle!.");
-                        failed = true;
                     }
+                } else {
+                    failed = true;
                 }
-            } else {
-                failed = true;
+
+                if (failed) {
+
+                    invitation.successful = false;
+                    invitation.participants = [];
+                    invitation.leader = "";
+                    invitation.guildId = "";
+                    invitation.deaths = [];
+                    invitation.date = new Date(2000, 1, 1).toUTCString();
+                }
+
+
+                entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+                expired = true;
             }
-
-            if (failed) {
-
-                invitation.successful = false;
-                invitation.participants = [];
-                invitation.leader = "";
-                invitation.guildId = "";
-                invitation.deaths = [];
-                invitation.date = new Date(2000, 1, 1).toUTCString();
-            }
-
-
-            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
-            expired = true;
         } else {
             expired = false;
             log.debug("The BatlleInvitation has not expired yet.")
