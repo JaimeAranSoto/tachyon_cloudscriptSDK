@@ -162,7 +162,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     if (!invitation.participants.includes(myEntityId) && invitation.leader != myEntityId) {
         invitation.participants.push(myEntityId);
     }
-    invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
+    //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
     entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
     return 1;
