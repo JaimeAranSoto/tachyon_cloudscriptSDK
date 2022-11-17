@@ -411,6 +411,10 @@ handlers.KillDuringWar = function (args) {
 
 }
 
+handlers.GetNFT = function (args) {
+    return GetNFTMultiplier(args.id);
+}
+
 GetMyGuildObjects = function (playerId) {
     var myGuild = GetMyGuild(playerId);
 
