@@ -71,6 +71,7 @@ GetNFTMultiplier = function (playerId) {
     log.debug(titleData);
     if (titleData.Value != null) {
         var nftData = JSON.parse(titleData.Value);
+        log.debug("NFTData", nftData);
         if (nftData.multiplier != null) {
             multiplier = nftData.multiplier;
         }
