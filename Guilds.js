@@ -92,6 +92,8 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                         log.debug("Attacker guild has no enough currency to start the battle!.");
                         failed = true;
                     }
+                } else {
+                    failed = false;
                 }
             } else {
                 failed = true;
