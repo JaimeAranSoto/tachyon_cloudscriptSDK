@@ -352,31 +352,51 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
 
     log.debug("SplitWarPoints, guildObjects", objects);
 
+    var multiplierSum = 0;
+
     if (defending) {
         if (objects.battleDefense == null) return;
-        var division = objects.battleDefense.DataObject.participants.length;
-        if (division == 0) return;
-        var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
-        for (let i = 0; i < division; i++) {
-            const player = objects.battleDefense.DataObject.participants[i];
-            if (player == undefined) continue;
-            points[player] = reward; //TODO: Check if has NFT and add multiplier system
-            tachyon[player] = won ? 10 : 4;
+        var count = objects.battleDefense.DataObject.participants.length;
+        if (count == 0) return;
+        for (let i = 0; i < count; i++) {
+            const participant = objects.battleDefense.DataObject.participants[i];
+            if (participant == undefined) continue;
+            multiplierSum += Number(GetNFTMultiplier(participant));
+            tachyon[participant] = won ? 10 : 4;
         }
+        var reward = won ? WINNER_POOL / multiplierSum : LOSER_POOL / multiplierSum;
+        for (let i = 0; i < count; i++) {
+            const participant = objects.battleDefense.DataObject.participants[i];
+            if (participant == undefined) continue;
+            points[participant] = reward * Number(GetNFTMultiplier(participant));
+        }
+
     } else { //Attacking
         if (objects.battleInvitation == null) return;
-        var division = objects.battleInvitation.DataObject.participants.length + 1;
-        if (division == 0) return;
-        var reward = won ? WINNER_POOL / division : LOSER_POOL / division;
-        for (let i = 0; i < division; i++) {
-            const player = objects.battleInvitation.DataObject.participants[i];
-            if (player == undefined) continue;
-            points[player] = reward; //TODO: Check if has NFT and add multiplier system
-            tachyon[player] = won ? 10 : 4;
+        var count = objects.battleInvitation.DataObject.participants.length + 1;
+        if (count == 0) return;
+        var reward = won ? WINNER_POOL / count : LOSER_POOL / count;
+
+        const leader = objects.battleInvitation.DataObject.leader;
+
+        for (let i = 0; i < count; i++) {
+            const participant = objects.battleInvitation.DataObject.participants[i];
+            if (participant == undefined) continue;
+            multiplierSum += Number(GetNFTMultiplier(participant));
+            tachyon[participant] = won ? 10 : 4;
         }
-        if (objects.battleInvitation.DataObject.leader != undefined) {
-            points[objects.battleInvitation.DataObject.leader] = reward;
-            tachyon[objects.battleInvitation.DataObject.leader] = won ? 10 : 4;
+        if (leader != undefined) {
+            multiplierSum += Number(GetNFTMultiplier(leader));
+        }
+        var reward = won ? WINNER_POOL / multiplierSum : LOSER_POOL / multiplierSum;
+        for (let i = 0; i < count; i++) {
+            const participant = objects.battleInvitation.DataObject.participants[i];
+            if (participant == undefined) continue;
+            points[participant] = reward * Number(GetNFTMultiplier(participant));
+        }
+        if (leader != undefined) {
+            points[leader] = reward * Number(GetNFTMultiplier(player));
+            tachyon[leader] = won ? 10 : 4;
         }
     }
 
@@ -409,10 +429,6 @@ handlers.KillDuringWar = function (args) {
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
 
-}
-
-handlers.GetNFT = function (args) {
-    return GetNFTMultiplier(args.id);
 }
 
 GetMyGuildObjects = function (playerId) {
