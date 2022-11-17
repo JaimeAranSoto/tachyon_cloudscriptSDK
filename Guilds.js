@@ -24,11 +24,11 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         }
         var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
         if (timeSinceCreated >= INVITATION_DURATION) {
-            log.debug("The BatlleInvitation is expired.")
+            log.debug("The BatlleInvitation has expired.")
 
             if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
                 var battleDuration = timeSinceCreated - INVITATION_DURATION;
-                log.debug("Battle duration: " + battleDuration);
+                log.debug("Battle duration: " + battleDuration + " | successful? " + invitation.successful, invitation);
                 if (battleDuration >= WAR_DURATION) { //War should have ended
                     log.debug("The Guild War should have ended.");
                     if (attackerGuildId != null && invitation.successful) {
