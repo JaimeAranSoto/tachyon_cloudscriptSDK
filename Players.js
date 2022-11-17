@@ -68,7 +68,7 @@ GetNFTMultiplier = function (playerId) {
     var titleId = entity.GetProfile({ Entity: { Id: playerId, Type: "title_player_account" } }).Profile.Lineage.MasterPlayerAccountId;
     var multiplier = 1;
     var titleData = server.GetUserData({ PlayFabId: titleId, Keys: ["nftData"] }).Data;
-    log.debug(titleData);
+    titleData = JSON.parse(titleData);
     if (titleData.Value != null) {
         var nftData = JSON.parse(titleData.Value);
         log.debug("NFTData", nftData);
