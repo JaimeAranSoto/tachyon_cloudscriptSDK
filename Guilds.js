@@ -408,12 +408,12 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         }
     }
 
-    log.debug("New pool:", points);
     var dataObject = {};
     dataObject.points = points;
     dataObject.tachyon = tachyon;
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
     dataObject.currencyClaimed = false;
+    log.debug("New pool:", dataObject);
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: dataObject }] });
     log.debug("Pool created.");
