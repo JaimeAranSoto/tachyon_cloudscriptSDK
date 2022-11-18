@@ -357,9 +357,15 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     var multiplierSum = 0;
 
     if (defending) {
-        if (objects.battleDefense == null) return;
+        if (objects.battleDefense == null) {
+            log.debug("SplitWarPoints: battleDefense is null");
+            return;
+        }
         var count = objects.battleDefense.DataObject.participants.length;
-        if (count == 0) return;
+        if (count == 0) {
+            log.debug("SplitWarPoints: defender has no participants");
+            return;
+        }
         for (let i = 0; i < count; i++) {
             const participant = objects.battleDefense.DataObject.participants[i];
             if (participant == undefined) continue;
