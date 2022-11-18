@@ -419,6 +419,9 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.tachyon = tachyon;
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
     dataObject.currencyClaimed = false;
+    if (dataObject.playerPerformances == undefined) {
+        dataObject.playerPerformances = [];
+    }
     log.debug("New pool:", dataObject);
 
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: dataObject }] });
