@@ -38,8 +38,7 @@ handlers.AddRobotXP = function (args) {
                 var catalogItemId = item.ItemId;
                 log.debug("Catalog itemId found", catalogItemId);
 
-                var catalog = server.GetCatalogItems({}); //CatalogItem[]
-                log.debug("Catalog", catalog);
+                var catalog = server.GetCatalogItems({}).Catalog; //CatalogItem[]
                 for (let j = 0; j < catalog.length; j++) {
                     const catalogItem = catalog[j];
                     if (catalogItem.ItemId == catalogItemId) {
