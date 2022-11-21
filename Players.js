@@ -43,6 +43,7 @@ handlers.AddRobotXP = function (args) {
                     const catalogItem = catalog[j];
                     if (catalogItem.ItemId == catalogItemId) {
                         log.debug("Catalog item found", catalogItem);
+                        var catalogCustomData = catalogItem.CustomData;
                         if (catalogCustomData != undefined) {
                             if (catalogCustomData.xpByLevel != undefined) {
                                 for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
