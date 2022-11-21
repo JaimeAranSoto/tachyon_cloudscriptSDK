@@ -36,7 +36,7 @@ handlers.AddRobotXP = function (args) {
         const item = inventory[i];
         if (item.ItemInstanceId == args.robotInstanceId) {
             var catalogItemId = item.ItemId;
-            var catalog = server.GetCatalogItems({CatalogVersion:null}); //CatalogItem[]
+            var catalog = server.GetCatalogItems({ CatalogVersion: 0 }); //CatalogItem[]
 
             for (let j = 0; j < catalog.length; j++) {
                 const catalogItem = catalog[j];
@@ -58,6 +58,7 @@ handlers.AddRobotXP = function (args) {
             }
         }
     }
+    log.debug("New instance custom data", instanceCustomData);
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: instanceCustomData });
     return "Player ${robotInstanceId} XP was ${oldXP} and now is ${customData.xp}";
 }
