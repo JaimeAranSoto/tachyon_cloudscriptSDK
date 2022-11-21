@@ -42,10 +42,10 @@ handlers.AddRobotXP = function (args) {
                 for (let j = 0; j < catalog.length; j++) {
                     const catalogItem = catalog[j];
                     if (catalogItem.ItemId == catalogItemId) {
-                        log.debug("Catalog item found", catalogItem);
                         var catalogCustomData = catalogItem.CustomData;
                         if (catalogCustomData != undefined) {
                             catalogCustomData = JSON.parse(catalogCustomData);
+                            log.debug("Catalog custom data", catalogCustomData);
                             if (catalogCustomData.xpByLevel != undefined) {
                                 for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
                                     const requiredXP = catalogCustomData.xpByLevel[k];
@@ -66,7 +66,7 @@ handlers.AddRobotXP = function (args) {
     }
     log.debug("New instance custom data", instanceCustomData);
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: instanceCustomData });
-    return "Player " + robotInstanceId + " XP was " + oldXP + " and now is " + customData.xp;
+    return "Player " + args.robotInstanceId + " XP was " + oldXP + " and now is " + customData.xp;
 }
 
 handlers.GetDisplayNames = function (args) {
