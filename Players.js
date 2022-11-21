@@ -14,22 +14,51 @@ handlers.AddRobotXP = function (args) {
 
     var robot = GetItem(args.robotInstanceId);
     log.debug("Robot:", robot);
-    var customData = robot.CustomData;
-    log.debug("Robot custom data:", customData);
+    var instanceCustomData = robot.CustomData;
+    log.debug("Robot custom data:", instanceCustomData);
 
     var oldXP = 0;
 
-    if (customData === undefined) {
-        var customData = { xp: addition };
+    if (instanceCustomData === undefined) {
+        var instanceCustomData = { xp: addition };
     } else {
-        if (customData.xp === undefined) {
-            customData.xp = Number(addition);
+        if (instanceCustomData.xp === undefined) {
+            instanceCustomData.xp = Number(addition);
         } else {
-            oldXP = customData.xp;
-            customData.xp = Number(customData.xp) + Number(addition);
+            oldXP = instanceCustomData.xp;
+            instanceCustomData.xp = Number(instanceCustomData.xp) + Number(addition);
         }
     }
-    server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: customData });
+
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+
+    CalculateLevel: for (let i = 0; i < inventory.length; i++) {
+        const item = inventory[i];
+        if (item.ItemInstanceId == args.robotInstanceId) {
+            var catalogItemId = item.ItemId;
+            var catalog = server.GetCatalogItems(); //CatalogItem[]
+
+            for (let j = 0; j < catalog.length; j++) {
+                const catalogItem = catalog[j];
+                if (catalogItem.ItemId == catalogItemId) {
+                    if (catalogCustomData != undefined) {
+                        if (catalogCustomData.xpByLevel != undefined) {
+                            for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
+                                const requiredXP = catalogCustomData.xpByLevel[k];
+                                if (instanceCustomData.xp <= requiredXP) {
+                                    instanceCustomData.level = k;
+                                    log.debug("XP:", instanceCustomData.xp);
+                                    log.debug("Level:", k);
+                                    break CalculateLevel;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: instanceCustomData });
     return "Player ${robotInstanceId} XP was ${oldXP} and now is ${customData.xp}";
 }
 
