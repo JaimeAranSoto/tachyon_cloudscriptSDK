@@ -39,7 +39,7 @@ handlers.AddRobotXP = function (args) {
                 log.debug("Catalog itemId found", catalogItemId);
 
                 var catalog = server.GetCatalogItems({ CatalogVersion: 0 }); //CatalogItem[]
-
+                log.debug("Catalog", catalog);
                 for (let j = 0; j < catalog.length; j++) {
                     const catalogItem = catalog[j];
                     if (catalogItem.ItemId == catalogItemId) {
@@ -59,6 +59,7 @@ handlers.AddRobotXP = function (args) {
                         }
                     }
                 }
+                break;
             }
         }
     }
