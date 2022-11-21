@@ -56,6 +56,8 @@ handlers.AddRobotXP = function (args) {
                                         break CalculateLevel;
                                     }
                                 }
+                                instanceCustomData.level = catalogCustomData.xpByLevel.length - 1;
+                                break CalculateLevel;
                             }
                         }
                     }
