@@ -45,6 +45,7 @@ handlers.AddRobotXP = function (args) {
                         log.debug("Catalog item found", catalogItem);
                         var catalogCustomData = catalogItem.CustomData;
                         if (catalogCustomData != undefined) {
+                            catalogCustomData = JSON.parse(catalogCustomData);
                             if (catalogCustomData.xpByLevel != undefined) {
                                 for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
                                     const requiredXP = catalogCustomData.xpByLevel[k];
