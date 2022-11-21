@@ -36,7 +36,7 @@ handlers.AddRobotXP = function (args) {
         const item = inventory[i];
         if (item.ItemInstanceId == args.robotInstanceId) {
             var catalogItemId = item.ItemId;
-            var catalog = server.GetCatalogItems(); //CatalogItem[]
+            var catalog = server.GetCatalogItems({CatalogVersion:null}); //CatalogItem[]
 
             for (let j = 0; j < catalog.length; j++) {
                 const catalogItem = catalog[j];
