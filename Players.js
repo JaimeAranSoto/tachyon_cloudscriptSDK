@@ -13,7 +13,7 @@ handlers.AddRobotXP = function (args) {
     var addition = Number(args.addition);
 
     var robot = GetItem(args.robotInstanceId);
-    log.debug("Robot:", robot);
+    // log.debug("Robot:", robot);
     var instanceCustomData = robot.CustomData;
     log.debug("Robot custom data:", instanceCustomData);
 
@@ -30,26 +30,30 @@ handlers.AddRobotXP = function (args) {
         }
     }
 
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+    CalculateLevel: {
+        var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+        for (let i = 0; i < inventory.length; i++) {
+            const item = inventory[i];
+            if (item.ItemInstanceId == args.robotInstanceId) {
+                var catalogItemId = item.ItemId;
+                log.debug("Catalog itemId found", catalogItemId);
 
-    CalculateLevel: for (let i = 0; i < inventory.length; i++) {
-        const item = inventory[i];
-        if (item.ItemInstanceId == args.robotInstanceId) {
-            var catalogItemId = item.ItemId;
-            var catalog = server.GetCatalogItems({ CatalogVersion: 0 }); //CatalogItem[]
+                var catalog = server.GetCatalogItems({ CatalogVersion: 0 }); //CatalogItem[]
 
-            for (let j = 0; j < catalog.length; j++) {
-                const catalogItem = catalog[j];
-                if (catalogItem.ItemId == catalogItemId) {
-                    if (catalogCustomData != undefined) {
-                        if (catalogCustomData.xpByLevel != undefined) {
-                            for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
-                                const requiredXP = catalogCustomData.xpByLevel[k];
-                                if (instanceCustomData.xp <= requiredXP) {
-                                    instanceCustomData.level = k;
-                                    log.debug("XP:", instanceCustomData.xp);
-                                    log.debug("Level:", k);
-                                    break CalculateLevel;
+                for (let j = 0; j < catalog.length; j++) {
+                    const catalogItem = catalog[j];
+                    if (catalogItem.ItemId == catalogItemId) {
+                        log.debug("Catalog item found", catalogItem);
+                        if (catalogCustomData != undefined) {
+                            if (catalogCustomData.xpByLevel != undefined) {
+                                for (let k = 0; k < catalogCustomData.xpByLevel.length; k++) {
+                                    const requiredXP = catalogCustomData.xpByLevel[k];
+                                    if (instanceCustomData.xp <= requiredXP) {
+                                        instanceCustomData.level = k;
+                                        log.debug("XP:", instanceCustomData.xp);
+                                        log.debug("Level:", k);
+                                        break CalculateLevel;
+                                    }
                                 }
                             }
                         }
@@ -60,7 +64,7 @@ handlers.AddRobotXP = function (args) {
     }
     log.debug("New instance custom data", instanceCustomData);
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: instanceCustomData });
-    return "Player ${robotInstanceId} XP was ${oldXP} and now is ${customData.xp}";
+    return "Player " + robotInstanceId + " XP was " + oldXP + " and now is " + customData.xp;
 }
 
 handlers.GetDisplayNames = function (args) {
