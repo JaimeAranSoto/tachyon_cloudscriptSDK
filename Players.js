@@ -66,7 +66,7 @@ handlers.AddRobotXP = function (args) {
     }
     log.debug("New instance custom data", instanceCustomData);
     server.UpdateUserInventoryItemCustomData({ ItemInstanceId: args.robotInstanceId, PlayFabId: currentPlayerId, Data: instanceCustomData });
-    return "Player " + args.robotInstanceId + " XP was " + oldXP + " and now is " + customData.xp;
+    return "Player " + args.robotInstanceId + " XP was " + oldXP + " and now is " + instanceCustomData.xp;
 }
 
 handlers.GetDisplayNames = function (args) {
