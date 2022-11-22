@@ -102,10 +102,14 @@ GetEntityId = function (playerId) {
     return myEntityId;
 }
 
-GetNFTMultiplier = function (playerId) {
-    var titleId = entity.GetProfile({ Entity: { Id: playerId, Type: "title_player_account" } }).Profile.Lineage.MasterPlayerAccountId;
+GetNFTMultiplier = function (playerEntityId) {
+    var playerId = entity.GetProfile({ Entity: { Id: playerEntityId, Type: "title_player_account" } }).Profile.Lineage.MasterPlayerAccountId;
+    return GetUserNFTMultiplier(playerId);
+}
+
+GetUserNFTMultiplier = function (playerId) {
     var multiplier = 1;
-    var data = server.GetUserData({ PlayFabId: titleId, Keys: ["nftData"] }).Data;
+    var data = server.GetUserData({ PlayFabId: playerId, Keys: ["nftData"] }).Data;
     if (data.nftData != null) {
         var nftData = JSON.parse(data.nftData.Value);
         if (nftData.multiplier != null) {
@@ -113,4 +117,32 @@ GetNFTMultiplier = function (playerId) {
         }
     }
     return multiplier;
+}
+
+handlers.VerifyNFTBundle = function (args) {
+    const BUNDLE_ID = "BUNDLE_NFT_HOLDERS";
+
+    var multiplier = GetUserNFTMultiplier(currentPlayerId);
+
+    var isNFTHolder = multiplier > 1;
+
+
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+    for (let i = 0; i < inventory.length; i++) {
+        const itemInstance = inventory[i];
+        if (itemInstance.ItemId == BUNDLE_ID) {
+            if (isNFTHolder) {
+                log.debug("Player already received the bundle.")
+            } else {
+                //revoke bundle.
+            }
+            return;
+        }
+    }
+
+    if (isNFTHolder) {
+        server.GrantItemsToUser({ ItemIds: [BUNDLE_ID], PlayFabId: currentPlayerId });
+        log.debug("Bundle was grant to user because is a NFTHolder.")
+    }
+    return;
 }
