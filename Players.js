@@ -1,6 +1,6 @@
 handlers.AssignPresets = function (args) {
     var titleData = {};
-    titleData.presets = "1_1:R1-1C-1H1-1A1-11B-AS,00,NC,00,00,00,";
+    titleData.presets = "[{\"selected\":true,\"robot\":\"R1\",\"skin\":\"1B\",\"head\":\"1H1\",\"attachment\":\"1A1\",\"attachmentSkin\":\"11B\",\"weapons\":[\"AS\",\"NC\"]}]";
 
     server.UpdateUserData({
         PlayFabId: currentPlayerId,
