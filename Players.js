@@ -1,6 +1,6 @@
 handlers.AssignPresets = function (args) {
     var titleData = {};
-    titleData.presets = "1_1:R1-1W-MG,EC,GR,CR,PG,AG,|2:R1-1W-00,00,00,00,00,00,|3:R1-1W-00,00,00,00,00,00,|4:R1-1W-00,00,00,00,00,00,|5:R1-1W-00,00,00,00,00,00,|";
+    titleData.presets = "1_1:R1-1C-1H1-1A1-11B-AS,00,NC,00,00,00,";
 
     server.UpdateUserData({
         PlayFabId: currentPlayerId,
