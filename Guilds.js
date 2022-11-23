@@ -420,7 +420,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
     dataObject.currencyClaimed = false;
     if (dataObject.playerPerformances == undefined) {
-        dataObject.playerPerformances = [];
+        dataObject.playerPerformances = {};
     }
     log.debug("New pool:", dataObject);
 
