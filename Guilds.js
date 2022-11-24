@@ -59,7 +59,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                         var wars = attackerGuildObjects.attackBattery.DataObject.remainingWars;
                         var day = attackerGuildObjects.attackBattery.DataObject.lastRestorationDay;
                         var attackBattery = { remainingWars: wars - 1, lastRestorationDay: day };
-                        entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+                        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
 
                         log.debug("The battle invitation was successful and a GuildWar started.");
                         failed = false;
@@ -192,7 +192,7 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
 
 handlers.RestoreAttackBatteries = function (args) {
     var myEntityId = GetEntityId(currentPlayerId);
-    var myGuildId = GetMyGuild(myEntityId);
+    var myGuildId = GetMyGuild(myEntityId).Id;
     var objects = GetMyGuildObjects(myEntityId);
     var attackBattery = null;
 
