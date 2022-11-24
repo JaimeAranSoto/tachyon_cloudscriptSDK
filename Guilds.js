@@ -207,7 +207,7 @@ handlers.RestoreAttackBatteries = function (args) {
     }
 
     var today = new Date();
-    var saved = Date.parse(attackBattery.lastRestorationDay);
+    var saved = attackBattery.lastRestorationDay;
 
     if (GetYear(saved) <= today.getFullYear()) {
         if (GetMonth(saved) <= today.getMonth()) {
