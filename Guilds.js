@@ -206,22 +206,37 @@ handlers.RestoreAttackBatteries = function (args) {
         attackBattery = objects.attackBattery.DataObject;
     }
 
-    var today = new Date().toUTCString().getFullYear();
+    var today = new Date();
     var saved = Date.parse(attackBattery.lastRestorationDay);
 
-    // if (saved.prototype.getFullYear() <= today.prototype.getFullYear()) {
-    //     if (saved.getMonth() <= today.getMonth()) {
-    //         if (saved.getDay() < today.getDay()) {
-    //             // Restore energy
-    //             attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
-    //             entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
-    //             log.debug("Energy restored successfuly", attackBattery);
-                // return 1;
-    //         }
-    //     }
-    // }
+    if (saved.GetYear() <= today.getFullYear()) {
+        if (saved.GetMonth() <= today.getMonth()) {
+            if (saved.GetDay() < today.getDay()) {
+                // Restore energy
+                attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
+                entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+                log.debug("Energy restored successfuly", attackBattery);
+                return 1;
+            }
+        }
+    }
 
     return -1;
+}
+
+GetYear = function (args) {
+    var date = args.split(' ');
+    return date[3];
+}
+
+GetMonth = function (args) {
+    var date = args.split(' ');
+    return date[2];
+}
+
+GetDay = function (args) {
+    var date = args.split(' ');
+    return date[1];
 }
 
 handlers.DefendGuild = function (args) {
