@@ -55,6 +55,12 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                             }); //Discount Red Rocks.
                         }/*/
 
+                        // SUBSTRACT 1 FROM ATTACK BATTERY
+                        var wars = attackerGuildObjects.attackBattery.DataObject.remainingWars;
+                        var day = attackerGuildObjects.attackBattery.DataObject.lastRestorationDay;
+                        var attackBattery = { remainingWars: wars - 1, lastRestorationDay: day };
+                        entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+
                         log.debug("The battle invitation was successful and a GuildWar started.");
                         failed = false;
                         var originalDefense = GetGuildObjects(invitation.guildId).battleDefense
@@ -138,6 +144,19 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     var myGuild = GetMyGuild(myEntityId);
     var myGuildObjects = GetMyGuildObjects(myEntityId);
 
+    // CHECK IF GUILD HAS ENOUGH ATTACK BATTERIES
+    if (myGuildObjects.attackBattery != null) {
+        if (myGuildObjects.attackBattery.DataObject != null) {
+            if (myGuildObjects.attackBattery.DataObject.remainingWars <= 0) {
+                log.debug("Guild has no remaining wars available (attackBattery)");
+                return -1;
+            }
+        }
+    }
+    else {
+        handlers.RestoreAttackBatteries({});
+    }
+
     var isNewInvitation = false;
     if (myGuildObjects.battleInvitation === undefined) { //If it doesn't exist
         isNewInvitation = true;
@@ -167,7 +186,47 @@ handlers.AcceptOrCreateBattleInvitation = function (args) {
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
     entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+    log.debug("Battle invitation created", invitation);
     return 1;
+}
+
+handlers.RestoreAttackBatteries = function (args) {
+    var myEntityId = GetEntityId(currentPlayerId);
+    var myGuildId = GetMyGuild(myEntityId);
+    var objects = GetMyGuildObjects(myEntityId);
+    var attackBattery = null;
+
+    if (objects.attackBattery == null) {
+        if (objects.attackBattery.DataObject == null) {
+            attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
+            entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+            log.debug("Created attackBattery object", attackBattery);
+            return 1;
+        }
+        else {
+            log.debug("AttackBattery error: Empty object?");
+        }
+    }
+    else {
+        attackBattery = objects.attackBattery.DataObject;
+    }
+
+    var today = Date.now();
+    var saved = Date.parse(attackBattery.lastRestorationDay);
+
+    if (saved.getFullYear() <= today.getFullYear()) {
+        if (saved.getMonth() <= today.getMonth()) {
+            if (saved.getDay() < today.getDay()) {
+                // Restore energy
+                attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
+                entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+                log.debug("Energy restored successfuly", attackBattery);
+                return 1;
+            }
+        }
+    }
+
+    return -1;
 }
 
 handlers.DefendGuild = function (args) {
