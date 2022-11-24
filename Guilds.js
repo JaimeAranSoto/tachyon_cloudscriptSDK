@@ -197,7 +197,7 @@ handlers.RestoreAttackBatteries = function (args) {
     var attackBattery = null;
 
     if (objects.attackBattery == null) {
-        attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
+        attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
         entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
         log.debug("Created attackBattery object", attackBattery);
         return 1;
@@ -206,14 +206,14 @@ handlers.RestoreAttackBatteries = function (args) {
         attackBattery = objects.attackBattery.DataObject;
     }
 
-    var today = Date.now();
+    var today = new Date().toUTCString();
     var saved = Date.parse(attackBattery.lastRestorationDay);
 
     if (saved.getFullYear() <= today.getFullYear()) {
         if (saved.getMonth() <= today.getMonth()) {
             if (saved.getDay() < today.getDay()) {
                 // Restore energy
-                attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
+                attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
                 entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
                 log.debug("Energy restored successfuly", attackBattery);
                 return 1;
