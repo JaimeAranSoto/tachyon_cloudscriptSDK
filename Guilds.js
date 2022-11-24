@@ -209,7 +209,7 @@ handlers.RestoreAttackBatteries = function (args) {
     var today = new Date().toUTCString();
     var saved = Date.parse(attackBattery.lastRestorationDay);
 
-    if (saved.getFullYear() <= today.getFullYear()) {
+    if (saved.prototype.getFullYear() <= today.prototype.getFullYear()) {
         if (saved.getMonth() <= today.getMonth()) {
             if (saved.getDay() < today.getDay()) {
                 // Restore energy
