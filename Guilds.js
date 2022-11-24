@@ -218,9 +218,20 @@ handlers.RestoreAttackBatteries = function (args) {
                 log.debug("Energy restored successfuly", attackBattery);
                 return 1;
             }
+            else
+            {
+                log.debug("Energy not restored: SAME DAY");
+                return -1;
+            }
+        }
+        else
+        {
+            log.debug("Energy not restored: SAME MONTH");
+            return -1;
         }
     }
-
+    
+    log.debug("Energy not restored: SAME YEAR");
     return -1;
 }
 
