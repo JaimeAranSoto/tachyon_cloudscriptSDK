@@ -227,7 +227,8 @@ handlers.RestoreAttackBatteries = function (args) {
         else
         {
             log.debug("Energy not restored: FUTURE MONTH?");
-            log.debug("Saved: ", GetMonth(saved), " Today: ", today.getMonth() + 1);
+            var month = today.getMonth() + 1;
+            log.debug("Saved: $GetMonth(saved) Today: $month + 1");
             return -1;
         }
     }
@@ -243,7 +244,8 @@ GetYear = function (args) {
 
 GetMonth = function (args) {
     var date = args.split(' ');
-    return date[2];
+    var months = ["NoMonth", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return months.indexOf(date[2]);
 }
 
 GetDay = function (args) {
