@@ -220,18 +220,19 @@ handlers.RestoreAttackBatteries = function (args) {
             }
             else
             {
-                log.debug("Energy not restored: SAME DAY");
+                log.debug("Energy not restored: SAME DAY or FUTURE DAY");
                 return -1;
             }
         }
         else
         {
-            log.debug("Energy not restored: SAME MONTH");
+            log.debug("Energy not restored: FUTURE MONTH?");
+            log.debug("Saved: ", GetMonth(saved), " Today: ", today.getMonth() + 1);
             return -1;
         }
     }
     
-    log.debug("Energy not restored: SAME YEAR");
+    log.debug("Energy not restored: FUTURE YEAR?");
     return -1;
 }
 
