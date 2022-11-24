@@ -209,9 +209,9 @@ handlers.RestoreAttackBatteries = function (args) {
     var today = new Date();
     var saved = Date.parse(attackBattery.lastRestorationDay);
 
-    if (saved.GetYear() <= today.getFullYear()) {
-        if (saved.GetMonth() <= today.getMonth()) {
-            if (saved.GetDay() < today.getDay()) {
+    if (GetYear(saved) <= today.getFullYear()) {
+        if (GetMonth(saved) <= today.getMonth()) {
+            if (GetDay(saved) < today.getDay()) {
                 // Restore energy
                 attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
                 entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
