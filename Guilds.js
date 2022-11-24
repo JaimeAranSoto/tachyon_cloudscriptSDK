@@ -197,15 +197,10 @@ handlers.RestoreAttackBatteries = function (args) {
     var attackBattery = null;
 
     if (objects.attackBattery == null) {
-        if (objects.attackBattery.DataObject == null) {
-            attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
-            entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
-            log.debug("Created attackBattery object", attackBattery);
-            return 1;
-        }
-        else {
-            log.debug("AttackBattery error: Empty object?");
-        }
+        attackBattery = { remainingWars: 8, lastRestorationDay: Date.now() };
+        entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
+        log.debug("Created attackBattery object", attackBattery);
+        return 1;
     }
     else {
         attackBattery = objects.attackBattery.DataObject;
