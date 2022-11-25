@@ -315,8 +315,8 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
     const attackerAttack = attackerWarData.attack;
 
     const defenderGuildId = attackerAttack.defenderGuildId;
-    if (defenderGuildId == null || defenderGuildId == "") {
-        log.debug("Defender guild id is null.");
+    if (defenderGuildId == null || defenderGuildId == "" || !attackerAttack.successful) {
+        log.debug("Defender guild id is null or attack was never successful.");
         attackerWarData.attack = {
             defenderGuildId: "",
             leader: "",
