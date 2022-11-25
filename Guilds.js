@@ -157,7 +157,7 @@ handlers.AcceptOrCreateWarAttack = function (args) {
         }
     }
 
-    if (!warData.attack.participants.includes(myEntityId) && warData.attack.invitation.leader != myEntityId) {
+    if (!warData.attack.participants.includes(myEntityId) && warData.attack.leader != myEntityId) {
         warData.attack.participants.push(myEntityId);
     }
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
