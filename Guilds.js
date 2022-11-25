@@ -95,7 +95,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         try {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         } catch (error) {
-            log.debug("Error: " + JSON.parse(error))
+        
         }
         expired = true;
 
