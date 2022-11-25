@@ -95,7 +95,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         try {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         } catch (error) {
-            log.debug("Error: " + error)
+            log.debug("Error: " + JSON.parse(error))
         }
         expired = true;
 
@@ -305,6 +305,7 @@ handlers.FinishWar = function (args) {
 }
 
 FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
+    log.debug("Finish war was called. AttackerGuildId: " + attackerGuildId + " | DidAttackersWon: " + didAttackersWon + " | MyEntityId: " + myEntityId);
     const attackerGuildObjects = GetGuildObjects(attackerGuildId);
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
