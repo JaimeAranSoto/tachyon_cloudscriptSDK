@@ -28,9 +28,9 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             log.debug("War duration: " + warDuration + " of " + WAR_DURATION + " | successful? " + warAttack.successful, warAttack);
             if (warDuration >= WAR_DURATION) { //War should have ended
                 log.debug("The Guild War should have ended.");
-                if (attackerGuildId != null && warAttack.successful) {
-                    handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
-                }
+                //if (warAttack.successful) {
+                handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
+                //}
                 failed = true;
             } else if (!warAttack.successful || warAttack.successful == undefined) {
                 const stats = attackerGuildObjects.stats.DataObject;
