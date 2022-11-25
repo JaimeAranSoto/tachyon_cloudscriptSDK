@@ -137,7 +137,7 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     newAttack.successful = false;
     newAttack.participants = [];
     newAttack.leader = myEntityId;
-    newAttack.guildId = defenderGuildId;
+    newAttack.defenderGuildId = defenderGuildId;
     newAttack.deaths = [];
     newAttack.date = date;
 
