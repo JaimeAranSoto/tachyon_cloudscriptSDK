@@ -4,6 +4,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
+    const myEntityId = GetEntityId(currentPlayerId);
     const MIN_ATTACKERS = config.MIN_ATTACKERS;
     const WAR_DURATION = config.WAR_DURATION;
     const INVITATION_DURATION = config.INVITATION_DURATION;
@@ -29,7 +30,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             if (warDuration >= WAR_DURATION) { //War should have ended
                 log.debug("The Guild War should have ended.");
                 //if (warAttack.successful) {
-                handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
+                FinishWar(attackerGuildId, false, myEntityId);
                 //}
                 failed = true;
             } else if (!warAttack.successful || warAttack.successful == undefined) {
@@ -88,13 +89,13 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
             warAttack.leader = "";
             warAttack.guildId = "";
             warAttack.deaths = [];
-            warAttack.date = new Date(2000, 1, 1).toUTCString();
+            warAttack.date = new Date(1999, 1, 1).toUTCString();
         }
         attackerWarData.attack = warAttack;
         try {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         } catch (error) {
-            log.debug("Error: " + error.message)
+            log.debug("Error: " + error)
         }
         expired = true;
 
@@ -292,64 +293,62 @@ handlers.DieDuringWar = function (args) {
 //// LLEGUÉ HASTA AQUÍ 👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈
 
 handlers.FinishWar = function (args) {
-
     if (args.attackerGuild == null || args.attackerGuild == "") {
+        log.debug("attackerGuildId is null or empty");
         return -2;
     }
 
+    const myEntityId = GetEntityId(currentPlayerId);
     const attackerGuildId = args.attackerGuild;
     const didAttackersWon = args.won; //bool
+    return FinishWar(attackerGuildId, didAttackersWon, myEntityId);
+}
 
-    const myEntityId = GetEntityId(currentPlayerId);
-
+FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
     const attackerGuildObjects = GetGuildObjects(attackerGuildId);
-
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
     const COST = config.COST; //[]
 
     const attackerWarData = attackerGuildObjects.warData.DataObject;
     const attackerAttack = attackerWarData.attack;
-    if (attackerAttack != null) {
-        const defenderGuildId = attackerAttack.defenderGuildId;
-        if (defenderGuildId == null || defenderGuildId == "") {
-            log.debug("Defender guild id is null.");
-            return -2;
+
+    const defenderGuildId = attackerAttack.defenderGuildId;
+    if (defenderGuildId == null || defenderGuildId == "") {
+        log.debug("Defender guild id is null.");
+        return -2;
+    }
+    const defenderGuildObjects = GetGuildObjects(defenderGuildId);
+    const defenderWarData = defenderGuildObjects.warData.DataObject;
+    const defenderDefense = defenderWarData.defense;
+
+    if (attackerAttack.participants.includes(myEntityId) || attackerAttack.leader == myEntityId || defenderDefense.participants.includes(myEntityId)) {
+        log.debug("Will Split War Points...");
+        const attackerCurrencyCost = COST[attackerGuildObjects.stats.DataObject.level - 1];
+        const defenderCurrencyCost = COST[defenderGuildObjects.stats.DataObject.level - 1];
+
+        const warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
+        try {
+            SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
+            log.debug("Attacker War Points assigned...");
+            SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
+            log.debug("Defender War Points assigned...");
+        } catch (error) {
+            log.debug("SplitWarPoints was not executed. " + error)
         }
-        const defenderGuildObjects = GetGuildObjects(defenderGuildId);
-        const defenderWarData = defenderGuildObjects.warData.DataObject;
-        const defenderDefense = defenderWarData.defense;
 
-        if (attackerAttack.participants.includes(myEntityId) || attackerAttack.leader == myEntityId || defenderDefense.participants.includes(myEntityId)) {
-            log.debug("Will Split War Points...");
-            const attackerCurrencyCost = COST[attackerGuildObjects.stats.DataObject.level - 1];
-            const defenderCurrencyCost = COST[defenderGuildObjects.stats.DataObject.level - 1];
+        const newAttack = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString(), defenderGuildId: "" };
+        log.debug("WarAttack will be cleared...");
+        attackerWarData.attack = newAttack;
+        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
 
-            const warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
-            try {
-                SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
-                log.debug("Attacker War Points assigned...");
-                SplitWarPoints(defenderGuildId, !didAttackersWon, true, warCost);
-                log.debug("Defender War Points assigned...");
-            } catch (error) {
-                log.debug("SplitWarPoints was not executed. " + error)
-            }
-
-            const newAttack = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString(), defenderGuildId: "" };
-            log.debug("WarAttack will be cleared...");
-            attackerWarData.attack = newAttack;
-            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
-
-            const newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
-            log.debug("WarDefense will be cleared...");
-            defenderWarData.defense = newDefense;
-            entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
-            return 1; //War finished successfully, battleInvitation was reset.
-        } else {
-            return -3; //Player is not a participant or method was already called by another player.
-        }
+        const newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
+        log.debug("WarDefense will be cleared...");
+        defenderWarData.defense = newDefense;
+        entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
+        return 1; //War finished successfully, battleInvitation was reset.
     } else {
-        return -2; //Guild has no active invitation
+        return -3; //Player is not a participant or method was already called by another player.
     }
 }
 
