@@ -1,6 +1,6 @@
 ////////////// GUILDS
 
-handlers.CheckExpirationForBattleInvitation = function (args) {
+handlers.CheckExpirationForWarAttack = function (args) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
@@ -143,7 +143,7 @@ handlers.AcceptOrCreateWarAttack = function (args) {
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
     } else {
-        if (handlers.CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Id })) { //If has just expired
+        if (handlers.CheckExpirationForWarAttack({ attackerGuildId: myGuild.Id })) { //If has just expired
             isNewInvitation = true;
             log.debug("Since last invitation expired, a new Battle Invitation was created.")
         }
