@@ -318,14 +318,15 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
     if (defenderGuildId == null || defenderGuildId == "" || !attackerAttack.successful) {
         log.debug("Defender guild id is null or attack was never successful.");
         attackerWarData.attack = {
+            successful: false,
             defenderGuildId: "",
             leader: "",
             date: "1999-01-01T00:00:00",
             participants: [],
-            successful: false,
             deaths: []
         };
         entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
+        log.debug("WarAttack has been reset.");
         return -2;
     }
     const defenderGuildObjects = GetGuildObjects(defenderGuildId);
