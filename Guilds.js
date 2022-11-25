@@ -115,7 +115,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
 handlers.AcceptOrCreateWarAttack = function (args) {
     const myEntityId = GetEntityId(currentPlayerId);
-    const defenderGuildId = args.defenderuGildId; //this could be null
+    const defenderGuildId = args.defenderGuildId; //this could be null
     const date = args.date;
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
@@ -582,7 +582,7 @@ handlers.AssignRandomGuild = function (args) {
     }
 
     const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
-    var allGuilds = JSON.parse(titleData);
+    const allGuilds = JSON.parse(titleData);
     var max = allGuilds.length;
     var chosenGuild = Math.floor(Math.random() * max);
     log.debug("Total guild: " + allGuilds.length);
@@ -681,9 +681,9 @@ handlers.DonateItemToGuild = function (args) {
 
 //Technically, this will not be called by a player becuase a voting system will be implemented
 handlers.UpgradeSpaceFortress = function (args) {
-    var myEntityId = GetEntityId(currentPlayerId);
-    var guildObjects = GetMyGuildObjects(myEntityId);
-    var stats = guildObjects.stats.DataObject;
+    const myEntityId = GetEntityId(currentPlayerId);
+    const guildObjects = GetMyGuildObjects(myEntityId);
+    const stats = guildObjects.stats.DataObject;
 
     var guildCurrency = 0;
     if (stats.currency != null) {
