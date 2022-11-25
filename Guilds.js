@@ -256,40 +256,42 @@ handlers.DieDuringWar = function (args) {
 
     const warData = guildObjects.warData.DataObject;
 
-    const warAttack = guildObjects.battleInvitation;
-    if (warAttack != null) {
-        if (warAttack.successful && warAttack.defenderGuildId != "") {
-            if (warAttack.participants.includes(myEntityId) || warAttack.leader == myEntityId) {
-                if (warAttack.deaths == null) {
-                    warAttack.deaths = [];
-                }
-                if (!warAttack.deaths.includes(myEntityId)) {
-                    warAttack.deaths.push(myEntityId);
-                    warData.attack = warAttack;
-                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
-                    return "DEATH ADDDED TO ATTACK DATA";
-                }
+    const warAttack = warData.attack;
+
+    if (warAttack.successful && warAttack.defenderGuildId != "") {
+        if (warAttack.participants.includes(myEntityId) || warAttack.leader == myEntityId) {
+            if (warAttack.deaths == null) {
+                warAttack.deaths = [];
+            }
+            if (!warAttack.deaths.includes(myEntityId)) {
+                warAttack.deaths.push(myEntityId);
+                warData.attack = warAttack;
+                entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+                log.debug("DEATH ADDDED TO ATTACK DATA");
+                return;
             }
         }
     }
 
-    const warDefense = guildObjects.battleDefense;
-    if (warDefense != null) {
-        if (warDefense.attackerGuildId.length > 1) { //validate defense
-            if (warDefense.deaths == null) {
-                warDefense.deaths = [];
-            }
-            if (warDefense.participants.includes(myEntityId)) {
-                if (!warDefense.deaths.includes(myEntityId)) {
-                    warDefense.deaths.push(myEntityId);
-                    warData.defense = warDefense;
-                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
-                    return "DEATH ADDDED TO DEFENSE DATA";
-                }
+    const warDefense = warData.defense;
+
+    if (warDefense.attackerGuildId.length > 1) { //validate defense
+        if (warDefense.deaths == null) {
+            warDefense.deaths = [];
+        }
+        if (warDefense.participants.includes(myEntityId)) {
+            if (!warDefense.deaths.includes(myEntityId)) {
+                warDefense.deaths.push(myEntityId);
+                warData.defense = warDefense;
+                entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+                log.debug("DEATH ADDDED TO DEFENSE DATA");
+                return;
             }
         }
     }
-    return "DEATH NOT ADDED TO REGISTRY";
+
+    log.debug("DEATH NOT ADDED TO REGISTRY");
+    return;
 }
 //// LLEGUÉ HASTA AQUÍ 👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈
 
