@@ -9,13 +9,10 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     const INVITATION_DURATION = config.INVITATION_DURATION;
     const COST = config.COST; //[]
     const attackerGuildId = args.attackerGuildId;
-    const groupObjectData = entity.GetObjects({
-        Entity: { Id: attackerGuildId, Type: "group" }
-    });
 
+    const attackerGuildObjects = GetGuildObjects(attackerGuildId);
     var expired = false;
     var failed = true;
-    const attackerGuildObjects = groupObjectData.Objects;
 
     var attackerWarData = {};
 
@@ -47,7 +44,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                     log.debug("Guild currency: " + stats.currency + " | Cost: " + requiredRocks);
                     if (stats.currency >= requiredRocks) {
                         // SUBSTRACT 1 FROM WAR ENERGY
-                        const previousRemainingWars = warData.energy.remainingWars;
+                        const previousRemainingWars = attackerWarData.energy.remainingWars;
                         attackerWarData.energy.remainingWars = previousRemainingWars - 1;
 
                         // entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
