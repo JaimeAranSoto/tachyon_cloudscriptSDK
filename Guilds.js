@@ -161,7 +161,7 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
     entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: currentWarData }] });
-    log.debug("WarAttack updated: " + JSON.parse(currentWarData.attack));
+    log.debug("WarAttack updated: " + JSON.stringify(currentWarData.attack));
     return 1;
 }
 
