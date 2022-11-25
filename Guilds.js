@@ -317,6 +317,15 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
     const defenderGuildId = attackerAttack.defenderGuildId;
     if (defenderGuildId == null || defenderGuildId == "") {
         log.debug("Defender guild id is null.");
+        attackerWarData.attack = {
+            defenderGuildId: "",
+            leader: "",
+            date: "1999-01-01T00:00:00",
+            participants: [],
+            successful: false,
+            deaths: []
+        };
+        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         return -2;
     }
     const defenderGuildObjects = GetGuildObjects(defenderGuildId);
