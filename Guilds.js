@@ -19,6 +19,7 @@ handlers.CheckExpirationForWarAttack = function (args) {
     const warAttack = attackerWarData.attack;
     if (warAttack.leader == "") {
         log.debug("The BatlleInvitation expired previously.")
+        return;
         expired = true;
     }
     var timeSinceCreated = Math.floor((Date.now() - Date.parse(warAttack.date)) / 1000);
@@ -103,7 +104,6 @@ handlers.CheckExpirationForWarAttack = function (args) {
     } else {
         expired = false;
         log.debug("The BatlleInvitation has not expired yet.")
-        expired = false;
     }
     return expired;
 }
