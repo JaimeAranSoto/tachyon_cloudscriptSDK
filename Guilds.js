@@ -350,15 +350,19 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
             log.debug("SplitWarPoints was not executed. " + error)
         }
 
+        const updatedAttackerWarData = GetGuildObjects(attackerGuildId).warData.DataObject;
+
         const newAttack = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString(), defenderGuildId: "" };
         log.debug("WarAttack will be cleared...");
-        attackerWarData.attack = newAttack;
-        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
+        updatedAttackerWarData.attack = newAttack;
+        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: updatedAttackerWarData }] });
+
+        const updatedDefenderWarData = GetGuildObjects(defenderGuildId).warData.DataObject;
 
         const newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
         log.debug("WarDefense will be cleared...");
-        defenderWarData.defense = newDefense;
-        entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
+        updatedDefenderWarData.defense = newDefense;
+        entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: updatedDefenderWarData }] });
         return 1; //War finished successfully, battleInvitation was reset.
     } else {
         log.debug("Player is not a participant or method was already called by another player.");
@@ -476,7 +480,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     if (newPool.playerPerformances == undefined) {
         newPool.playerPerformances = {};
     }
-    log.debug("New pool:"+JSON.stringify(newPool));
+    log.debug("New pool:" + JSON.stringify(newPool));
     warData.pool = newPool;
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 }
