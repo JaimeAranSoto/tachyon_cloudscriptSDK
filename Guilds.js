@@ -4,95 +4,77 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    var MIN_ATTACKERS = config.MIN_ATTACKERS;
-    var WAR_DURATION = config.WAR_DURATION;
-    var INVITATION_DURATION = config.INVITATION_DURATION;
-    var COST = config.COST; //[]
-    var attackerGuildId = args.attackerGuildId;
-    var groupObjectData = entity.GetObjects({
+    const MIN_ATTACKERS = config.MIN_ATTACKERS;
+    const WAR_DURATION = config.WAR_DURATION;
+    const INVITATION_DURATION = config.INVITATION_DURATION;
+    const COST = config.COST; //[]
+    const attackerGuildId = args.attackerGuildId;
+    const groupObjectData = entity.GetObjects({
         Entity: { Id: attackerGuildId, Type: "group" }
     });
 
     var expired = false;
     var failed = true;
-    var attackerGuildObjects = groupObjectData.Objects;
-    if (attackerGuildObjects.battleInvitation !== undefined) {
-        var invitation = attackerGuildObjects.battleInvitation.DataObject;
-        if (invitation == "") {
+    const attackerGuildObjects = groupObjectData.Objects;
+
+    var attackerWarData = {};
+
+    if (attackerGuildObjects.warData !== undefined) {
+        attackerWarData = attackerGuildObjects.warData.DataObject;
+        const warAttack = attackerWarData.attack;
+        if (warAttack.leader == "") {
             log.debug("The BatlleInvitation expired previously.")
             expired = true;
         }
-        var timeSinceCreated = (Date.now() - Date.parse(invitation.date)) / 1000;
+        var timeSinceCreated = (Date.now() - Date.parse(warAttack.date)) / 1000;
         if (timeSinceCreated >= INVITATION_DURATION) {
-            log.debug("The BatlleInvitation has expired.")
-
-            if (invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
-                var battleDuration = timeSinceCreated - INVITATION_DURATION;
-                log.debug("Battle duration: " + battleDuration + " | successful? " + invitation.successful, invitation);
-                if (battleDuration >= WAR_DURATION) { //War should have ended
+            log.debug("The Invitation has expired.");
+            if (warAttack.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
+                var warDuration = timeSinceCreated - INVITATION_DURATION;
+                log.debug("War duration: " + warDuration + " | successful? " + warAttack.successful, warAttack);
+                if (warDuration >= WAR_DURATION) { //War should have ended
                     log.debug("The Guild War should have ended.");
-                    if (attackerGuildId != null && invitation.successful) {
+                    if (attackerGuildId != null && warAttack.successful) {
                         handlers.FinishWar({ attackerGuild: attackerGuildId, won: false });
                     }
                     failed = true;
-                } else if (!invitation.successful || invitation.successful == undefined) {
-                    //DISCOUNT RED ROCKS
-                    var stats = attackerGuildObjects.stats.DataObject;
-                    log.debug("Stats:" + JSON.stringify(stats));
+                } else if (!warAttack.successful || warAttack.successful == undefined) {
+                    const stats = attackerGuildObjects.stats.DataObject;
                     if (stats.level == undefined) {
                         stats.level = 1;
                     }
-                    var requiredRocks = Number(COST[Number(stats.level) - 1]);
+                    const requiredRocks = Number(COST[Number(stats.level) - 1]);
                     log.debug("Guild currency: " + stats.currency + " | Cost: " + requiredRocks);
                     if (stats.currency >= requiredRocks) {
+                        // SUBSTRACT 1 FROM WAR ENERGY
+                        const previousRemainingWars = warData.energy.remainingWars;
+                        attackerWarData.energy.remainingWars = previousRemainingWars - 1;
 
-                        /*{ I'm pretty sure this will be requested again ¬¬ 
-                            stats.currency -= discount;
-                            entity.SetObjects({
-                                Entity: { Id: attackerGuildId, Type: "group" },
-                                Objects: [{ ObjectName: "stats", DataObject: stats }],
-                                CustomTags: { Event: "Discount currency from guild to start a war.", Discount: discount }
-                            }); //Discount Red Rocks.
-                        }/*/
+                        // entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 
-                        // SUBSTRACT 1 FROM ATTACK BATTERY
-                        var wars = attackerGuildObjects.attackBattery.DataObject.remainingWars;
-                        var day = attackerGuildObjects.attackBattery.DataObject.lastRestorationDay;
-                        var attackBattery = { remainingWars: wars - 1, lastRestorationDay: day };
-                        entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
-
-                        log.debug("The battle invitation was successful and a GuildWar started.");
+                        warAttack.successful = true;
                         failed = false;
-                        var originalDefense = GetGuildObjects(invitation.guildId).battleDefense
-                        if (originalDefense == null || originalDefense == undefined) {
-                            originalDefense = { date: new Date(2000, 1, 1), participants: [], attackerGuildId: "" };
-                        } else {
-                            originalDefense = originalDefense.DataObject;
-                            log.debug("Defender data:\nAttackerGuild: " + originalDefense.attackerGuildId);
-                        }
-                        //if (originalDefense.attackerGuildId.length < 2 || (new Date() - Date.parse(originalDefense.date)) / 1000 > WAR_DURATION) { //null or empty
-                        invitation.successful = true;
+                        log.debug("The battle invitation was successful and a GuildWar started.");
+
+                        const defenderWarData = GetGuildObjects(warAttack.defenderGuildId).warData.DataObject;
+
                         //Create battle defense in defender guild.
-                        var defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
-                        entity.SetObjects({ Entity: { Id: invitation.guildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
-                        //}
+                        defenderWarData.defense = { date: new Date().toUTCString(), participants: [], attackerGuildId: attackerGuildId, deaths: [] };
+                        entity.SetObjects({ Entity: { Id: warAttack.defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
 
                         //Create player performances
                         attakcers: {
-                            var originalParticipants = [...invitation.participants];
-                            originalParticipants.push(invitation.leader);
+                            var originalParticipants = warAttack.participants;
+                            originalParticipants.push(warAttack.leader);
 
-                            var attackerPlayerPerformances = {};
+                            const attackerPlayerPerformances = {};
 
-                            for (let index = 0; index < originalParticipants.length; index++) {
-                                const player = originalParticipants[index];
+                            for (let i = 0; i < originalParticipants.length; i++) {
+                                const player = originalParticipants[i];
                                 attackerPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
                             }
-
-                            var warPool = attackerGuildObjects.warPool.DataObject;
-                            warPool.playerPerformances = attackerPlayerPerformances;
-
-                            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+                            attackerWarData.pool.playerPerformances = attackerPlayerPerformances;
+                            // entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
                         }
                     } else {
                         log.debug("Attacker guild has no enough currency to start the battle!.");
@@ -107,14 +89,15 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
 
             if (failed) {
                 log.debug("failed...");
-                invitation.successful = false;
-                invitation.participants = [];
-                invitation.leader = "";
-                invitation.guildId = "";
-                invitation.deaths = [];
-                invitation.date = new Date(2000, 1, 1).toUTCString();
+                warAttack.successful = false;
+                warAttack.participants = [];
+                warAttack.leader = "";
+                warAttack.guildId = "";
+                warAttack.deaths = [];
+                warAttack.date = new Date(2000, 1, 1).toUTCString();
             }
-            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
+            attackerWarData.warAttack = warAttack;
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
             expired = true;
 
         } else {
@@ -130,109 +113,97 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
     return expired;
 }
 
-handlers.AcceptOrCreateBattleInvitation = function (args) {
-    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
-    var myEntityId = myEntity.Id;
-    var targetedGuildId = args.targetedGuildId; //this could be null
-    var date = args.date;
+handlers.AcceptOrCreateWarAttack = function (args) {
+    const myEntityId = GetEntityId(currentPlayerId);
+    const defenderGuildId = args.defenderuGildId; //this could be null
+    const date = args.date;
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    var MIN_ATTACKERS = config.MIN_ATTACKERS;
+    const MIN_ATTACKERS = config.MIN_ATTACKERS;
 
-    var myGuild = GetMyGuild(myEntityId);
-    var myGuildObjects = GetMyGuildObjects(myEntityId);
+    const myGuild = GetMyGuild(myEntityId);
+    const warData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
-    // CHECK IF GUILD HAS ENOUGH ATTACK BATTERIES
-    if (myGuildObjects.attackBattery != null) {
-        if (myGuildObjects.attackBattery.DataObject != null) {
-            if (myGuildObjects.attackBattery.DataObject.remainingWars <= 0) {
-                log.debug("Guild has no remaining wars available (attackBattery)");
-                return -1;
-            }
+    // CHECK IF GUILD HAS ENOUGH WAR ENERGY
+    if (warData.energy != null) {
+        if (warData.energy.remainingWars <= 0) {
+            log.debug("Guild has no remaining wars available (war energy)");
+            return -1;
         }
     }
     else {
-        handlers.RestoreAttackBatteries({});
+        handlers.RestoreWarEnergy({});
     }
 
+    const newAttack = {};
+    newAttack.successful = false;
+    newAttack.participants = [];
+    newAttack.leader = myEntityId;
+    newAttack.guildId = defenderGuildId;
+    newAttack.deaths = [];
+    newAttack.date = date;
+
     var isNewInvitation = false;
-    if (myGuildObjects.battleInvitation === undefined) { //If it doesn't exist
+    if (warData.attack == undefined) { //If it doesn't exist
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
-        myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+        warData.attack = newAttack;
     } else {
         if (handlers.CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Id })) { //If has just expired
             isNewInvitation = true;
             log.debug("Since last invitation expired, a new Battle Invitation was created.")
-            myGuildObjects.battleInvitation = { ObjectName: "battleInvitation", DataObject: {} };
+            warData.attack = newAttack;
         }
     }
 
-    var invitation = myGuildObjects.battleInvitation.DataObject;
-
-    invitation.guildId = targetedGuildId;
-    if (isNewInvitation) {
-        invitation.leader = myEntityId;
-        invitation.date = date;
-    }
-
-    if (invitation.participants == null) invitation.participants = [];
-
-    if (!invitation.participants.includes(myEntityId) && invitation.leader != myEntityId) {
-        invitation.participants.push(myEntityId);
+    if (!warData.attack.participants.includes(myEntityId) && warData.attack.invitation.leader != myEntityId) {
+        warData.attack.participants.push(myEntityId);
     }
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
-    entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitation }] });
-    log.debug("Battle invitation created", invitation);
+    entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+    log.debug("WarAttack created", warData.attack);
     return 1;
 }
 
-handlers.RestoreAttackBatteries = function (args) {
-    var myEntityId = GetEntityId(currentPlayerId);
-    var myGuildId = GetMyGuild(myEntityId).Id;
-    var objects = GetMyGuildObjects(myEntityId);
-    var attackBattery = null;
+handlers.RestoreWarEnergy = function (args) {
+    const myEntityId = GetEntityId(currentPlayerId);
+    const myGuildId = GetMyGuild(myEntityId).Id;
+    const warData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
-    if (objects.attackBattery == null) {
-        attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
-        entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
-        log.debug("Created attackBattery object", attackBattery);
+    if (warData.energy == null) {
+        warData.energy = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
+        entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+        log.debug("Created war energy object", warData.energy);
         return 1;
     }
-    else {
-        attackBattery = objects.attackBattery.DataObject;
-    }
 
-    var today = new Date();
-    var saved = attackBattery.lastRestorationDay;
+    const today = new Date();
+    const saved = warData.energy.lastRestorationDay;
 
     if (GetYear(saved) <= today.getFullYear()) {
         if (GetMonth(saved) <= today.getMonth() + 1) {
             if (GetDay(saved) < today.getDate()) {
                 // Restore energy
-                attackBattery = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
-                entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "attackBattery", DataObject: attackBattery }] });
-                log.debug("Energy restored successfuly", attackBattery);
+                warData.energy = { remainingWars: 8, lastRestorationDay: new Date().toUTCString() };
+                entity.SetObjects({ Entity: { Id: myGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+                log.debug("Energy restored successfuly", warData.energy);
                 return 1;
             }
-            else
-            {
+            else {
                 log.debug("Energy not restored: SAME DAY or FUTURE DAY");
                 return -1;
             }
         }
-        else
-        {
+        else {
             log.debug("Energy not restored: FUTURE MONTH?");
             var month = today.getMonth() + 1;
             log.debug("Saved: $GetMonth(saved) Today: $month + 1");
             return -1;
         }
     }
-    
+
     log.debug("Energy not restored: FUTURE YEAR?");
     return -1;
 }
@@ -254,67 +225,67 @@ GetDay = function (args) {
 }
 
 handlers.DefendGuild = function (args) {
-    var myEntityId = args.myEntityId;
-    var defenderGuildObjects = GetMyGuildObjects(myEntityId);
+    const myEntityId = GetEntityId(currentPlayerId);
+    const warData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
-    if (defenderGuildObjects.battleDefense == null) return -1;
-    var defense = defenderGuildObjects.battleDefense.DataObject;
+    if (warData.defense == null || warData.defense == {}) return -1;
 
-    if (defense.participants.includes(myEntityId)) return -2; //already entered
+    if (warData.defense.participants.includes(myEntityId)) return -2; //already entered
 
-    defense.participants.push(myEntityId);
-    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
+    warData.defense.participants.push(myEntityId);
+    // entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defense }] });
 
-    var defenderPlayerPerformances = {};
+    const playerPerformances = {};
 
-    for (let index = 0; index < defense.participants.length; index++) {
-        const player = participants[index];
-        defenderPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
+    for (let i = 0; i < defense.participants.length; i++) {
+        const player = participants[i];
+        playerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
     }
 
-    var warPool = defenderGuildObjects.warPool.DataObject;
-    warPool.playerPerformances = defenderPlayerPerformances;
+    warData.pool.playerPerformances = playerPerformances;
 
-    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+    // entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 
     return 1;
 }
 
+
 handlers.DieDuringWar = function (args) {
-    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
-    var myEntityId = myEntity.Id;
+    const myEntityId = GetEntityId(currentPlayerId);
 
-    var objects = GetMyGuildObjects(myEntityId);
+    const guildObjects = GetMyGuildObjects(myEntityId);
 
-    var invitation = objects.battleInvitation;
-    if (invitation != null) {
-        var invitationData = invitation.DataObject;
-        if (invitationData.successful) {
-            if (invitationData.participants.includes(myEntityId) || invitationData.leader == myEntityId) {
-                if (invitationData.deaths == null) {
-                    invitationData.deaths = [];
+    const warData = guildObjects.warData.DataObject;
+
+    const warAttack = guildObjects.battleInvitation;
+    if (warAttack != null) {
+        if (warAttack.successful && warAttack.defenderGuildId != "") {
+            if (warAttack.participants.includes(myEntityId) || warAttack.leader == myEntityId) {
+                if (warAttack.deaths == null) {
+                    warAttack.deaths = [];
                 }
-                if (!invitationData.deaths.includes(myEntityId)) {
-                    invitationData.deaths.push(myEntityId);
-                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: invitationData }] });
-                    return "DEATH ADDDED TO ATTACK/INVITATION DATA";
+                if (!warAttack.deaths.includes(myEntityId)) {
+                    warAttack.deaths.push(myEntityId);
+                    warData.attack = warAttack;
+                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+                    return "DEATH ADDDED TO ATTACK DATA";
                 }
             }
         }
     }
 
-    var defense = objects.battleDefense;
-    if (defense != null) {
-        var defenseData = defense.DataObject;
-        if (defenseData.attackerGuild.length > 1) { //validate defense
-            if (defenseData.deaths == null) {
-                defenseData.deaths = [];
+    const warDefense = guildObjects.battleDefense;
+    if (warDefense != null) {
+        if (warDefense.attackerGuildId.length > 1) { //validate defense
+            if (warDefense.deaths == null) {
+                warDefense.deaths = [];
             }
-            if (defenseData.participants.includes(myEntityId)) {
-                if (!defenseData.deaths.includes(myEntityId)) {
-                    defenseData.deaths.push(myEntityId);
-                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: defenseData }] });
+            if (warDefense.participants.includes(myEntityId)) {
+                if (!warDefense.deaths.includes(myEntityId)) {
+                    warDefense.deaths.push(myEntityId);
+                    warData.defense = warDefense;
+                    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
                     return "DEATH ADDDED TO DEFENSE DATA";
                 }
             }
@@ -322,6 +293,7 @@ handlers.DieDuringWar = function (args) {
     }
     return "DEATH NOT ADDED TO REGISTRY";
 }
+//// LLEGUÉ HASTA AQUÍ 👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈
 
 handlers.FinishWar = function (args) {
 
@@ -329,34 +301,35 @@ handlers.FinishWar = function (args) {
         return -2;
     }
 
-    var attackerGuildId = args.attackerGuild;
-    var didAttackersWon = args.won; //bool
+    const attackerGuildId = args.attackerGuild;
+    const didAttackersWon = args.won; //bool
 
-    var myEntityId = GetEntityId(currentPlayerId);
+    const myEntityId = GetEntityId(currentPlayerId);
 
-    var attackerGuildObjects = GetGuildObjects(attackerGuildId);
+    const attackerGuildObjects = GetGuildObjects(attackerGuildId);
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    var COST = config.COST; //[]
+    const COST = config.COST; //[]
 
-    if (attackerGuildObjects.battleInvitation != null) {
-        var battleInvitation = attackerGuildObjects.battleInvitation.DataObject;
-        var defenderGuildId = battleInvitation.guildId;
-        log.debug("Defender guild id: " + defenderGuildId, battleInvitation);
+    const attackerWarData = attackerGuildObjects.warData.DataObject;
+    const attackerAttack = attackerWarData.attack;
+    if (attackerAttack != null) {
+        const defenderGuildId = attackerAttack.defenderGuildId;
         if (defenderGuildId == null || defenderGuildId == "") {
             log.debug("Defender guild id is null.");
             return -2;
         }
-        var defenderGuild = GetGuildObjects(defenderGuildId);
+        const defenderGuildObjects = GetGuildObjects(defenderGuildId);
+        const defenderWarData = defenderGuildObjects.warData.DataObject;
+        const defenderDefense = defenderWarData.defense;
 
-        if (battleInvitation.participants.includes(myEntityId) || battleInvitation.leader == myEntityId || defenderGuild.battleDefense.DataObject.participants.includes(myEntityId)) {
+        if (attackerAttack.participants.includes(myEntityId) || attackerAttack.leader == myEntityId || defenderDefense.participants.includes(myEntityId)) {
             log.debug("Will Split War Points...");
+            const attackerCurrencyCost = COST[attackerGuildObjects.stats.DataObject.level - 1];
+            const defenderCurrencyCost = COST[defenderGuildObjects.stats.DataObject.level - 1];
 
-            var attackerCurrencyCost = COST[attackerGuildObjects.stats.DataObject.level - 1];
-            var defenderCurrencyCost = COST[defenderGuild.stats.DataObject.level - 1];
-
-            var warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
+            const warCost = didAttackersWon ? defenderCurrencyCost : attackerCurrencyCost;
             try {
                 SplitWarPoints(attackerGuildId, didAttackersWon, false, warCost);
                 log.debug("Attacker War Points assigned...");
@@ -366,13 +339,15 @@ handlers.FinishWar = function (args) {
                 log.debug("SplitWarPoints was not executed. " + error)
             }
 
-            var newInvitation = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString() };
-            log.debug("BattleInvitation will be cleared...");
-            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "battleInvitation", DataObject: newInvitation }] });
+            const newAttack = { leader: "", participants: [], successful: false, date: new Date(2000, 1, 1).toUTCString(), defenderGuildId: "" };
+            log.debug("WarAttack will be cleared...");
+            attackerWarData.attack = newAttack;
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
 
-            var newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
-            log.debug("BattleDefense will be cleared...");
-            entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "battleDefense", DataObject: newDefense }] });
+            const newDefense = { date: new Date(2000, 1, 1).toUTCString(), participants: [], attackerGuildId: "" };
+            log.debug("WarDefense will be cleared...");
+            defenderWarData.defense = newDefense;
+            entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
             return 1; //War finished successfully, battleInvitation was reset.
         } else {
             return -3; //Player is not a participant or method was already called by another player.
@@ -383,39 +358,34 @@ handlers.FinishWar = function (args) {
 }
 
 handlers.CollectWarPoints = function (args) {
-    var playerEntityId = GetEntityId(currentPlayerId);
-    var objects = GetMyGuildObjects(playerEntityId);
-    log.debug("GuildObjects", objects);
+    const myEntityId = GetEntityId(currentPlayerId);
+    const guildObjects = GetMyGuildObjects(myEntityId);
 
-    var pool = objects.warPool;
+    const warData = guildObjects.warData.DataObject;
+    const pool = warData.pool;
     if (pool == null) {
         log.debug("Pool is null");
         return;
     }
-    var poolData = pool.DataObject;
-    if (poolData == null) {
-        log.debug("PoolData is null");
-        return;
-    }
-
-    if (poolData.points[playerEntityId] != null) {
-        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: poolData.points[playerEntityId] }] });
-        delete poolData.points[playerEntityId];
+    if (pool.points[myEntityId] != null) {
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "WAR_POINTS", Value: pool.points[myEntityId] }] });
+        delete pool.points[myEntityId];
     } else {
         log.debug("Player is not eligible for WarPoints.")
     }
-    if (poolData.tachyon[playerEntityId] != null) {
-        server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, Amount: poolData.tachyon[playerEntityId], VirtualCurrency: "TK" })
-        delete poolData.tachyon[playerEntityId];
+    if (pool.tachyon[myEntityId] != null) {
+        server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, Amount: pool.tachyon[myEntityId], VirtualCurrency: "TK" })
+        delete pool.tachyon[myEntityId];
     } else {
         log.debug("Player is not eligible for Tachyon reward.")
     }
-    if (!poolData.currencyClaimed) {
-        objects.stats.DataObject.currency += Number(poolData.currency);
-        entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: objects.stats.DataObject }] });
-        poolData.currencyClaimed = true;
+    if (!pool.currencyClaimed) {
+        guildObjects.stats.DataObject.currency += Number(pool.currency);
+        entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: guildObjects.stats.DataObject }] });
+        pool.currencyClaimed = true;
     }
-    entity.SetObjects({ Entity: { Id: GetMyGuild(playerEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: poolData }] });
+    warData.pool = pool;
+    entity.SetObjects({ Entity: { Id: GetMyGuild(myEntityId).Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 }
 
 SplitWarPoints = function (guildId, won, defending, currencyReward) {
@@ -423,61 +393,53 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
 
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    var WINNER_POOL = config.WINNER_POOL;
-    var LOSER_POOL = config.LOSER_POOL;
+    const WINNER_POOL = config.WINNER_POOL;
+    const LOSER_POOL = config.LOSER_POOL;
 
-    var objects = GetGuildObjects(guildId);
+    const warData = GetGuildObjects(guildId).warData.DataObject;
 
-    if (objects == null) {
-        log.debug("Error spliting war points: guild has no objects.");
-        return;
-    }
-    var points = {};
-    var tachyon = {};
+    const points = {};
+    const tachyon = {};
 
-    log.debug("SplitWarPoints, guildObjects", objects);
+    log.debug("SplitWarPoints, guildObjects", warData);
 
     var multiplierSum = 0;
 
     if (defending) {
-        if (objects.battleDefense == null) {
+        if (warData.defense == null) {
             log.debug("SplitWarPoints: battleDefense is null");
             return;
         }
-        var count = objects.battleDefense.DataObject.participants.length;
+        var count = warData.defense.participants.length;
         if (count == 0) {
             log.debug("SplitWarPoints: defender has no participants");
             return;
         }
         for (let i = 0; i < count; i++) {
-            const participant = objects.battleDefense.DataObject.participants[i];
+            const participant = warData.defense.participants[i];
             if (participant == undefined) continue;
             multiplierSum += Number(GetNFTMultiplier(participant));
             tachyon[participant] = won ? 10 : 4;
         }
         var reward = won ? WINNER_POOL / multiplierSum : LOSER_POOL / multiplierSum;
         for (let i = 0; i < count; i++) {
-            const participant = objects.battleDefense.DataObject.participants[i];
+            const participant = warData.defense.participants[i];
             if (participant == undefined) continue;
             points[participant] = reward * Number(GetNFTMultiplier(participant));
         }
 
     } else { //Attacking
-        if (objects.battleInvitation == null) {
+        if (warData.attack == null) {
             log.debug("Split war points: battle invitation is null")
             return;
         }
-        var count = objects.battleInvitation.DataObject.participants.length + 1;
-        if (count == 0) {
-            log.debug("Split war points: battle invitation count is 0")
-            return;
-        }
+        var count = warData.attack.participants.length + 1;
         var reward = won ? WINNER_POOL / count : LOSER_POOL / count;
 
-        const leader = objects.battleInvitation.DataObject.leader;
+        const leader = warData.attack.leader;
 
         for (let i = 0; i < count; i++) {
-            const participant = objects.battleInvitation.DataObject.participants[i];
+            const participant = warData.attack.participants[i];
             if (participant == undefined) continue;
             multiplierSum += Number(GetNFTMultiplier(participant));
             tachyon[participant] = won ? 10 : 4;
@@ -487,7 +449,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         }
         var reward = won ? WINNER_POOL / multiplierSum : LOSER_POOL / multiplierSum;
         for (let i = 0; i < count; i++) {
-            const participant = objects.battleInvitation.DataObject.participants[i];
+            const participant = warData.attack.participants[i];
             if (participant == undefined) continue;
             points[participant] = reward * Number(GetNFTMultiplier(participant));
         }
@@ -497,27 +459,26 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
         }
     }
 
-    var dataObject = {};
-    dataObject.points = points;
-    dataObject.tachyon = tachyon;
-    dataObject.currency = currencyReward * (won ? 1 : -1); //Win or lose
-    dataObject.currencyClaimed = false;
-    if (dataObject.playerPerformances == undefined) {
-        dataObject.playerPerformances = {};
+    const newPool = {};
+    newPool.points = points;
+    newPool.tachyon = tachyon;
+    newPool.currency = currencyReward * (won ? 1 : -1); //Win or lose
+    newPool.currencyClaimed = false;
+    if (newPool.playerPerformances == undefined) {
+        newPool.playerPerformances = {};
     }
-    log.debug("New pool:", dataObject);
-
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: dataObject }] });
-    log.debug("Pool created.");
+    log.debug("New pool:", newPool);
+    warData.pool = newPool;
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 }
 
 handlers.KillDuringWar = function (args) {
-    var myEntityId = GetEntityId(currentPlayerId);
+    const myEntityId = GetEntityId(currentPlayerId);
 
-    var guildObjects = GetMyGuildObjects(myEntityId);
+    const warData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
-    var warPool = guildObjects.warPool.DataObject;
-    var performance = warPool.playerPerformances[myEntityId];
+    const pool = warData.pool;
+    var performance = pool.playerPerformances[myEntityId];
     if (performance == undefined) {
         performance = { kills: 1, level: 1 };
     } else {
@@ -525,37 +486,72 @@ handlers.KillDuringWar = function (args) {
         performance.kills = performance.kills + Number(1);
     }
 
-    warPool.playerPerformances[myEntityId] = performance;
+    pool.playerPerformances[myEntityId] = performance;
+    warData.pool = pool;
 
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 
 }
 
 GetMyGuildObjects = function (playerId) {
-    var myGuild = GetMyGuild(playerId);
-
+    const myGuild = GetMyGuild(playerId);
     if (myGuild == null) return null;
-
-    var getObjectsResult = entity.GetObjects({ Entity: myGuild });
-
-    if (getObjectsResult == null || getObjectsResult === undefined) {
-        log.debug("PlayerGuild has no objects");
-        return null;
-    }
-
-    var myGuildObjects = getObjectsResult.Objects;
-    return myGuildObjects;
+    return GetGuildObjects(myGuild.Id);
 }
 
 GetGuildObjects = function (guildId) {
-    var getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
+    const getObjectsResult = entity.GetObjects({ Entity: { Id: guildId, Type: "group" } });
 
     if (getObjectsResult == null || getObjectsResult === undefined) {
         log.debug("PlayerGuild has no objects");
         return null;
     }
 
-    var myGuildObjects = getObjectsResult.Objects;
+    const myGuildObjects = getObjectsResult.Objects;
+    //Verify data integrity!
+    if (myGuildObjects.stats == null || myGuildObjects.stats.DataObject == null) {
+        const stats = {};
+        stats.region = "sa";
+        stats.planet = "Canyon Forest";
+        stats.baseScene = "Bioma1_3";
+        stats.currency = 0;
+        stats.level = 0;
+        entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+    }
+    if (myGuildObjects.purchases == null || myGuildObjects.purchases.DataObject == null) {
+        const purchases = {};
+        entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "purchases", DataObject: purchases }] });
+    }
+    if (myGuildObjects.warData == null || myGuildObjects.warData.DataObject == null) {
+        const warData = {};
+        warData.attack = {
+            defenderGuildId: "",
+            leader: "",
+            date: "1999-01-01T00:00:00",
+            participants: [],
+            successful: false,
+            deaths: []
+        };
+        warData.defense = {
+            attackerGuildId: "",
+            date: "1999-01-01T00:00:00",
+            participants: [],
+            deaths: []
+        }
+        warData.pool = {
+            points: {},
+            tachyon: {},
+            currency: 0,
+            currencyClaimed: true,
+            playerPerformances: {}
+        }
+        warData.energy = {
+            remainingWars: 8,
+            lastRestorationDay: new Date().toUTCString()
+        }
+        entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
+    }
+
     return myGuildObjects;
 }
 
@@ -571,22 +567,21 @@ GetMyGuild = function (playerId) {
 }
 
 handlers.GetGuildObjects = function (args) {
-    var guildId = args.guildId;
-
+    const guildId = args.guildId;
     return GetGuildObjects(guildId);
 }
 
-handlers.AssignRandomGuild = function (args, context) {
-    var userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
-    var myEntity = userInfo.TitleInfo.TitlePlayerAccount;
+handlers.AssignRandomGuild = function (args) {
+    const userInfo = server.GetUserAccountInfo({ PlayFabId: currentPlayerId }).UserInfo;
+    const myEntity = userInfo.TitleInfo.TitlePlayerAccount;
 
-    var allMyGuilds = entity.ListMembership({ Entity: myEntity });
+    const allMyGuilds = entity.ListMembership({ Entity: myEntity });
     if (allMyGuilds.Groups.length > 0) {
         log.debug("Player is already in a group.");
         return;
     }
 
-    var titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
+    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     var allGuilds = JSON.parse(titleData);
     var max = allGuilds.length;
     var chosenGuild = Math.floor(Math.random() * max);
