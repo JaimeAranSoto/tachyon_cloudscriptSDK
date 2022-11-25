@@ -118,11 +118,11 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     const MIN_ATTACKERS = config.MIN_ATTACKERS;
 
     const myGuild = GetMyGuild(myEntityId);
-    const warData = GetMyGuildObjects(myEntityId).warData.DataObject;
+    const currentWarData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
     // CHECK IF GUILD HAS ENOUGH WAR ENERGY
-    if (warData.energy != null) {
-        if (warData.energy.remainingWars <= 0) {
+    if (currentWarData.energy != null) {
+        if (currentWarData.energy.remainingWars <= 0) {
             log.debug("Guild has no remaining wars available (war energy)");
             return -1;
         }
@@ -140,28 +140,28 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     newAttack.date = date;
 
     var isNewInvitation = false;
-    if (warData.attack == undefined) { //If it doesn't exist
+    if (currentWarData.attack == undefined || currentWarData.attack.leader == "") { //If it doesn't exist
         isNewInvitation = true;
-        log.debug("A new Battle Invitation was created.")
+        log.debug("A new WarAttack was created.");
     } else {
         if (handlers.CheckExpirationForWarAttack({ attackerGuildId: myGuild.Id })) { //If has just expired
             isNewInvitation = true;
-            log.debug("Since last invitation expired, a new Battle Invitation was created.")
+            log.debug("Since last invitation expired, a new Battle Invitation was created.");
         }
     }
 
     if (isNewInvitation) {
-        warData.attack = newAttack;
+        currentWarData.attack = newAttack;
     } else {
-        if (!warData.attack.participants.includes(myEntityId) && warData.attack.leader != myEntityId) {
-            warData.attack.participants.push(myEntityId);
+        if (!currentWarData.attack.participants.includes(myEntityId) && currentWarData.attack.leader != myEntityId) {
+            currentWarData.attack.participants.push(myEntityId);
         }
     }
 
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
-    entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
-    log.debug("WarAttack created", warData.attack);
+    entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: currentWarData }] });
+    log.debug("WarAttack updated: " + JSON.parse(currentWarData.attack));
     return 1;
 }
 
