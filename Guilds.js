@@ -476,7 +476,7 @@ SplitWarPoints = function (guildId, won, defending, currencyReward) {
     if (newPool.playerPerformances == undefined) {
         newPool.playerPerformances = {};
     }
-    log.debug("New pool:", newPool);
+    log.debug("New pool:"+JSON.stringify(newPool));
     warData.pool = newPool;
     entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
 }
