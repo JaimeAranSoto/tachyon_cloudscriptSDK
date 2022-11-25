@@ -11,7 +11,7 @@ UpgradeWeapon = function (weaponInstanceId, currentPlayerId) {
         }
     }
     if (weaponLevel == null) {
-        weaponLevel = 1;
+        weaponLevel = 0;
     }
     weaponLevel++;
     log.debug("Level up!", weaponLevel);
@@ -123,31 +123,35 @@ handlers.StandardUpgrade = function (args) {
 }
 
 handlers.InstantUpgrade = function (args) {
-    var weapon = GetItem(args.weaponInstanceId);
+    const weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
         log.debug("Weapon is not in player's inventory");
         return 0;
     }
 
+    if (weapon.CustomData == null) {
+        weapon.CustomData = { Level: 0, UpgradeTimeStamp: -1 };
+    }
+
     var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
 
     if (!isCurrentlyUpdating) {
-        return -1; //Weapon is not currently upgrading!
+        //return -1; //Weapon is not currently upgrading!
     }
 
-    var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    const inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
 
     const TACHYON = "TK";
-    var tachyon = inventoryResult.VirtualCurrency[TACHYON];
+    const playerTachyon = inventoryResult.VirtualCurrency[TACHYON];
 
-    var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
-    var cost = JSON.parse(json);
+    const json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
+    const cost = JSON.parse(json);
 
-    var tachyonCost = (cost[weapon.CustomData.Level].time / 60) * 10;
+    const tachyonCost = (cost[weapon.CustomData.Level].time / 60) * 10;
     log.debug("Tachyon cost: " + tachyonCost);
 
-    if (tachyon < tachyonCost) {
+    if (playerTachyon < tachyonCost) {
         log.debug("User has not enough Tachyon");
         return -2;
     }
