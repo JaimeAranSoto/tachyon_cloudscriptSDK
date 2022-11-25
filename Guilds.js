@@ -61,15 +61,14 @@ handlers.CheckExpirationForWarAttack = function (args) {
 
                     //Create player performances
                     attakcers: {
-                        var originalParticipants = warAttack.participants;
-                        originalParticipants.push(warAttack.leader);
-
                         const attackerPlayerPerformances = {};
 
-                        for (let i = 0; i < originalParticipants.length; i++) {
-                            const player = originalParticipants[i];
-                            attackerPlayerPerformances[player] = { kills: 0, level: 1 }; //level not considered yet.
+                        for (let i = 0; i < warAttack.participants.length; i++) {
+                            const participant = warAttack.participants[i];
+                            attackerPlayerPerformances[participant] = { kills: 0, level: 1 }; //level not considered yet.
                         }
+                        attackerPlayerPerformances[warAttack.leader] = { kills: 0, level: 1 }; //level not considered yet.
+
                         attackerWarData.pool.playerPerformances = attackerPlayerPerformances;
                         // entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warPool", DataObject: warPool }] });
                     }
