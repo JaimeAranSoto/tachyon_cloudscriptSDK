@@ -31,6 +31,7 @@ handlers.CheckExpirationForWarAttack = function (args) {
                 log.debug("The Guild War should have ended.");
                 //if (warAttack.successful) {
                 FinishWar(attackerGuildId, false, myEntityId);
+                return; //this will manage all data, so we don't need to continue...
                 //}
                 failed = true;
             } else if (!warAttack.successful || warAttack.successful == undefined) {
@@ -95,7 +96,7 @@ handlers.CheckExpirationForWarAttack = function (args) {
         try {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         } catch (error) {
-
+            log.debug("Error trying to set attackerWatData in CheckExpirationForWarAttack.");
         }
         expired = true;
 
