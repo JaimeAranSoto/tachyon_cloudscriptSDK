@@ -25,7 +25,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         log.debug("The Invitation has expired.");
         if (warAttack.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
             var warDuration = timeSinceCreated - INVITATION_DURATION;
-            log.debug("War duration: " + warDuration + " | successful? " + warAttack.successful, warAttack);
+            log.debug("War duration: " + warDuration + " of " + WAR_DURATION + " | successful? " + warAttack.successful, warAttack);
             if (warDuration >= WAR_DURATION) { //War should have ended
                 log.debug("The Guild War should have ended.");
                 if (attackerGuildId != null && warAttack.successful) {
