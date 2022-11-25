@@ -21,7 +21,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         log.debug("The BatlleInvitation expired previously.")
         expired = true;
     }
-    var timeSinceCreated = (Date.now() - Date.parse(warAttack.date)) / 1000;
+    var timeSinceCreated = Math.floor((Date.now() - Date.parse(warAttack.date)) / 1000);
     if (timeSinceCreated >= INVITATION_DURATION) {
         log.debug("The Invitation has expired.");
         if (warAttack.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader*/) {
@@ -95,7 +95,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
         try {
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
         } catch (error) {
-        
+
         }
         expired = true;
 
