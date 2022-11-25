@@ -93,7 +93,7 @@ handlers.CheckExpirationForBattleInvitation = function (args) {
                 warAttack.deaths = [];
                 warAttack.date = new Date(2000, 1, 1).toUTCString();
             }
-            attackerWarData.warAttack = warAttack;
+            attackerWarData.attack = warAttack;
             entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
             expired = true;
 
@@ -135,8 +135,8 @@ handlers.AcceptOrCreateWarAttack = function (args) {
 
     const newAttack = {};
     newAttack.successful = false;
-    newAttack.participants = [];
     newAttack.leader = myEntityId;
+    newAttack.participants = [];
     newAttack.defenderGuildId = defenderGuildId;
     newAttack.deaths = [];
     newAttack.date = date;
@@ -145,18 +145,21 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     if (warData.attack == undefined) { //If it doesn't exist
         isNewInvitation = true;
         log.debug("A new Battle Invitation was created.")
-        warData.attack = newAttack;
     } else {
         if (handlers.CheckExpirationForBattleInvitation({ attackerGuildId: myGuild.Id })) { //If has just expired
             isNewInvitation = true;
             log.debug("Since last invitation expired, a new Battle Invitation was created.")
-            warData.attack = newAttack;
         }
     }
 
-    if (!warData.attack.participants.includes(myEntityId) && warData.attack.leader != myEntityId) {
-        warData.attack.participants.push(myEntityId);
+    if (isNewInvitation) {
+        warData.attack = newAttack;
+    } else {
+        if (!warData.attack.participants.includes(myEntityId) && warData.attack.leader != myEntityId) {
+            warData.attack.participants.push(myEntityId);
+        }
     }
+
     //invitation.successful = invitation.participants.length >= MIN_ATTACKERS - 1 /*Excluding leader!*/;
 
     entity.SetObjects({ Entity: { Id: myGuild.Id, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
