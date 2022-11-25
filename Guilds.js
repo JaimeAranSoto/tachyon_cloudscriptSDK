@@ -349,6 +349,7 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
         entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: defenderWarData }] });
         return 1; //War finished successfully, battleInvitation was reset.
     } else {
+        log.debug("Player is not a participant or method was already called by another player.");
         return -3; //Player is not a participant or method was already called by another player.
     }
 }
