@@ -569,7 +569,7 @@ GetGuildObjects = function (guildId) {
 }
 
 GetMyGuild = function (playerId) {
-    var allMyGuilds = entity.ListMembership({ Entity: { Id: playerId, Type: "title_player_account" } });
+    const allMyGuilds = entity.ListMembership({ Entity: { Id: playerId, Type: "title_player_account" } });
     var myGuild = allMyGuilds.Groups[0];
 
     if (myGuild == null || myGuild === undefined) {
@@ -603,6 +603,38 @@ handlers.AssignRandomGuild = function (args) {
 
     entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "members" });
 }
+
+handlers.AssignRegionGuild = function (args) {
+    const region = args.region;
+    const myEntityId = GetEntityId(currentPlayerId);
+    const myEntityKey = { Id: myEntityId, Type: "title_player_account" };
+    const myGuild = GetMyGuild(myEntityId);
+
+    if (myGuild != null) {
+        entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
+    }
+
+    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
+    const allGuilds = JSON.parse(titleData);
+
+    const guildsFromRegion = [];
+    for (let i = 0; i < allGuilds.length; i++) {
+        const guildId = allGuilds[i];
+        const guildObjects = GetGuildObjects(guildId);
+
+        if (guildObjects.stats.DataObject.region == region) {
+            guildsFromRegion.push(guildId);
+        }
+    }
+
+    var max = guildsFromRegion.length;
+    var index = Math.floor(Math.random() * max);
+    const chosenGuild = guildsFromRegion[index];
+    log.debug("Chosen guild[" + index + "]", chosenGuild);
+
+    entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
+}
+
 
 handlers.DonateCurrencyToGuild = function (args) {
 
