@@ -89,7 +89,7 @@ handlers.GetDisplayNames = function (args) {
         var nftMultiplier = GetUserNFTMultiplier(masterAccountId);
         var displayName = masterProfile.PlayerProfile.DisplayName;
         if (nftMultiplier > 1) {
-            displayName += "<sprite name = \"ui_icon_nft\">";
+            displayName += "<sprite name=\"ui_icon_nft\">";
         }
         // log.debug("Profile detected", masterProfile);
         response.push({ Id: profile.Entity.Id, DisplayName: displayName });
