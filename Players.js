@@ -71,18 +71,17 @@ handlers.AddRobotXP = function (args) {
 }
 
 handlers.GetDisplayNames = function (args) {
-    var ids = args.ids; //[]
+    const ids = args.ids; //[]
     var entities = [];
     var response = [];
 
     for (let i = 0; i < ids.length; i++) {
         entities.push({ Id: ids[i], Type: "title_player_account" });
     }
-    //log.debug("Entities", entities);
     var playerProfiles = entity.GetProfiles({ Entities: entities });
-    // log.debug("GetProfiles response", playerProfiles);
 
-    // log.debug("PlayerProfiles", playerProfiles);
+    log.debug("GetProfiles response: " + JSON.stringify(playerProfiles));
+
     for (let i = 0; i < playerProfiles.Profiles.length; i++) {
         const profile = playerProfiles.Profiles[i];
         const masterAccountId = profile.Lineage.MasterPlayerAccountId;
