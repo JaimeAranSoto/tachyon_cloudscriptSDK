@@ -615,9 +615,6 @@ handlers.AssignRegionGuild = function (args) {
         return false;
     }
 
-    if (myGuild != null) {
-        entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
-    }
 
     const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     const allGuilds = JSON.parse(titleData);
@@ -637,6 +634,10 @@ handlers.AssignRegionGuild = function (args) {
     if (max == 0) {
         log.debug("There is no guild in selected region. Try with another region {sa, us, asia, jp, eu, kr}");
         return false;
+    }
+
+    if (myGuild != null) {
+        entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
     }
 
     var index = Math.floor(Math.random() * max);
