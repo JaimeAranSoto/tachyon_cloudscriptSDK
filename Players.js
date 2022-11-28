@@ -85,9 +85,15 @@ handlers.GetDisplayNames = function (args) {
     // log.debug("PlayerProfiles", playerProfiles);
     for (let i = 0; i < playerProfiles.Profiles.length; i++) {
         const profile = playerProfiles.Profiles[i];
-        var masterProfile = server.GetPlayerProfile({ PlayFabId: profile.Lineage.MasterPlayerAccountId });
+        const masterAccountId = profile.Lineage.MasterPlayerAccountId;
+        var masterProfile = server.GetPlayerProfile({ PlayFabId: masterAccountId });
+        var nftMultiplier = GetUserNFTMultiplier(masterAccountId);
+        var displayName = masterProfile.playerProfile.DisplayName;
+        if (nftMultiplier > 1) {
+            displayName += "<sprite name = \"ui_icon_nft\">";
+        }
         // log.debug("Profile detected", masterProfile);
-        response.push({ Id: profile.Entity.Id, DisplayName: masterProfile.PlayerProfile.DisplayName });
+        response.push({ Id: profile.Entity.Id, DisplayName: displayName });
     }
 
     //log.debug("Profiles", response);
