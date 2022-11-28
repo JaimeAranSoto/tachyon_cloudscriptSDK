@@ -610,6 +610,11 @@ handlers.AssignRegionGuild = function (args) {
     const myEntityKey = { Id: myEntityId, Type: "title_player_account" };
     const myGuild = GetMyGuild(myEntityId);
 
+    if (region == null) {
+        log.debug("No region was sent as parameter. Available regions are {sa, us, asia, jp, eu, kr}");
+        return;
+    }
+
     if (myGuild != null) {
         entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
     }
@@ -628,6 +633,12 @@ handlers.AssignRegionGuild = function (args) {
     }
 
     var max = guildsFromRegion.length;
+
+    if (max == 0) {
+        log.debug("There is no guild in selected region. Try with another region {sa, us, asia, jp, eu, kr}");
+        return;
+    }
+
     var index = Math.floor(Math.random() * max);
     const chosenGuild = guildsFromRegion[index];
     log.debug("Chosen guild[" + index + "]", chosenGuild);
