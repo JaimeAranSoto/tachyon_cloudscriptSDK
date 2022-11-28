@@ -612,7 +612,7 @@ handlers.AssignRegionGuild = function (args) {
 
     if (region == null) {
         log.debug("No region was sent as parameter. Available regions are {sa, us, asia, jp, eu, kr}");
-        return;
+        return false;
     }
 
     if (myGuild != null) {
@@ -636,7 +636,7 @@ handlers.AssignRegionGuild = function (args) {
 
     if (max == 0) {
         log.debug("There is no guild in selected region. Try with another region {sa, us, asia, jp, eu, kr}");
-        return;
+        return false;
     }
 
     var index = Math.floor(Math.random() * max);
@@ -644,6 +644,7 @@ handlers.AssignRegionGuild = function (args) {
     log.debug("Chosen guild[" + index + "]", chosenGuild);
 
     entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
+    return true;
 }
 
 
