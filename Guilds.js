@@ -637,6 +637,7 @@ handlers.AssignRegionGuild = function (args) {
     }
 
     if (myGuild != null) {
+        log.debug("Player will be removed from guild " + myGuild.Id);
         entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
     }
 
