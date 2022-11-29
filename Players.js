@@ -8,6 +8,90 @@ handlers.AssignPresets = function (args) {
     });
 }
 
+handlers.RobotUpgrade = function (args) {
+    const robot = GetItem(args.robotInstanceId);
+
+    if (robot == null || robot === undefined) {
+        log.debug("Mech is not in player's inventory");
+        return 0;
+    }
+
+    if (robot.CustomData == null) {
+        // Check this custom data
+        robot.CustomData = { Level: 0, UpgradeTimeStamp: -1 };
+    }
+
+    var isCurrentlyUpdating = robot.CustomData.UpgradeTimeStamp !== undefined && robot.CustomData.UpgradeTimeStamp != -1;
+
+    if (!isCurrentlyUpdating) {
+        //return -1; //Robot is not currently upgrading!
+    }
+
+    const inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
+
+    const TACHYON = "TK";
+    const playerTachyon = inventoryResult.VirtualCurrency[TACHYON];
+
+    const json = server.GetTitleData({ Keys: ["robotUpgradeCost"] }).Data.robotUpgradeCost;
+    const cost = JSON.parse(json);
+
+    const tachyonCost = (cost[robot.CustomData.Level].time / 60) * 10;
+    log.debug("Tachyon cost: " + tachyonCost);
+
+    if (playerTachyon < tachyonCost) {
+        log.debug("User has not enough Tachyon");
+        return -2;
+    }
+
+    UpgradeWeapon(args.robotInstanceId, currentPlayerId);
+    server.SubtractUserVirtualCurrency({ Amount: tachyonCost, PlayFabId: currentPlayerId, VirtualCurrency: TACHYON });
+    log.debug("Mech upgraded successfully");
+    return 1;
+}
+
+handlers.UpdateRobotStandardUpgrade = function (args) {
+    var robotInstanceId = args.robotInstanceId;
+
+    var robot = GetItem(robotInstanceId);
+
+    if (robot === undefined || robot == null) {
+        log.debug("Mech is not in player's inventory");
+        return null;
+    }
+
+    if (robot.CustomData === undefined || Object.keys(robot.CustomData).length === 0) { //Fill CustomData if it's empty.
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: robotInstanceId, Data: { Level: 1 } }); // Check if this is correct
+    }
+
+    var isCurrentlyUpdating = robot.CustomData.UpgradeTimeStamp !== undefined && robot.CustomData.UpgradeTimeStamp >= 0;
+    var upgradeTimeStamp = null; //Default if it's not currently upgrading
+
+    if (isCurrentlyUpdating) {
+
+        upgradeTimeStamp = parseInt(robot.CustomData.UpgradeTimeStamp);
+        var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
+        var cost = JSON.parse(json);
+
+        var timeToUpgradeWeapon = cost[robot.CustomData.Level].time * 60000; //minutes -> milliseconds
+
+        log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
+        log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
+
+        if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
+            UpgradeWeapon(robotInstanceId, currentPlayerId);
+            server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: robotInstanceId, Data: { UpgradeTimeStamp: -1 } });
+
+        }
+
+        var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
+        if (timeRemaining < 0) timeRemaining = -1;
+        return timeRemaining;
+    } else {
+        log.debug("Weapon is not upgrading!");
+        return null;
+    }
+}
+
 handlers.AddRobotXP = function (args) {
     var addition = Number(args.addition);
 
