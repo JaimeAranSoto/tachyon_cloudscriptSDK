@@ -115,20 +115,25 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
     const MIN_ATTACKERS = config.MIN_ATTACKERS;
+    const SHIELD_DURATION = config.SHIELD_DURATION;
 
     const myGuild = GetMyGuild(myEntityId);
     const currentWarData = GetMyGuildObjects(myEntityId).warData.DataObject;
 
     // CHECK IF GUILD HAS ENOUGH WAR ENERGY
-    if (currentWarData.energy != null) {
-        if (currentWarData.energy.remainingWars <= 0) {
-            log.debug("Guild has no remaining wars available (war energy)");
-            return -1;
-        }
+
+    if (currentWarData.energy.remainingWars <= 0) {
+        log.debug("Guild has no remaining wars available (war energy)");
+        return -1;
     }
-    else {
-        handlers.RestoreWarEnergy({});
+
+    const defenderStats = this.GetGuildObjects(defenderGuildId).stats.DataObject;
+    const shieldLife = (Date.now() - Date.parse(defenderGuildId.shield)) / 1000;
+    if (shieldLife < SHIELD_DURATION) {
+        log.debug("Defender guild has its shield active.");
+        return -1;
     }
+
 
     const newAttack = {};
     newAttack.successful = false;
@@ -323,7 +328,7 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
             successful: false,
             defenderGuildId: "",
             leader: "",
-            date: "1999-01-01T00:00:00",
+            date: new Date(1999, 1, 1).toUTCString(),
             participants: [],
             deaths: []
         };
@@ -363,7 +368,10 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
         log.debug("WarDefense will be cleared...");
         updatedDefenderWarData.defense = newDefense;
         entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: updatedDefenderWarData }] });
-        return 1; //War finished successfully, battleInvitation was reset.
+        const defenderStats = defenderGuildObjects.stats.DataObject;
+        defenderStats.shield = new Date().toUTCString();
+        entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: defenderStats }] });
+        return 1; //War finished successfully
     } else {
         log.debug("Player is not a participant or method was already called by another player.");
         return -3; //Player is not a participant or method was already called by another player.
@@ -523,12 +531,14 @@ GetGuildObjects = function (guildId) {
     const myGuildObjects = getObjectsResult.Objects;
     //Verify data integrity!
     if (myGuildObjects.stats == null || myGuildObjects.stats.DataObject == null) {
-        const stats = {};
-        stats.region = "sa";
-        stats.planet = "Canyon Forest";
-        stats.baseScene = "Bioma1_3";
-        stats.currency = 0;
-        stats.level = 0;
+        const stats = {
+            region: "sa",
+            planet: "Canyon Forest",
+            baseScene: "Bioma1_3",
+            currency: 0,
+            level: 0,
+            shield: new Date(1999, 1, 1).toUTCString()
+        }
         entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
     }
     if (myGuildObjects.purchases == null || myGuildObjects.purchases.DataObject == null) {
@@ -540,14 +550,14 @@ GetGuildObjects = function (guildId) {
         warData.attack = {
             defenderGuildId: "",
             leader: "",
-            date: "1999-01-01T00:00:00",
+            date: new Date(1999, 1, 1).toUTCString(),
             participants: [],
             successful: false,
             deaths: []
         };
         warData.defense = {
             attackerGuildId: "",
-            date: "1999-01-01T00:00:00",
+            date: new Date(1999, 1, 1).toUTCString(),
             participants: [],
             deaths: []
         }
@@ -776,11 +786,28 @@ handlers.UpgradeSpaceFortress = function (args) {
     return true;
 }
 
-handlers.VoteForPurchase = function (args) {
-    var myEntityId = GetEntityId(currentPlayerId);
-    var guildObjects = GetMyGuildObjects(myEntityId);
+RestoreShield = function (guildId) {
+    const stats = GetGuildObjects(guildId).stats.DataObject;
+    var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
+    config = JSON.parse(config);
+    const SHIELD_DURATION = config.SHIELD_DURATION;
 
-    var purchasesObject = guildObjects.purchases;
+    var currentShieldLife = (Date.now() - Date.parse(stats.shield)) / 1000;
+    if (currentShieldLife > SHIELD_DURATION) {
+        stats.shield = new Date().toUTCString();
+        entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+        return true;
+    }
+
+    return false;
+}
+
+handlers.VoteForPurchase = function (args) {
+    const myEntityId = GetEntityId(currentPlayerId);
+    const guildId = GetMyGuild(myEntityId).Id;
+    const guildObjects = GetMyGuildObjects(myEntityId);
+
+    const purchasesObject = guildObjects.purchases;
 
     if (purchasesObject != null) {
         var purchases = guildObjects.purchases.DataObject;
@@ -792,7 +819,7 @@ handlers.VoteForPurchase = function (args) {
         purchases = {};
     }
 
-    var item = args.item; //Id of the item to purchase (upgrade, shield, etc).
+    const item = args.item; //Id of the item to purchase (upgrade, shield, etc).
 
     addPlayer: {
         if (purchases[item] == null) {
@@ -814,6 +841,14 @@ handlers.VoteForPurchase = function (args) {
                     log.debug("Purchase failed.");
                     break purchasing;
                 }
+            }
+            if (item == "shield") {
+                var upgradeTry = RestoreShield(guildId);
+                if (!upgradeTry) {
+                    log.debug("Purchase failed.");
+                    break purchasing;
+                }
+
             }
             log.debug("Purchase of " + item + " succeded!");
             purchases[item] = [];
