@@ -115,7 +115,6 @@ handlers.AcceptOrCreateWarAttack = function (args) {
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
     const MIN_ATTACKERS = config.MIN_ATTACKERS;
-    const SHIELD_DURATION = config.SHIELD_DURATION;
 
     const myGuild = GetMyGuild(myEntityId);
     const currentWarData = GetMyGuildObjects(myEntityId).warData.DataObject;
@@ -127,7 +126,11 @@ handlers.AcceptOrCreateWarAttack = function (args) {
         return -1;
     }
 
-    const defenderStats = this.GetGuildObjects(defenderGuildId).stats.DataObject;
+    const defenderStats = GetGuildObjects(defenderGuildId).stats.DataObject;
+    var SHIELD_DURATION = defenderStats.shieldDuration;
+    if (SHIELD_DURATION == null) {
+        SHIELD_DURATION = 21600;
+    }
     const shieldLife = (Date.now() - Date.parse(defenderGuildId.shield)) / 1000;
     if (shieldLife < SHIELD_DURATION) {
         log.debug("Defender guild has its shield active.");
@@ -370,6 +373,7 @@ FinishWar = function (attackerGuildId, didAttackersWon, myEntityId) {
         entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: updatedDefenderWarData }] });
         const defenderStats = defenderGuildObjects.stats.DataObject;
         defenderStats.shield = new Date().toUTCString();
+        defenderStats.shieldDuration = 7200;
         entity.SetObjects({ Entity: { Id: defenderGuildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: defenderStats }] });
         return 1; //War finished successfully
     } else {
@@ -790,7 +794,15 @@ RestoreShield = function (guildId) {
     const stats = GetGuildObjects(guildId).stats.DataObject;
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    const SHIELD_DURATION = config.SHIELD_DURATION;
+    var SHIELD_DURATION = stats.shieldDuration;
+    if (SHIELD_DURATION == null) {
+        SHIELD_DURATION = 21600;
+        stats.shieldDuration = 21600;
+    } else {
+        if (SHIELD_DURATION == 7200) {
+            stats.shieldDuration = 21600 + 7200;
+        }
+    }
 
     var currentShieldLife = (Date.now() - Date.parse(stats.shield)) / 1000;
     if (currentShieldLife > SHIELD_DURATION) {
