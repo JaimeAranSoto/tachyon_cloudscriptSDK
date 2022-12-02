@@ -646,8 +646,8 @@ handlers.AssignRegionGuild = function (args) {
 
     if (max == 0) {
         CreateGuild(region, myEntityId);
-        log.debug("There is no guild in selected region. Try with another region {sa, us, asia, jp, eu, kr}");
-        return false;
+        log.debug("There is no guild in selected region. A new guild will be created.");
+        return true;
     }
 
     if (myGuild != null) {
@@ -659,6 +659,16 @@ handlers.AssignRegionGuild = function (args) {
     const chosenGuild = guildsFromRegion[index];
     log.debug("Chosen guild[" + index + "]", chosenGuild);
 
+    var roles = entity.ListGroupMembers({ Id: chosenGuild, Type: "group" });
+    let count = 0;
+    for (let i = 0; i < roles.length; i++) {
+        count += roles[i].length;
+    }
+    if (count >= 10) {
+        CreateGuild(region, myEntityId);
+        log.debug("There is no guild with enough space available in this region. A new guild will be created.");
+        return true;
+    }
     entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
     return true;
 }
