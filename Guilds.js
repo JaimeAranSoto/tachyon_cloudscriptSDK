@@ -642,9 +642,9 @@ handlers.AssignRegionGuild = function (args) {
         }
     }
 
-    var max = guildsFromRegion.length;
+    var guildCount = guildsFromRegion.length;
 
-    if (max == 0) {
+    if (guildCount == 0) {
         CreateGuild(region, myEntityId);
         log.debug("There is no guild in selected region. A new guild will be created.");
         return true;
@@ -655,22 +655,28 @@ handlers.AssignRegionGuild = function (args) {
         entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
     }
 
-    var index = Math.floor(Math.random() * max);
-    const chosenGuild = guildsFromRegion[index];
-    log.debug("Chosen guild[" + index + "]", chosenGuild);
+    for (let i = 0; i < guildCount; i++) {
+        const chosenGuild = guildsFromRegion[i];
+        var roles = entity.ListGroupMembers({ Id: chosenGuild, Type: "group" });
+        let count = 0;
+        for (let i = 0; i < roles.length; i++) {
+            count += roles[i].length;
+        }
+        if (count >= 10) {
+            if (i != guildCount - 1) {
+                continue;
+            } else {
+                CreateGuild(region, myEntityId);
+                log.debug("There is no guild with enough space available in this region. A new guild will be created.");
+                return true;
+            }
+        } else {
+            entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
+            return true;
+        }
+    }
 
-    var roles = entity.ListGroupMembers({ Id: chosenGuild, Type: "group" });
-    let count = 0;
-    for (let i = 0; i < roles.length; i++) {
-        count += roles[i].length;
-    }
-    if (count >= 10) {
-        CreateGuild(region, myEntityId);
-        log.debug("There is no guild with enough space available in this region. A new guild will be created.");
-        return true;
-    }
-    entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
-    return true;
+    return false;
 }
 
 handlers.CreateNewGuild = function (args) {
