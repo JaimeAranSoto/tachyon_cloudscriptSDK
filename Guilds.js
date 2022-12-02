@@ -687,9 +687,9 @@ CreateGuild = function (region, admin) {
     const createdGroup = entity.CreateGroup({ GroupName: chosenName, Entity: { Id: admin, Type: "title_player_account" } });
     const guildId = createdGroup.Group.Id;
     log.debug("The id for the new guild is " + guildId);
-    const guildObjects = GetGuildObjects(guildId);
-    guildObjects.stats.region = region;
-    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: guildObjects.stats }] });
+    const guildStats = GetGuildObjects(guildId).stats.DataObject;
+    guildStats.region = region;
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: guildStats }] });
     allGuilds.push(guildId);
     server.SetTitleData({ Key: "guilds", Value: allGuilds });
     log.debug("Guild was created and added to list of public guilds");
