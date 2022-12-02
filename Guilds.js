@@ -682,7 +682,7 @@ CreateGuild = function (region, admin) {
     }
 
     var index = Math.floor(Math.random() * guildNames.length);
-    const chosenName = guildsFromRegion[index];
+    const chosenName = guildNames[index];
     log.debug("The chosen name for the new guild is " + chosenName);
     const createdGroup = entity.CreateGroup({ GroupName: chosenName, Entity: { Id: admin, Type: "title_player_account" } });
     const guildId = createdGroup.Group.Id;
