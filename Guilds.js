@@ -629,7 +629,6 @@ handlers.AssignRegionGuild = function (args) {
         return false;
     }
 
-
     const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     const allGuilds = JSON.parse(titleData);
 
@@ -646,6 +645,7 @@ handlers.AssignRegionGuild = function (args) {
     var max = guildsFromRegion.length;
 
     if (max == 0) {
+        CreateGuild(region, myEntityId);
         log.debug("There is no guild in selected region. Try with another region {sa, us, asia, jp, eu, kr}");
         return false;
     }
@@ -663,6 +663,37 @@ handlers.AssignRegionGuild = function (args) {
     return true;
 }
 
+handlers.CreateNewGuild = function (args) {
+    CreateGuild(args.region, args.admin);
+}
+
+CreateGuild = function (region, admin) {
+    let guildNames = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa",
+        "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Ypsilon", "Phi", "Ji", "Psi", "Omega"];
+
+    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
+    const allGuilds = JSON.parse(titleData);
+
+    for (let i = 0; i < allGuilds.length; i++) {
+        const guildId = allGuilds[i];
+        const guildName = entity.GetGroup({ Group: { Id: guildId, Type: "group" } }).GroupName;
+        var index = guildNames.indexOf(guildName);
+        guildNames.splice(index, 1);
+    }
+
+    var index = Math.floor(Math.random() * guildNames.length);
+    const chosenName = guildsFromRegion[index];
+    log.debug("The chosen name for the new guild is " + chosenName);
+    const createdGroup = entity.CreateGroup({ GroupName: chosenName, Entity: { Id: admin, Type: "title_player_account" } });
+    const guildId = createdGroup.Group.Id;
+    log.debug("The id for the new guild is " + guildId);
+    const guildObjects = GetGuildObjects(guildId);
+    guildObjects.stats.region = region;
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: guildObjects.stats }] });
+    allGuilds.push(guildId);
+    server.SetTitleData({ Key: "guilds", Value: allGuilds });
+    log.debug("Guild was created and added to list of public guilds");
+}
 
 handlers.DonateCurrencyToGuild = function (args) {
 
