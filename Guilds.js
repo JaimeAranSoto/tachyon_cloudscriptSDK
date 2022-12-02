@@ -657,7 +657,7 @@ handlers.AssignRegionGuild = function (args) {
 
     for (let i = 0; i < guildCount; i++) {
         const chosenGuild = guildsFromRegion[i];
-        var roles = entity.ListGroupMembers({ Id: chosenGuild, Type: "group" });
+        var roles = entity.ListGroupMembers({ Group: { Id: chosenGuild, Type: "group" } });
         let count = 0;
         for (let i = 0; i < roles.length; i++) {
             count += roles[i].length;
