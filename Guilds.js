@@ -794,24 +794,32 @@ RestoreShield = function (guildId) {
     const stats = GetGuildObjects(guildId).stats.DataObject;
     var config = server.GetTitleData({ Keys: ["warConfig"] }).Data.warConfig;
     config = JSON.parse(config);
-    var SHIELD_DURATION = stats.shieldDuration;
-    if (SHIELD_DURATION == null) {
-        SHIELD_DURATION = 21600;
-        stats.shieldDuration = 21600;
-    } else {
-        if (SHIELD_DURATION == 7200) {
-            stats.shieldDuration = 21600 + 7200;
+
+    const SHORT_DURATION = 7200;
+    const LONG_DURATION = 21600;
+
+    const currentShieldLife = (Date.now() - Date.parse(stats.shield)) / 1000;
+
+    if (stats.shieldDuration == null) {
+        stats.shieldDuration = LONG_DURATION;
+    }
+
+    if (stats.shieldDuration == LONG_DURATION || stats.shieldDuration == (LONG_DURATION + SHORT_DURATION)) {
+        if (currentShieldLife < stats.shieldDuration) return false; //A shield is already active, so players can't purchase another one.
+        stats.shield = new Date().toUTCString();
+    }
+
+    if (stats.shieldDuration == SHORT_DURATION) {
+        if (currentShieldLife < stats.shieldDuration) {
+            stats.shieldDuration = LONG_DURATION + SHORT_DURATION; //An automatic shield is still doing its job, purchased shield will increase duration.
+        } else {
+            stats.shieldDuration = LONG_DURATION; //An automatic shield expired, so a long-duration one will be created.
+            stats.shield = new Date().toUTCString();
         }
     }
 
-    var currentShieldLife = (Date.now() - Date.parse(stats.shield)) / 1000;
-    if (currentShieldLife > SHIELD_DURATION) {
-        stats.shield = new Date().toUTCString();
-        entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
-        return true;
-    }
-
-    return false;
+    entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
+    return true;
 }
 
 handlers.VoteForPurchase = function (args) {
