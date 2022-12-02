@@ -628,6 +628,10 @@ handlers.AssignRegionGuild = function (args) {
         log.debug("No region was sent as parameter. Available regions are {sa, us, asia, jp, eu, kr}");
         return false;
     }
+    if (myGuild != null) {
+        log.debug("Player will be removed from guild " + myGuild.Id);
+        entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
+    }
 
     const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     const allGuilds = JSON.parse(titleData);
@@ -650,10 +654,6 @@ handlers.AssignRegionGuild = function (args) {
         return true;
     }
 
-    if (myGuild != null) {
-        log.debug("Player will be removed from guild " + myGuild.Id);
-        entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
-    }
 
     for (let i = 0; i < guildCount; i++) {
         var count = 0;
