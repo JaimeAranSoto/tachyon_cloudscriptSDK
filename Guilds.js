@@ -658,7 +658,7 @@ handlers.AssignRegionGuild = function (args) {
     for (let i = 0; i < guildCount; i++) {
         const chosenGuild = guildsFromRegion[i];
         var roles = entity.ListGroupMembers({ Group: { Id: chosenGuild, Type: "group" } });
-        let count = 0;
+        var count = 0;
         for (let i = 0; i < roles.length; i++) {
             count += roles[i].length;
         }
@@ -671,11 +671,13 @@ handlers.AssignRegionGuild = function (args) {
                 return true;
             }
         } else {
+            log.debug("Player will be added to guild " + chosenGuild + " that has a member count of " + count);
             entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
             return true;
         }
     }
 
+    log.debug("Unknown error adding player to guild...");
     return false;
 }
 
