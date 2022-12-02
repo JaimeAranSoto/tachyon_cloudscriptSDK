@@ -661,7 +661,7 @@ handlers.AssignRegionGuild = function (args) {
         log.debug("Roles from guild " + chosenGuild + " are: " + JSON.stringify(roles));
         var count = 0;
         for (let j = 0; j < roles.length; j++) {
-            count += roles[j].length;
+            count += roles[j].Members.length;
         }
         if (count >= 10) {
             if (i != guildCount - 1) {
