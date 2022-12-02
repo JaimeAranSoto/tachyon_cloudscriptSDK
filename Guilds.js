@@ -689,7 +689,7 @@ CreateGuild = function (region, admin) {
     log.debug("The id for the new guild is " + guildId);
     GetGuildObjects(guildId, region);
     allGuilds.push(guildId);
-    server.SetTitleData({ Key: "guilds", Value: allGuilds });
+    server.SetTitleData({ Key: "guilds", Value: JSON.stringify(allGuilds) });
     log.debug("Guild was created and added to list of public guilds");
 }
 
