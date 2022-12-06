@@ -543,10 +543,12 @@ GetGuildObjects = function (guildId, defaultRegion = "sa") {
             level: 0,
             shield: new Date(1999, 1, 1).toUTCString()
         }
+        log.debug("Stats assigned for guild " + guildId);
         entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "stats", DataObject: stats }] });
     }
     if (myGuildObjects.purchases == null || myGuildObjects.purchases.DataObject == null) {
         const purchases = {};
+        log.debug("Purchases assigned for guild " + guildId);
         entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "purchases", DataObject: purchases }] });
     }
     if (myGuildObjects.warData == null || myGuildObjects.warData.DataObject == null) {
@@ -576,6 +578,7 @@ GetGuildObjects = function (guildId, defaultRegion = "sa") {
             remainingWars: 8,
             lastRestorationDay: new Date().toUTCString()
         }
+        log.debug("WarData assigned for guild " + guildId);
         entity.SetObjects({ Entity: { Id: guildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: warData }] });
     }
 
