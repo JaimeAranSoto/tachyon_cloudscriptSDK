@@ -19,8 +19,14 @@ handlers.CheckExpirationForWarAttack = function (args) {
     const warAttack = attackerWarData.attack;
     if (warAttack.leader == "") {
         log.debug("The BatlleInvitation expired previously.")
-        return;
+        failed = true;
         expired = true;
+        try {
+            entity.SetObjects({ Entity: { Id: attackerGuildId, Type: "group" }, Objects: [{ ObjectName: "warData", DataObject: attackerWarData }] });
+        } catch (error) {
+            log.debug("Error trying to set attackerWatData in CheckExpirationForWarAttack.");
+        }
+        return expired;
     }
     var timeSinceCreated = Math.floor((Date.now() - Date.parse(warAttack.date)) / 1000);
     if (timeSinceCreated >= INVITATION_DURATION) {
