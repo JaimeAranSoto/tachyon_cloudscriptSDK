@@ -690,7 +690,9 @@ handlers.CreateNewGuild = function (args) {
 
 CreateGuild = function (region, admin) {
     let guildNames = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa",
-        "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Ypsilon", "Phi", "Ji", "Psi", "Omega"];
+        "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Ypsilon", "Phi", "Ji", "Psi", "Omega",
+        "Neutron", "Electron", "Proton", "Lighting", "Void", "Ultimates", "Pulse", "Brave", "Dread Hunters", "Steel", "Hollow",
+        "Wolves", "Bears", "Sharks", "Killers", "Legends"];
 
     const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
     const allGuilds = JSON.parse(titleData);
