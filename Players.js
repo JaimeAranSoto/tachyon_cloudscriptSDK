@@ -8,6 +8,24 @@ handlers.AssignPresets = function (args) {
     });
 }
 
+UpgradeRobot = function (robotInstanceId, currentPlayerId) {
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
+    var robotLevel;
+
+
+    for (var i = 0; i < inventory.length; i++) {
+        if (inventory[i].ItemInstanceId == robotInstanceId) {
+            robotLevel = inventory[i].CustomData.Level;
+        }
+    }
+    if (robotLevel == null) {
+        robotLevel = 0;
+    }
+    robotLevel++;
+    log.debug("Level up!", robotLevel);
+    server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: robotInstanceId, Data: { Level: robotLevel, UpgradeTimeStamp: -1 } });
+}
+
 handlers.RobotUpgrade = function (args) {
     const robot = GetItem(args.robotInstanceId);
 
@@ -43,7 +61,7 @@ handlers.RobotUpgrade = function (args) {
         return -2;
     }
 
-    UpgradeWeapon(args.robotInstanceId, currentPlayerId);
+    UpgradeRobot(args.robotInstanceId, currentPlayerId);
     server.SubtractUserVirtualCurrency({ Amount: tachyonCost, PlayFabId: currentPlayerId, VirtualCurrency: TACHYON });
     log.debug("Mech upgraded successfully");
     return 1;
@@ -72,22 +90,22 @@ handlers.UpdateRobotStandardUpgrade = function (args) {
         var json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
         var cost = JSON.parse(json);
 
-        var timeToUpgradeWeapon = cost[robot.CustomData.Level].time * 60000; //minutes -> milliseconds
+        var timeToUpgradeRobot = cost[robot.CustomData.Level].time * 60000; //minutes -> milliseconds
 
-        log.debug("Time needed to upgrade the weapon", timeToUpgradeWeapon);
+        log.debug("Time needed to upgrade the robot", timeToUpgradeRobot);
         log.debug("Time that has passed since upgrade start", Date.now() - upgradeTimeStamp);
 
-        if (Date.now() - upgradeTimeStamp >= timeToUpgradeWeapon) {
-            UpgradeWeapon(robotInstanceId, currentPlayerId);
+        if (Date.now() - upgradeTimeStamp >= timeToUpgradeRobot) {
+            UpgradeRobot(robotInstanceId, currentPlayerId);
             server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: robotInstanceId, Data: { UpgradeTimeStamp: -1 } });
 
         }
 
-        var timeRemaining = timeToUpgradeWeapon - (Date.now() - upgradeTimeStamp);
+        var timeRemaining = timeToUpgradeRobot - (Date.now() - upgradeTimeStamp);
         if (timeRemaining < 0) timeRemaining = -1;
         return timeRemaining;
     } else {
-        log.debug("Weapon is not upgrading!");
+        log.debug("Robot is not upgrading!");
         return null;
     }
 }
