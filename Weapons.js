@@ -32,7 +32,7 @@ GetItem = function (ItemInstanceId) {
 /** 
  * @returns Null if weapon is not in player's inventory or it's not upgrading, -1 if the weapon was successfully ugraded and number (remainingTime) if upgrade is in progress.
  */
-handlers.UpdateStandardUpgrade = function (args) {
+handlers.UpdateWeaponStandardUpgrade = function (args) {
     var weaponInstanceId = args.weaponInstanceId;
 
     var weapon = GetItem(weaponInstanceId);
@@ -43,7 +43,7 @@ handlers.UpdateStandardUpgrade = function (args) {
     }
 
     if (weapon.CustomData === undefined || Object.keys(weapon.CustomData).length === 0) { //Fill CustomData if it's empty.
-        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 1 } });
+        server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: weaponInstanceId, Data: { Level: 0 } });
     }
 
     var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp >= 0;
@@ -75,7 +75,7 @@ handlers.UpdateStandardUpgrade = function (args) {
     }
 }
 
-handlers.StandardUpgrade = function (args) {
+handlers.WeaponStandardUpgrade = function (args) {
     var weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
@@ -114,7 +114,7 @@ handlers.StandardUpgrade = function (args) {
     }
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: args.weaponInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
-    handlers.UpdateStandardUpgrade({ weaponInstanceId: args.weaponInstanceId });
+    handlers.UpdateWeaponStandardUpgrade({ weaponInstanceId: args.weaponInstanceId });
 
     server.SubtractUserVirtualCurrency({ Amount: quasarCost, PlayFabId: currentPlayerId, VirtualCurrency: QUASAR });
     server.SubtractUserVirtualCurrency({ Amount: rocksCost, PlayFabId: currentPlayerId, VirtualCurrency: YELLOW_ROCKS });
@@ -122,7 +122,7 @@ handlers.StandardUpgrade = function (args) {
     return 1;
 }
 
-handlers.InstantUpgrade = function (args) {
+handlers.WeaponInstantUpgrade = function (args) {
     const weapon = GetItem(args.weaponInstanceId);
 
     if (weapon == null || weapon === undefined) {
