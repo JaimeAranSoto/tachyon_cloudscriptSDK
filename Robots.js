@@ -99,7 +99,7 @@ handlers.UpdateRobotStandardUpgrade = function (args) {
     if (isCurrentlyUpdating) {
 
         upgradeTimeStamp = parseInt(robot.CustomData.UpgradeTimeStamp);
-        var json = server.GetTitleData({ Keys: ["robotUpgradeCost"] }).Data.upgradeCost;
+        var json = server.GetTitleData({ Keys: ["robotUpgradeCost"] }).Data.robotUpgradeCost;
         var cost = JSON.parse(json);
 
         var timeToUpgradeRobot = cost[robot.CustomData.Level].time * 60000; //minutes -> milliseconds
