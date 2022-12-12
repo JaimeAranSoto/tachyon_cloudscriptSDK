@@ -10,16 +10,14 @@ handlers.AssignPresets = function (args) {
 
 UpgradeRobot = function (robotInstanceId, currentPlayerId) {
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory;
-    var robotLevel;
-
+    var robotLevel = 0;
 
     for (var i = 0; i < inventory.length; i++) {
         if (inventory[i].ItemInstanceId == robotInstanceId) {
-            robotLevel = inventory[i].CustomData.Level;
+            if (inventory[i].CustomData != null) {
+                robotLevel = inventory[i].CustomData.Level;
+            }
         }
-    }
-    if (robotLevel == null) {
-        robotLevel = 0;
     }
     robotLevel++;
     log.debug("Level up!", robotLevel);
