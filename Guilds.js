@@ -541,9 +541,14 @@ GetGuildObjects = function (guildId, defaultRegion = "sa") {
     const myGuildObjects = getObjectsResult.Objects;
     //Verify data integrity!
     if (myGuildObjects.stats == null || myGuildObjects.stats.DataObject == null) {
+        var planetNames = server.GetTitleData({ Keys: ["planetNames"] }).Data.planetNames;
+        planetNames = JSON.parse(config);
+        var index = Math.floor(Math.random() * planetNames.length);
+        const chosenPlanet = planetNames[index];
+
         const stats = {
             region: defaultRegion,
-            planet: "Canyon Forest",
+            planet: chosenPlanet,
             baseScene: "Bioma1_3",
             currency: 0,
             level: 0,
