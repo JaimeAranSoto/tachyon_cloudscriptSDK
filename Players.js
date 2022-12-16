@@ -161,6 +161,7 @@ handlers.VerifyBasicBundle = function (args) {
             return;
         }
     }
+    handlers.AssignPresets({});
     server.GrantItemsToUser({ ItemIds: [BUNDLE_ID], PlayFabId: currentPlayerId });
 
     return;
