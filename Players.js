@@ -150,3 +150,18 @@ handlers.VerifyNFTBundle = function (args) {
     }
     return;
 }
+handlers.VerifyBasicBundle = function (args) {
+    const BUNDLE_ID = "BUNDLE_BASIC";
+
+    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId }).Inventory; //ItemInstance[]
+    for (let i = 0; i < inventory.length; i++) {
+        const itemInstance = inventory[i];
+        if (itemInstance.ItemId == BUNDLE_ID) {
+            log.debug("Player already received the bundle.")
+            return;
+        }
+    }
+    server.GrantItemsToUser({ ItemIds: [BUNDLE_ID], PlayFabId: currentPlayerId });
+
+    return;
+}
