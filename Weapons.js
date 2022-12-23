@@ -148,7 +148,7 @@ handlers.WeaponInstantUpgrade = function (args) {
     const json = server.GetTitleData({ Keys: ["upgradeCost"] }).Data.upgradeCost;
     const cost = JSON.parse(json);
 
-    const tachyonCost = (cost[weapon.CustomData.Level].time / 60) * 10;
+    const tachyonCost = cost[weapon.CustomData.Level].tachyon;
     log.debug("Tachyon cost: " + tachyonCost);
 
     if (playerTachyon < tachyonCost) {
