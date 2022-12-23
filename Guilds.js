@@ -88,7 +88,7 @@ handlers.CheckExpirationForWarAttack = function (args) {
             warAttack.successful = false;
             warAttack.participants = [];
             warAttack.leader = "";
-            warAttack.guildId = "";
+            warAttack.defenderGuildId = "";
             warAttack.deaths = [];
             warAttack.date = new Date(1999, 1, 1).toUTCString();
         }
