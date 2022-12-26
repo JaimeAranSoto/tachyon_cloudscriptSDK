@@ -645,7 +645,8 @@ handlers.AssignRegionGuild = function (args) {
     const allGuilds = JSON.parse(titleData);
 
     const guildsFromRegion = [];
-    for (let i = 0; i < allGuilds.length; i++) {
+
+    for (let i = allGuilds.length - 1; i >= 0; i--) {
         const guildId = allGuilds[i];
         const guildObjects = GetGuildObjects(guildId);
 
