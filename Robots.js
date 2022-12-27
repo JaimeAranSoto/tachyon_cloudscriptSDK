@@ -71,6 +71,30 @@ handlers.RobotStandardUpgrade = function (args) {
         return -3; //Robot is currently upgrading!
     }
 
+    var inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
+
+    const QUASAR = "QS";
+    const YELLOW_ROCKS = "YR";
+    var quasar = inventoryResult.VirtualCurrency[QUASAR];
+    var rocks = inventoryResult.VirtualCurrency[YELLOW_ROCKS];
+
+    var json = server.GetTitleData({ Keys: ["robotUpgradeCost"] }).Data.robotUpgradeCost;
+    var cost = JSON.parse(json);
+
+    var quasarCost = cost[weapon.CustomData.Level].quasar;
+    log.debug("Quasar cost: " + quasarCost);
+    var rocksCost = cost[weapon.CustomData.Level].rocks;
+    log.debug("Rocks cost: " + rocksCost);
+
+    if (quasar < quasarCost) {
+        log.debug("User has not enough Quasar");
+        return -2;
+    }
+    if (rocks < rocksCost) {
+        log.debug("User has not enough Rocks");
+        return -1;
+    }
+
     server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: args.robotInstanceId, Data: { UpgradeTimeStamp: Date.now() } });
 
     handlers.UpdateRobotStandardUpgrade({ robotInstanceId: args.robotInstanceId });
@@ -111,7 +135,7 @@ handlers.UpdateRobotStandardUpgrade = function (args) {
             UpgradeRobot(robotInstanceId, currentPlayerId);
             log.debug("Enough time has passed, the robot will be upgraded!");
             server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: robotInstanceId, Data: { UpgradeTimeStamp: -1 } });
-        }else{
+        } else {
             log.debug("Not enough time has passed, the robot will not be upgraded yet!");
         }
 
