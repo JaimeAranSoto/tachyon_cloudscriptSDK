@@ -31,7 +31,7 @@ handlers.RobotInstantUpgrade = function (args) {
     var isCurrentlyUpdating = robot.CustomData.UpgradeTimeStamp !== undefined && robot.CustomData.UpgradeTimeStamp != -1;
 
     if (!isCurrentlyUpdating) {
-        //return -1; //Robot is not currently upgrading!
+        return -1; //Robot is not currently upgrading!
     }
 
     const inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });

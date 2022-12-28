@@ -137,7 +137,7 @@ handlers.WeaponInstantUpgrade = function (args) {
     var isCurrentlyUpdating = weapon.CustomData.UpgradeTimeStamp !== undefined && weapon.CustomData.UpgradeTimeStamp != -1;
 
     if (!isCurrentlyUpdating) {
-        //return -1; //Weapon is not currently upgrading!
+        return -1; //Weapon is not currently upgrading!
     }
 
     const inventoryResult = server.GetUserInventory({ PlayFabId: currentPlayerId });
