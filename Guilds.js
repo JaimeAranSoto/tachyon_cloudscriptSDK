@@ -616,14 +616,14 @@ handlers.AssignRandomGuild = function (args) {
         return;
     }
 
-    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
-    const allGuilds = JSON.parse(titleData);
+    const publicGuilds = server.GetTitleData({ Keys: "publicGuilds" }).Data.publicGuilds;
+    const allGuilds = JSON.parse(publicGuilds);
     var max = allGuilds.length;
     var chosenGuild = Math.floor(Math.random() * max);
     log.debug("Total guild: " + allGuilds.length);
-    log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild]);
+    log.debug("Chosen guild[" + chosenGuild + "]:", allGuilds[chosenGuild].id);
 
-    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild], Type: "group" }, Members: [myEntity], RoleId: "members" });
+    entity.AddMembers({ Group: { Id: allGuilds[chosenGuild].id, Type: "group" }, Members: [myEntity], RoleId: "members" });
 }
 
 handlers.AssignRegionGuild = function (args) {
@@ -641,17 +641,14 @@ handlers.AssignRegionGuild = function (args) {
         entity.RemoveMembers({ Group: myGuild, Members: [myEntityKey] });
     }
 
-    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
-    const allGuilds = JSON.parse(titleData);
+    const publicGuilds = server.GetTitleData({ Keys: "publicGuilds" }).Data.publicGuilds;
+    const allGuilds = JSON.parse(publicGuilds);
 
     const guildsFromRegion = [];
 
     for (let i = allGuilds.length - 1; i >= 0; i--) {
-        const guildId = allGuilds[i];
-        const guildObjects = GetGuildObjects(guildId);
-
-        if (guildObjects.stats.DataObject.region == region) {
-            guildsFromRegion.push(guildId);
+        if (allGuilds[i].region == region) {
+            guildsFromRegion.push(allGuilds[i]);
         }
     }
 
@@ -663,25 +660,22 @@ handlers.AssignRegionGuild = function (args) {
         return true;
     }
 
-
-    for (let i = 0; i < guildCount; i++) {
+    for (let i = guildCount - 1; i >= 0; i--) {
         var count = 0;
         const chosenGuild = guildsFromRegion[i];
-        var roles = entity.ListGroupMembers({ Group: { Id: chosenGuild, Type: "group" } }).Members;
+        var roles = entity.ListGroupMembers({ Group: { Id: chosenGuild.id, Type: "group" } }).Members;
         for (let j = 0; j < roles.length; j++) {
             count += Number(roles[j].Members.length);
         }
         if (count >= 10) {
-            if (i != guildCount - 1) {
-                continue;
-            } else {
+            if (i == 0) {
                 CreateGuild(region, myEntityId);
                 log.debug("There is no guild with enough space available in this region. A new guild will be created.");
                 return true;
             }
         } else {
-            log.debug("Player will be added to guild " + chosenGuild + " that has a member count of " + count);
-            entity.AddMembers({ Group: { Id: chosenGuild, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
+            log.debug("Player will be added to guild " + chosenGuild.name + " that has a member count of " + count);
+            entity.AddMembers({ Group: { Id: chosenGuild.id, Type: "group" }, Members: [myEntityKey], RoleId: "members" });
             return true;
         }
     }
@@ -700,12 +694,11 @@ CreateGuild = function (region, admin) {
         "Neutron", "Electron", "Proton", "Lighting", "Void", "Ultimates", "Pulse", "Brave", "Dread Hunters", "Steel", "Hollow",
         "Wolves", "Bears", "Sharks", "Killers", "Legends"];
 
-    const titleData = server.GetTitleData({ Keys: "guilds" }).Data.guilds;
-    const allGuilds = JSON.parse(titleData);
+    const titleData = server.GetTitleData({ Keys: "publicGuilds" }).Data.publicGuilds;
+    const publicGuilds = JSON.parse(titleData);
 
-    for (let i = 0; i < allGuilds.length; i++) {
-        const guildId = allGuilds[i];
-        const guildName = entity.GetGroup({ Group: { Id: guildId, Type: "group" } }).GroupName;
+    for (let i = 0; i < publicGuilds.length; i++) {
+        const guildName = publicGuilds[i].name;
         var index = guildNames.indexOf(guildName);
         guildNames.splice(index, 1);
     }
@@ -717,8 +710,8 @@ CreateGuild = function (region, admin) {
     const guildId = createdGroup.Group.Id;
     log.debug("The id for the new guild is " + guildId);
     GetGuildObjects(guildId, region);
-    allGuilds.push(guildId);
-    server.SetTitleData({ Key: "guilds", Value: JSON.stringify(allGuilds) });
+    publicGuilds.push({ id: guildId, name: chosenName, region: region });
+    server.SetTitleData({ Key: "publicGuilds", Value: JSON.stringify(publicGuilds) });
     log.debug("Guild was created and added to list of public guilds");
 }
 
