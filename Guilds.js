@@ -536,7 +536,7 @@ GetGuildObjects = function (guildId, defaultRegion = "sa") {
     //Verify data integrity!
     if (myGuildObjects.stats == null || myGuildObjects.stats.DataObject == null) {
         var planetNames = server.GetTitleData({ Keys: ["planetNames"] }).Data.planetNames;
-        planetNames = JSON.parse(config);
+        planetNames = JSON.parse(planetNames);
         var index = Math.floor(Math.random() * planetNames.length);
         const chosenPlanet = planetNames[index];
 
